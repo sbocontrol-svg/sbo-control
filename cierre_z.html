@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cierre Z - S. B. O. Control</title>
+  <style>
+    :root {
+      --primary-color: #000000;
+      --font-scale: 15px; /* Tamaño base dinámico de referencia */
+    }
+    html { font-size: var(--font-scale); }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; margin: 0; padding: 10px; color: #1f2937; min-height: 100vh; display: flex; justify-content: center; align-items: center;}
+    
+    .container { width: 100%; max-width: 480px; }
+    .card { background: white; padding: 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 0; }
+    
+    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-volver:active { transform: scale(0.96); }
+
+    .brand-header { text-align: center; border-bottom: 1px dashed #e5e7eb; padding-bottom: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .brand-info-left { text-align: left; }
+    .brand-name { font-size: 1.25rem; font-weight: 800; color: var(--primary-color); margin: 0; }
+    .brand-slogan { font-size: 0.8rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .brand-subtitulo { font-size: 0.9rem; font-weight: 700; color: #1e293b; text-transform: uppercase; }
+
+    .report-section { background: #f8fafc; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+    .report-title { font-size: 0.85rem; font-weight: 700; color: #334155; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .report-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin: 4px 0; color: #4b5563; }
+    .report-value { font-weight: bold; color: var(--primary-color); }
+    .report-total { font-size: 1rem; font-weight: 800; color: var(--primary-color); border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px; text-align: right;}
+
+    .btn-main { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(2,132,199,0.2); }
+    .btn-confirmar { background: #b91c1c; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 8px; cursor: pointer; box-shadow: 0 3px 8px rgba(185,28,28,0.2); transition: all 0.2s;}
+    .btn-confirmar:active { transform: scale(0.98); background: #991b1b; }
+
+    .app-footer { text-align: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; font-size: 0.75rem; color: #9ca3af; line-height: 1.3; }
+
+    @media print {
+      body { background: white; padding: 0; color: black; display: block; }
+      .container { max-width: none; box-shadow: none;}
+      .card { box-shadow: none; padding: 0; }
+      .btn-volver, .btn-confirmar, .btn-main, .app-footer { display: none !important; }
+      .report-section { border: none; background: white; padding: 0; margin-bottom: 8px; }
+      .report-title { border-bottom: 1px solid black; color: black; }
+      .report-total { border-top: 1px solid black; color: black; }
+      .report-value { color: black; }
+      .brand-header { border-bottom: 1px solid black; padding-bottom: 5px; margin-bottom: 8px; }
+      .brand-name, .brand-slogan, .brand-subtitulo { color: black; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <div class="brand-header">
+        <div class="brand-info-left">
+          <h1 class="brand-name" id="lblNombreEmpresa">S. B. O. Control</h1>
+          <div class="brand-subtitulo">Cierre Z</div>
+          <div id="lblFechaCierre" style="font-size: 0.75rem; font-weight: bold; color: #334155;">Fecha: -</div>
+        </div>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+      </div>
+
+      <!-- REPORTE DE VENTAS -->
+      <div class="report-section">
+        <div class="report-title">📊 Resumen de Ventas del Día</div>
+        <div id="listaVentasDia"></div>
+        <div class="report-total" id="lblTotalVentasDia">Total Ventas: $0</div>
+      </div>
+
+      <!-- REPORTE DE CAJA CHICA -->
+      <div class="report-section">
+        <div class="report-title">💵 Movimientos de Caja Chica (Día)</div>
+        <div class="report-row"><span>Ingresos / Fondo:</span> <span class="report-value" id="lblCajaIngresos">$0</span></div>
+        <div class="report-row"><span>Egresos / Gastos:</span> <span class="report-value" id="lblCajaEgresos" style="color:#b91c1c;">$0</span></div>
+        <div class="report-total" id="lblSaldoCajaChica">Saldo Caja Chica: $0</div>
+      </div>
+
+      <!-- ARQUEO DE EFECTIVO -->
+      <div class="report-section" style="background: #f1f5f9; border-color: #cbd5e1;">
+        <div class="report-title">💰 Arqueo de Efectivo en Caja</div>
+        <div class="report-row"><span>Ventas en Efectivo:</span> <span class="report-value" id="lblEfectivoVentas">$0</span></div>
+        <div class="report-row"><span>Saldo Neto Caja Chica:</span> <span class="report-value" id="lblEfectivoCajaChica">$0</span></div>
+        <div class="report-total" id="lblTotalEfectivoEnCaja" style="color:#0f172a;">Total Efectivo Esperado: $0</div>
+      </div>
+
+      <!-- RECAUDACIÓN MENSUAL -->
+      <div class="report-section">
+        <div class="report-title">🗓️ Recaudación Acumulada del Mes</div>
+        <div class="report-row">
+            <span>Total Mes (<span id="lblNombreMes">--</span>):</span>
+            <span class="report-value" id="lblTotalMensual">$0</span>
+        </div>
+      </div>
+
+      <!-- ESTADO DEL STOCK -->
+      <div class="report-section">
+        <div class="report-title">📦 Estado del Inventario (Stock)</div>
+        <div class="report-row">
+            <span>Total Unidades en Stock:</span>
+            <span class="report-value" id="lblTotalProductos">0 un.</span>
+        </div>
+        <div class="report-row">
+            <span>Valorización del Stock:</span>
+            <span class="report-value" id="lblValorStock">$0</span>
+        </div>
+      </div>
+
+      <button class="btn-main" onclick="window.print()">🖨️ Imprimir / Guardar Cierre Z (PDF)</button>
+      <button class="btn-confirmar" onclick="ejecutarCierreZ()">🔒 Confirmar Cierre Z y Blanquear Jornada</button>
+
+      <div class="app-footer">
+        S. B. O. Control™ © 2026 - Todos los derechos reservados
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
+    let ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
+    let stock = JSON.parse(localStorage.getItem('sbo_stock')) || [];
+    let cajaChica = JSON.parse(localStorage.getItem('sbo_cajachica')) || JSON.parse(localStorage.getItem('sbo_caja')) || [];
+
+    function formatearFecha(fechaStr) {
+      if (!fechaStr) return '';
+      const partes = fechaStr.split('-');
+      if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      return fechaStr;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('lblFechaCierre').innerText = `Fecha: ${formatearFecha(fechaSesion)}`;
+      calcularReportes();
+    });
+
+    function calcularReportes() {
+      // 1. VENTAS DEL DÍA
+      const ventasDia = ventas.filter(v => v.fecha === fechaSesion);
+      let totalVentasDia = 0;
+      let efectivoVentas = 0;
+      let porMetodo = {};
+
+      ventasDia.forEach(v => {
+        totalVentasDia += v.total || 0;
+        if (v.pago && v.pago.toLowerCase().includes('efectivo')) {
+          efectivoVentas += v.total || 0;
+        }
+        porMetodo[v.pago] = (porMetodo[v.pago] || 0) + (v.total || 0);
+      });
+
+      let htmlVentas = '';
+      for (let metodo in porMetodo) {
+        htmlVentas += `<div class="report-row"><span>${metodo}:</span> <span class="report-value">$${porMetodo[metodo].toLocaleString('es-AR')}</span></div>`;
+      }
+      if (ventasDia.length === 0) {
+        htmlVentas = '<div class="report-row" style="color:#9ca3af; font-style:italic;">No se registraron ventas en esta fecha.</div>';
+      }
+      document.getElementById('listaVentasDia').innerHTML = htmlVentas;
+      document.getElementById('lblTotalVentasDia').innerText = `Total Ventas: $${totalVentasDia.toLocaleString('es-AR')}`;
+      document.getElementById('lblEfectivoVentas').innerText = `$${efectivoVentas.toLocaleString('es-AR')}`;
+
+      // 2. CAJA CHICA DEL DÍA
+      const cajaDia = cajaChica.filter(c => c.fecha === fechaSesion);
+      let ingresosCaja = 0;
+      let egresosCaja = 0;
+
+      cajaDia.forEach(c => {
+        const monto = parseFloat(c.monto || c.importe || 0);
+        const tipo = (c.tipo || '').toLowerCase();
+        if (tipo.includes('ingreso') || tipo.includes('fondo') || tipo.includes('entrada')) {
+          ingresosCaja += monto;
+        } else if (tipo.includes('egreso') || tipo.includes('gasto') || tipo.includes('salida')) {
+          egresosCaja += monto;
+        } else {
+          if (monto >= 0) ingresosCaja += monto;
+          else egresosCaja += Math.abs(monto);
+        }
+      });
+      let saldoCajaChica = ingresosCaja - egresosCaja;
+
+      document.getElementById('lblCajaIngresos').innerText = `$${ingresosCaja.toLocaleString('es-AR')}`;
+      document.getElementById('lblCajaEgresos').innerText = `-$${egresosCaja.toLocaleString('es-AR')}`;
+      document.getElementById('lblSaldoCajaChica').innerText = `Saldo Caja Chica: $${saldoCajaChica.toLocaleString('es-AR')}`;
+      document.getElementById('lblEfectivoCajaChica').innerText = `$${saldoCajaChica.toLocaleString('es-AR')}`;
+
+      // 3. TOTAL EFECTIVO EN CAJA
+      let totalEfectivoEnCaja = efectivoVentas + saldoCajaChica;
+      document.getElementById('lblTotalEfectivoEnCaja').innerText = `Total Efectivo Esperado: $${totalEfectivoEnCaja.toLocaleString('es-AR')}`;
+
+      // 4. RECAUDACIÓN MENSUAL
+      const [anioSesion, mesSesion] = fechaSesion.split('-');
+      let totalMes = 0;
+      ventas.forEach(v => {
+        if (v.fecha) {
+          const [aV, mV] = v.fecha.split('-');
+          if (aV === anioSesion && mV === mesSesion) {
+            totalMes += v.total || 0;
+          }
+        }
+      });
+
+      const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      const nombreMesActual = mesSesion ? nombresMeses[parseInt(mesSesion, 10) - 1] : '';
+      document.getElementById('lblNombreMes').innerText = `${nombreMesActual} ${anioSesion}`;
+      document.getElementById('lblTotalMensual').innerText = `$${totalMes.toLocaleString('es-AR')}`;
+
+      // 5. ESTADO DEL STOCK
+      let totalUnidades = 0;
+      let valorStock = 0;
+      stock.forEach(p => {
+        const cant = parseInt(p.cantidad !== undefined ? p.cantidad : (p.stock || 0), 10);
+        const precio = parseFloat(p.precio || 0);
+        totalUnidades += cant;
+        valorStock += cant * precio;
+      });
+      document.getElementById('lblTotalProductos').innerText = `${totalUnidades.toLocaleString('es-AR')} un.`;
+      document.getElementById('lblValorStock').innerText = `$${valorStock.toLocaleString('es-AR')}`;
+    }
+
+    function ejecutarCierreZ() {
+      if (!confirm('⚠️ ¿Estás seguro de realizar el Cierre Z?\n\nEsta acción eliminará los registros de ventas y movimientos de caja chica correspondientes a la fecha actual para dejar la jornada en cero. El stock y el historial mensual se mantienen intactos.')) {
+        return;
+      }
+
+      const ventasRestantes = ventas.filter(v => v.fecha !== fechaSesion);
+      localStorage.setItem('sbo_ventas', JSON.stringify(ventasRestantes));
+
+      const cajaRestante = cajaChica.filter(c => c.fecha !== fechaSesion);
+      localStorage.setItem('sbo_cajachica', JSON.stringify(cajaRestante));
+      localStorage.setItem('sbo_caja', JSON.stringify(cajaRestante));
+
+      alert('✅ ¡Cierre Z realizado con éxito!\n\nLa jornada ha quedado en cero y lista para el próximo día de trabajo.');
+      window.location.href = 'menu.html';
+    }
+  </script>
+</body>
+</html>

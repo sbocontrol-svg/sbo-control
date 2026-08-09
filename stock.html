@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock - S. B. O. Control</title>
+
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <style>
+    :root {
+      --primary-color: #059669;
+      --font-scale: 15px;
+    }
+    html { font-size: var(--font-scale); }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; margin: 0; padding: 12px; color: #1f2937; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    
+    .container { width: 100%; max-width: 440px; }
+    .card { background: white; padding: 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+    
+    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .btn-volver { background: #64748b; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; text-decoration: none; }
+    .btn-volver:active { transform: scale(0.96); }
+
+    h1 { font-size: 1.15rem; font-weight: 800; color: var(--primary-color); margin: 0; }
+    .fecha-sesion { font-size: 0.72rem; color: #64748b; font-weight: 600; margin-top: 2px; }
+
+    label { font-size: 0.72rem; font-weight: 700; color: #4b5563; display: block; margin-top: 10px; text-align: left; }
+    input, select { width: 100%; padding: 9px 10px; margin-top: 4px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.88rem; }
+    
+    .btn-accion { background: var(--primary-color); color: white; border: none; padding: 11px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.88rem; margin-top: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(5,150,105,0.2); }
+    .btn-accion:active { transform: scale(0.98); }
+
+    .btn-cancelar { background: #94a3b8; color: white; border: none; padding: 9px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.82rem; margin-top: 8px; cursor: pointer; display: none; }
+    .btn-cancelar:active { transform: scale(0.98); }
+
+    .btn-registros { background: #475569; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.85rem; margin-top: 8px; cursor: pointer; box-shadow: 0 3px 8px rgba(71,85,105,0.2); transition: background 0.2s; }
+    .btn-registros:active { transform: scale(0.98); }
+
+    .btn-print { background: #3b82f6; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; margin-top: 8px; box-shadow: 0 3px 8px rgba(59,130,246,0.2); flex-shrink: 0; }
+    .btn-print:active { transform: scale(0.98); }
+
+    .btn-calc-link { background: #0284c7; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
+    .btn-calc-link:active { transform: scale(0.96); }
+
+    /* MODAL INVENTARIO ESTILOS CON SCROLL INTERNO FIJO */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .modal-overlay.active { display: flex; }
+    
+    .modal-container { background: white; width: 100%; max-width: 360px; border-radius: 14px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 80vh; display: flex; flex-direction: column; }
+    
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px; flex-shrink: 0; }
+    .modal-header h3 { font-size: 0.9rem; color: var(--primary-color); font-weight: 700; margin: 0; }
+    .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    
+    .lista-stock-modal { 
+      margin-top: 4px; 
+      margin-bottom: 8px;
+      max-height: 260px; 
+      overflow-y: auto; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px; 
+      padding-right: 6px;
+      flex-shrink: 1;
+    }
+
+    .lista-stock-modal::-webkit-scrollbar { width: 6px; }
+    .lista-stock-modal::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    .lista-stock-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .lista-stock-modal::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .stock-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.8rem; flex-shrink: 0; }
+    .stock-info { display: flex; flex-direction: column; }
+    .stock-producto { font-weight: bold; color: #1e293b; }
+    .stock-detalles { font-size: 0.7rem; color: #64748b; }
+    .stock-cantidad { font-weight: bold; font-size: 0.88rem; color: var(--primary-color); }
+    
+    .acciones-item { display: flex; align-items: center; gap: 4px; }
+    .btn-editar-item { background: none; border: none; color: #3b82f6; font-size: 0.85rem; cursor: pointer; padding: 2px; }
+    .btn-borrar-item { background: none; border: none; color: #ef4444; font-size: 0.85rem; cursor: pointer; padding: 2px; }
+
+    .btn-cerrar-gris { background: #64748b; color: white; border: none; padding: 9px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; text-align: center; flex-shrink: 0; margin-top: 6px; }
+    .btn-cerrar-gris:active { transform: scale(0.98); }
+
+    /* MODAL CALCULADORA */
+    .modal-calc { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 12px; }
+    .calc-card { background: white; padding: 14px; border-radius: 14px; max-width: 360px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .calc-row { display: flex; gap: 6px; margin-top: 5px; align-items: center; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      body { background: white; padding: 0; color: black; display: block; }
+      .container { max-width: 100%; }
+      .card { box-shadow: none; border: 1px solid #cbd5e1; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- FORMULARIO DE CARGA PRINCIPAL -->
+    <div class="card no-print">
+      <div class="header-flex">
+        <div>
+          <h1>📦 Control de Stock</h1>
+          <div id="lblFechaTrabajo" class="fecha-sesion">Fecha: -</div>
+        </div>
+        <a href="menu.html" class="btn-volver">Volver</a>
+      </div>
+
+      <label>Nombre del Producto / Artículo:</label>
+      <input type="text" id="txtProducto" placeholder="Ej: Denario, Pulsera Corazón...">
+
+      <label>Cantidad:</label>
+      <input type="number" id="txtCantidad" placeholder="0" min="1" step="1">
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px;">
+        <label style="margin-top:0;">Precio de Venta ($):</label>
+        <button type="button" class="btn-calc-link" onclick="abrirCalculadora()">🧮 Calcular Precio</button>
+      </div>
+      <input type="number" id="txtPrecio" placeholder="0.00" step="0.01">
+
+      <button class="btn-accion" id="btnAccion" onclick="guardarProducto()">➕ Agregar al Stock</button>
+      <button class="btn-cancelar" id="btnCancelar" onclick="cancelarEdicion()">❌ Cancelar Edición</button>
+      
+      <button class="btn-registros" id="btnAbrirModalStock">📋 Ver Inventario Actual</button>
+    </div>
+  </div>
+
+  <!-- Modal Inventario Actual -->
+  <div class="modal-overlay" id="modal-stock">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>📋 Inventario Actual</h3>
+        <button class="modal-close-btn" id="btnCerrarModalStockX">✕</button>
+      </div>
+
+      <div id="listaStock" class="lista-stock-modal">
+        <div style="text-align: center; color: #94a3b8; font-size: 0.75rem; padding: 12px;">No hay productos en stock.</div>
+      </div>
+
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar Inventario</button>
+      <button class="btn-cerrar-gris" id="btnCerrarModalStockGris">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- MODAL CALCULADORA DE COSTOS -->
+  <div id="modalCalculadora" class="modal-calc">
+    <div class="calc-card">
+      <h3 style="margin: 0 0 2px; font-size: 1.05rem; color: var(--primary-color);">🧮 Calculadora de Costos</h3>
+      <p style="font-size: 0.75rem; color: #64748b; margin: 0 0 10px;">Insumos, valor hora y tiempo de elaboración.</p>
+
+      <label style="font-weight: bold; color: #334155; font-size: 0.72rem;">Materia Prima e Insumos:</label>
+      
+      <div class="calc-row">
+        <input type="text" id="mat1_desc" placeholder="Material 1" style="flex: 2; margin-top:0;">
+        <input type="number" id="mat1_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
+      </div>
+      <div class="calc-row">
+        <input type="text" id="mat2_desc" placeholder="Material 2" style="flex: 2; margin-top:0;">
+        <input type="number" id="mat2_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
+      </div>
+      <div class="calc-row">
+        <input type="text" id="mat3_desc" placeholder="Material 3" style="flex: 2; margin-top:0;">
+        <input type="number" id="mat3_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
+      </div>
+      <div class="calc-row">
+        <input type="text" id="mat4_desc" placeholder="Material 4" style="flex: 2; margin-top:0;">
+        <input type="number" id="mat4_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
+      </div>
+
+      <label style="font-weight: bold; color: #334155; margin-top: 10px; font-size: 0.72rem;">Mano de Obra:</label>
+      <div class="calc-row">
+        <div style="flex: 1;">
+          <label style="font-size: 0.6rem; margin-top: 0;">Valor Hora ($):</label>
+          <input type="number" id="calcValorHora" value="10000" placeholder="0.00" step="100" style="margin-top:0;" oninput="calcularTotalModal()">
+        </div>
+        <div style="flex: 1;">
+          <label style="font-size: 0.6rem; margin-top: 0;">Minutos:</label>
+          <input type="number" id="calcMinutos" placeholder="Ej: 25" step="1" style="margin-top:0;" oninput="calcularTotalModal()">
+        </div>
+      </div>
+      <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px; text-align: right;">
+        Costo tiempo: $<span id="lblCostoManoObra">0.00</span>
+      </div>
+
+      <label style="font-weight: bold; color: #334155; margin-top: 8px; font-size: 0.72rem;">Margen de Ganancia:</label>
+      <div class="calc-row">
+        <input type="number" id="calcGanancia" placeholder="Ej: 50" value="50" step="1" style="margin-top:0;" oninput="calcularTotalModal()">
+        <span style="font-size: 0.85rem; font-weight: bold; color: #4b5563;">%</span>
+      </div>
+
+      <div style="background: #f1f5f9; padding: 10px; border-radius: 6px; margin-top: 10px; text-align: right;">
+        <div style="font-size: 0.75rem; color: #64748b;">Costo Total: $<span id="lblCostoTotal">0.00</span></div>
+        <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-color); margin-top: 2px;">Precio Sugerido: $<span id="lblPrecioFinal">0.00</span></div>
+      </div>
+
+      <button class="btn-accion" style="margin-top: 10px;" onclick="aplicarPrecioCalculado()">✅ Usar este Precio</button>
+      <button class="btn-cancelar" style="display: block; margin-top: 6px; background: #64748b;" onclick="cerrarCalculadora()">❌ Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
+
+    function formatearFecha(fechaStr) {
+      if (!fechaStr) return '';
+      const partes = fechaStr.split('-');
+      if (partes.length === 3) {
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      }
+      return fechaStr;
+    }
+
+    const fechaFormateada = formatearFecha(fechaSesion);
+    document.getElementById('lblFechaTrabajo').innerText = `Fecha: ${fechaFormateada}`;
+
+    let inventario = [];
+    let editandoIndex = null;
+
+    try {
+      const guardados = localStorage.getItem('sbo_stock');
+      if (guardados) inventario = JSON.parse(guardados);
+    } catch (e) {
+      inventario = [];
+    }
+
+    function actualizarPantalla() {
+      const listaContainer = document.getElementById('listaStock');
+      listaContainer.innerHTML = '';
+
+      if (inventario.length === 0) {
+        listaContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; font-size: 0.75rem; padding: 12px;">No hay productos en stock.</div>';
+      } else {
+        inventario.forEach((p, index) => {
+          const item = document.createElement('div');
+          item.className = 'stock-item';
+          item.innerHTML = `
+            <div class="stock-info">
+              <span class="stock-producto">${p.producto}</span>
+              <span class="stock-detalles">Precio: $${Number(p.precio || 0).toFixed(2)}</span>
+            </div>
+            <div class="acciones-item">
+              <span class="stock-cantidad">${p.cantidad} un.</span>
+              <div class="no-print" style="display:flex; gap:4px;">
+                <button class="btn-editar-item" onclick="cargarParaEditar(${index})" title="Editar">✏️</button>
+                <button class="btn-borrar-item" onclick="eliminarProducto(${index})" title="Eliminar">❌</button>
+              </div>
+            </div>
+          `;
+          listaContainer.appendChild(item);
+        });
+      }
+    }
+
+    function guardarProducto() {
+      const producto = document.getElementById('txtProducto').value.trim();
+      const cantidad = parseInt(document.getElementById('txtCantidad').value);
+      const precio = parseFloat(document.getElementById('txtPrecio').value) || 0;
+
+      if (!producto) return alert('Por favor, ingresá el nombre del producto.');
+      if (isNaN(cantidad) || cantidad <= 0) return alert('Por favor, ingresá una cantidad válida.');
+
+      if (editandoIndex !== null) {
+        inventario[editandoIndex] = { ...inventario[editandoIndex], producto, cantidad, precio, fecha: inventario[editandoIndex].fecha || fechaSesion };
+        alert('¡Producto actualizado con éxito!');
+        cancelarEdicion();
+      } else {
+        inventario.push({ producto, cantidad, precio, fecha: fechaSesion });
+        limpiarFormulario();
+      }
+
+      guardarYActualizar();
+    }
+
+    function cargarParaEditar(index) {
+      const p = inventario[index];
+      document.getElementById('txtProducto').value = p.producto;
+      document.getElementById('txtCantidad').value = p.cantidad;
+      document.getElementById('txtPrecio').value = p.precio;
+
+      editandoIndex = index;
+      document.getElementById('btnAccion').innerText = '💾 Guardar Cambios';
+      document.getElementById('btnAccion').style.backgroundColor = '#3b82f6';
+      document.getElementById('btnCancelar').style.display = 'block';
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('txtProducto').focus();
+    }
+
+    function cancelarEdicion() {
+      editandoIndex = null;
+      document.getElementById('btnAccion').innerText = '➕ Agregar al Stock';
+      document.getElementById('btnAccion').style.backgroundColor = 'var(--primary-color)';
+      document.getElementById('btnCancelar').style.display = 'none';
+      limpiarFormulario();
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('txtProducto').value = '';
+      document.getElementById('txtCantidad').value = '';
+      document.getElementById('txtPrecio').value = '';
+    }
+
+    function eliminarProducto(index) {
+      if (confirm('¿Querés eliminar este producto del stock?')) {
+        if (editandoIndex === index) {
+          cancelarEdicion();
+        } else if (editandoIndex !== null && editandoIndex > index) {
+          editandoIndex--; 
+        }
+        inventario.splice(index, 1);
+        guardarYActualizar();
+      }
+    }
+
+    function guardarYActualizar() {
+      localStorage.setItem('sbo_stock', JSON.stringify(inventario));
+      actualizarPantalla();
+    }
+
+    /* CALCULADORA DE COSTOS */
+    function abrirCalculadora() {
+      document.getElementById('modalCalculadora').style.display = 'flex';
+      calcularTotalModal();
+    }
+
+    function cerrarCalculadora() {
+      document.getElementById('modalCalculadora').style.display = 'none';
+      resetearCalculadora();
+    }
+
+    function resetearCalculadora() {
+      document.getElementById('mat1_desc').value = '';
+      document.getElementById('mat1_val').value = '';
+      document.getElementById('mat2_desc').value = '';
+      document.getElementById('mat2_val').value = '';
+      document.getElementById('mat3_desc').value = '';
+      document.getElementById('mat3_val').value = '';
+      document.getElementById('mat4_desc').value = '';
+      document.getElementById('mat4_val').value = '';
+
+      document.getElementById('calcValorHora').value = '10000';
+      document.getElementById('calcMinutos').value = '';
+      document.getElementById('calcGanancia').value = '50';
+
+      document.getElementById('lblCostoManoObra').innerText = '0.00';
+      document.getElementById('lblCostoTotal').innerText = '0.00';
+      document.getElementById('lblPrecioFinal').innerText = '0.00';
+    }
+
+    function calcularTotalModal() {
+      const m1 = parseFloat(document.getElementById('mat1_val').value) || 0;
+      const m2 = parseFloat(document.getElementById('mat2_val').value) || 0;
+      const m3 = parseFloat(document.getElementById('mat3_val').value) || 0;
+      const m4 = parseFloat(document.getElementById('mat4_val').value) || 0;
+
+      const valorHora = parseFloat(document.getElementById('calcValorHora').value) || 0;
+      const minutos = parseFloat(document.getElementById('calcMinutos').value) || 0;
+      
+      const costoManoObra = (minutos / 60) * valorHora;
+      const gananciaPct = parseFloat(document.getElementById('calcGanancia').value) || 0;
+
+      const costoTotalInsumos = m1 + m2 + m3 + m4;
+      const costoTotal = costoTotalInsumos + costoManoObra;
+      const precioFinal = costoTotal * (1 + (gananciaPct / 100));
+
+      document.getElementById('lblCostoManoObra').innerText = costoManoObra.toFixed(2);
+      document.getElementById('lblCostoTotal').innerText = costoTotal.toFixed(2);
+      document.getElementById('lblPrecioFinal').innerText = precioFinal.toFixed(2);
+    }
+
+    function aplicarPrecioCalculado() {
+      const precioFinal = document.getElementById('lblPrecioFinal').innerText;
+      document.getElementById('txtPrecio').value = precioFinal;
+      document.getElementById('modalCalculadora').style.display = 'none';
+      resetearCalculadora();
+    }
+
+    /* CONTROL DE MODAL INVENTARIO */
+    const modalStock = document.getElementById('modal-stock');
+    document.getElementById('btnAbrirModalStock').addEventListener('click', () => modalStock.classList.add('active'));
+    document.getElementById('btnCerrarModalStockX').addEventListener('click', () => modalStock.classList.remove('active'));
+    document.getElementById('btnCerrarModalStockGris').addEventListener('click', () => modalStock.classList.remove('active'));
+    modalStock.addEventListener('click', (e) => { if (e.target === modalStock) modalStock.classList.remove('active'); });
+
+    actualizarPantalla();
+  </script>
+</body>
+</html>

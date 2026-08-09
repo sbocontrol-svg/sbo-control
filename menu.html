@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.B.O. Control - Menú</title>
+    <style>
+        :root {
+            --primary-color: #00796b;
+            --primary-light: #e0f2f1;
+            --font-scale: 15px;
+        }
+        html { font-size: var(--font-scale); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #0d1b2a; color: #333; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .brand h1 { font-size: 1.3rem; color: var(--primary-color); font-weight: 700; }
+        .brand p { font-size: 0.8rem; color: #666; }
+        .logo-img { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; border: 1px solid #ddd; }
+        .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .fecha-trabajo { font-size: 0.85rem; color: #333; font-weight: 700; background-color: var(--primary-light); padding: 5px 10px; border-radius: 8px; }
+        
+        /* Subtítulo ancho completo */
+        .header-subtitle { width: 100%; font-size: 0.9rem; color: #000; font-weight: bold; text-align: center; margin-bottom: 12px; }
+
+        /* Licencia */
+        .licencia { background-color: #e8f5e9; color: #2e7d32; padding: 10px 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 700; text-align: center; margin-bottom: 12px; border: 1px solid #c8e6c9; transition: all 0.3s ease; }
+        
+        /* Stats & Modal Cards */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .stat-card { background: white; padding: 12px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); text-align: center; border: 1px solid #eee; cursor: pointer; transition: transform 0.1s; }
+        .stat-card:active { transform: scale(0.98); }
+        .stat-title { font-size: 0.78rem; color: #666; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; pointer-events: none; }
+        .stat-value { font-size: 1.3rem; font-weight: 700; color: #2e7d32; pointer-events: none; }
+
+        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; pointer-events: none; }
+        .toggle-icon { font-size: 0.9rem; background: var(--primary-light); color: var(--primary-color); padding: 2px 6px; border-radius: 6px; font-weight: bold; }
+        
+        /* Main Action - Registrar Venta */
+        .main-action { background: white; border: 2px solid #2e7d32; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 10px rgba(46,125,50,0.15); cursor: pointer; text-decoration: none; color: inherit; }
+        .main-action-text h2 { font-size: 1.1rem; color: #2e7d32; font-weight: 700; }
+        .main-action-text p { font-size: 0.8rem; color: #666; }
+
+        /* Grid Menu Compacto (Horizontal) */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .menu-card { background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 6px rgba(0,0,0,0.06); text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; min-height: 60px; cursor: pointer; }
+        .menu-card span.emoji { font-size: 1.6rem; flex-shrink: 0; }
+        .menu-card div { text-align: left; }
+        .menu-card h3 { font-size: 0.9rem; font-weight: 700; color: #333; line-height: 1.2; }
+        .menu-card p { font-size: 0.75rem; color: #666; line-height: 1.2; }
+
+        /* Full width bottom cards */
+        .full-card { background: white; border: 1px solid #bbdefb; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 12px; cursor: pointer; }
+        .full-card h3 { font-size: 0.95rem; font-weight: 700; color: #0d47a1; }
+        .full-card p { font-size: 0.75rem; color: #666; }
+
+        /* Full width Exit Card */
+        .full-card-salir { background: #ffebee; border: 1px solid #ffcdd2; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 12px; transition: background 0.2s; }
+        .full-card-salir:hover { background: #ffcdd2; }
+        .full-card-salir h3 { font-size: 0.95rem; font-weight: 700; color: #c62828; }
+        .full-card-salir p { font-size: 0.75rem; color: #666; }
+
+        /* Footer Zócalo */
+        .footer-zocalo { text-align: center; padding-top: 10px; border-top: 1px solid #eee; font-size: 0.7rem; color: #666; line-height: 1.4; }
+        .footer-zocalo .brand-name { font-weight: 700; color: var(--primary-color); }
+
+        /* Modal Common Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+        .modal-overlay.active { display: flex; }
+        .modal-container { background: white; width: 100%; max-width: 380px; border-radius: 16px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; flex-shrink: 0; }
+        .modal-header h3 { font-size: 1rem; color: var(--primary-color); font-weight: 700; }
+        .modal-desc { font-size: 0.8rem; color: #666; margin-bottom: 10px; flex-shrink: 0; }
+        
+        .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 0.9rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        
+        .modal-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+        .modal-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; font-size: 0.85rem; color: #333; }
+        .modal-row strong { color: var(--primary-color); }
+
+        .btn-volver-menu { background-color: #546e7a; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-align: center; flex-shrink: 0; margin-top: 10px; }
+        .btn-volver-menu:active { transform: scale(0.98); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="brand">
+                <h1>S. B. O. Control</h1>
+                <p>Small Business Owner</p>
+            </div>
+            <img src="logosbo.jpg" alt="Logo" class="logo-img">
+            <div class="header-right">
+                <span class="fecha-trabajo" id="lblFechaMenu">-</span>
+            </div>
+        </div>
+
+        <div class="header-subtitle">
+            Gestión Integral para Emprendedores
+        </div>
+
+        <div class="licencia">
+            🛡️ Verificando licencia...
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" id="card-ventas">
+                <div class="card-header-flex">
+                    <div class="stat-title" style="margin: 0;">Ventas Jornada</div>
+                    <span class="toggle-icon">☰</span>
+                </div>
+                <div class="stat-value" id="valTotalVentas">$0</div>
+            </div>
+
+            <div class="stat-card" id="card-stock">
+                <div class="card-header-flex">
+                    <div class="stat-title" style="margin: 0;">Stock Total</div>
+                    <span class="toggle-icon">☰</span>
+                </div>
+                <div class="stat-value" id="valTotalStock">0 un.</div>
+            </div>
+        </div>
+
+        <a href="ventas.html" class="main-action">
+            <span style="font-size: 1.8rem;">💳</span>
+            <div class="main-action-text">
+                <h2>Registrar Venta</h2>
+                <p>Cargar pedido, carrito y comprobantes</p>
+            </div>
+        </a>
+
+        <div class="menu-grid">
+            <a href="clientes.html" class="menu-card">
+                <span class="emoji">👥</span>
+                <div>
+                    <h3>Clientes</h3>
+                    <p>Directorio y cuentas</p>
+                </div>
+            </a>
+            <a href="stock.html" class="menu-card">
+                <span class="emoji">📦</span>
+                <div>
+                    <h3>Stock</h3>
+                    <p>Inventario y costos</p>
+                </div>
+            </a>
+            <a href="caja_chica.html" class="menu-card">
+                <span class="emoji">💵</span>
+                <div>
+                    <h3>Caja Chica</h3>
+                    <p>Ingresos y gastos</p>
+                </div>
+            </a>
+            <a href="cierre_z.html" class="menu-card">
+                <span class="emoji">📋</span>
+                <div>
+                    <h3>Cierre Z</h3>
+                    <p>Balance de jornada</p>
+                </div>
+            </a>
+            <a href="libro_diario.html" class="menu-card">
+                <span class="emoji">📖</span>
+                <div>
+                    <h3>Libro Diario</h3>
+                    <p>Detalle por día</p>
+                </div>
+            </a>
+            <a href="libro_mensual.html" class="menu-card">
+                <span class="emoji">📊</span>
+                <div>
+                    <h3>Libro Mensual</h3>
+                    <p>KPIs y mes a mes</p>
+                </div>
+            </a>
+        </div>
+
+        <a href="configuracion.html" class="full-card" style="border-color: #b0bec5; background-color: #eceff1;">
+            <span style="font-size: 1.6rem;">⚙️</span>
+            <div>
+                <h3 style="color: #37474f;">Configuración y Ajustes</h3>
+                <p>Datos del ticket, colores, backup y manual</p>
+            </div>
+        </a>
+
+        <a href="index.html" class="full-card-salir">
+            <span style="font-size: 1.6rem;">🚪</span>
+            <div>
+                <h3>Salir al Inicio</h3>
+                <p>Volver a la pantalla principal de la app</p>
+            </div>
+        </a>
+
+        <div class="footer-zocalo">
+            <span class="brand-name">S. B. O. Control™</span><br>
+            Small Business Owner © 2026<br>
+            Todos los derechos reservados - Prohibida su reproducción total o parcial.
+        </div>
+    </div>
+
+    <!-- MODAL VENTAS -->
+    <div class="modal-overlay" id="modal-ventas">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Ventas por Medio de Pago</h3>
+                <button class="modal-close-btn" id="btn-cerrar-ventas">✕</button>
+            </div>
+            <div class="modal-desc">Desglose detallado de lo recaudado en la jornada:</div>
+            <div class="modal-list" id="modalListaVentasDetalle"></div>
+            <button class="btn-volver-menu" onclick="document.getElementById('modal-ventas').classList.remove('active')">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- MODAL STOCK -->
+    <div class="modal-overlay" id="modal-stock">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Stock por Artículo</h3>
+                <button class="modal-close-btn" id="btn-cerrar-stock">✕</button>
+            </div>
+            <div class="modal-desc">Inventario actual discriminado por producto:</div>
+            <div class="modal-list" id="modalListaStockDetalle"></div>
+            <button class="btn-volver-menu" onclick="document.getElementById('modal-stock').classList.remove('active')">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const customColor = localStorage.getItem('sbo_config_color');
+            const customLight = localStorage.getItem('sbo_config_color_light');
+            if (customColor) {
+                document.documentElement.style.setProperty('--primary-color', customColor);
+            }
+            if (customLight) {
+                document.documentElement.style.setProperty('--primary-light', customLight);
+            }
+
+            const fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
+            const partesFecha = fechaSesion.split('-');
+            if (partesFecha.length === 3) {
+                const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                document.getElementById('lblFechaMenu').innerText = `${partesFecha[2]} ${meses[parseInt(partesFecha[1]) - 1]} ${partesFecha[0]}`;
+            }
+
+            // --- CONTROL DE VENCIMIENTO Y ALERTAS DE LICENCIA ---
+            const elemLicencia = document.querySelector('.licencia');
+            const licenciaGuardada = localStorage.getItem('sbo_licenciaNombre') || localStorage.getItem('sbo_licencia') || localStorage.getItem('sbo_tipoLicencia');
+
+            if (licenciaGuardada) {
+                let textoLicencia = licenciaGuardada.replace(/['"]+/g, '');
+                
+                if (textoLicencia.toLowerCase().includes('vida') || textoLicencia.toLowerCase().includes('vitalicia')) {
+                    elemLicencia.innerHTML = `🛡️ "Licencia de por Vida" (Sin Vencimiento)`;
+                    elemLicencia.style.backgroundColor = '#e8f5e9';
+                    elemLicencia.style.color = '#2e7d32';
+                    elemLicencia.style.borderColor = '#c8e6c9';
+                } else {
+                    let fechaActivacion = localStorage.getItem('sbo_fechaActivacion');
+                    if (!fechaActivacion) {
+                        fechaActivacion = new Date().toISOString().split('T')[0];
+                        localStorage.setItem('sbo_fechaActivacion', fechaActivacion);
+                    }
+
+                    const diasPrueba = 15;
+                    const inicio = new Date(fechaActivacion);
+                    const hoy = new Date();
+                    inicio.setHours(0, 0, 0, 0);
+                    hoy.setHours(0, 0, 0, 0);
+                    
+                    const diferenciaTiempo = hoy - inicio;
+                    const diasPasados = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
+                    const diasRestantes = diasPrueba - diasPasados;
+
+                    if (diasRestantes > 5) {
+                        elemLicencia.innerHTML = `🛡️ ${textoLicencia} - Te quedan ${diasRestantes} días`;
+                        elemLicencia.style.backgroundColor = '#e8f5e9';
+                        elemLicencia.style.color = '#2e7d32';
+                        elemLicencia.style.borderColor = '#c8e6c9';
+                    } else if (diasRestantes > 2 && diasRestantes <= 5) {
+                        elemLicencia.innerHTML = `⚠️ ${textoLicencia} - ¡Atención! Te quedan 5 días de licencia`;
+                        elemLicencia.style.backgroundColor = '#fff9c4';
+                        elemLicencia.style.color = '#f57f17';
+                        elemLicencia.style.borderColor = '#fff59d';
+                    } else if (diasRestantes > 0 && diasRestantes <= 2) {
+                        elemLicencia.innerHTML = `⚠️ ${textoLicencia} - ¡Alerta! Te quedan 2 días de licencia`;
+                        elemLicencia.style.backgroundColor = '#ffe0b2';
+                        elemLicencia.style.color = '#e65100';
+                        elemLicencia.style.borderColor = '#ffcc80';
+                    } else {
+                        elemLicencia.innerHTML = `❌ ${textoLicencia} - ¡Licencia Vencida! Renovala`;
+                        elemLicencia.style.backgroundColor = '#ffebee';
+                        elemLicencia.style.color = '#c62828';
+                        elemLicencia.style.borderColor = '#ffcdd2';
+                        
+                        setTimeout(() => {
+                            alert('Tu licencia ha vencido. Te invitamos a comunicarte con soporte para renovarla.');
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    }
+                }
+            } else {
+                elemLicencia.innerHTML = `🛡️ "Licencia de por Vida" (Sin Vencimiento)`;
+            }
+
+            const ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
+            const ventasJornada = ventas.filter(v => v.fecha === fechaSesion);
+
+            let totalVentasJornada = 0;
+            let desglosePagos = {};
+
+            ventasJornada.forEach(v => {
+                totalVentasJornada += v.total || 0;
+                let metodo = v.pago || 'Efectivo';
+                desglosePagos[metodo] = (desglosePagos[metodo] || 0) + (v.total || 0);
+            });
+
+            document.getElementById('valTotalVentas').innerText = `$${totalVentasJornada.toLocaleString('es-AR')}`;
+
+            const contenedorVentasModal = document.getElementById('modalListaVentasDetalle');
+            if (Object.keys(desglosePagos).length === 0) {
+                contenedorVentasModal.innerHTML = '<div style="text-align:center; color:#666; font-size:0.8rem; padding:10px;">No hay ventas registradas.</div>';
+            } else {
+                let htmlVentas = '';
+                for (let [metodo, monto] of Object.entries(desglosePagos)) {
+                    htmlVentas += `<div class="modal-row"><span>${metodo}:</span> <strong>$${monto.toLocaleString('es-AR')}</strong></div>`;
+                }
+                contenedorVentasModal.innerHTML = htmlVentas;
+            }
+
+            const stock = JSON.parse(localStorage.getItem('sbo_stock')) || [];
+            let totalUnidadesStock = 0;
+            let contenedorStockModal = document.getElementById('modalListaStockDetalle');
+            let htmlStock = '';
+
+            if (stock.length === 0) {
+                contenedorStockModal.innerHTML = '<div style="text-align:center; color:#666; font-size:0.8rem; padding:10px;">No hay productos cargados.</div>';
+            } else {
+                stock.forEach(p => {
+                    let cant = p.cantidad !== undefined ? Number(p.cantidad) : (p.stock !== undefined ? Number(p.stock) : 0);
+                    let nombre = p.producto || p.nombre || 'Artículo';
+                    totalUnidadesStock += cant;
+                    htmlStock += `<div class="modal-row"><span>${nombre}:</span> <strong>${cant} un.</strong></div>`;
+                });
+                contenedorStockModal.innerHTML = htmlStock;
+            }
+
+            document.getElementById('valTotalStock').innerText = `${totalUnidadesStock} un.`;
+        });
+
+        const setupModal = (cardId, modalId, closeBtnId) => {
+            const card = document.getElementById(cardId);
+            const modal = document.getElementById(modalId);
+            const closeBtn = document.getElementById(closeBtnId);
+            if(card && modal && closeBtn) {
+                card.addEventListener('click', () => modal.classList.add('active'));
+                closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+                modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+            }
+        };
+
+        setupModal('card-ventas', 'modal-ventas', 'btn-cerrar-ventas');
+        setupModal('card-stock', 'modal-stock', 'btn-cerrar-stock');
+    </script>
+</body>
+</html>

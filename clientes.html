@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes - S. B. O. Control</title>
+
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <style>
+    :root {
+      --primary-color: #059669;
+      --font-scale: 15px; /* Tamaño base dinámico de referencia */
+    }
+    html { font-size: var(--font-scale); }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; margin: 0; padding: 10px; color: #1f2937; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    
+    .container { width: 100%; max-width: 480px; }
+    
+    .card { background: white; padding: 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 0; }
+    
+    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-volver:active { transform: scale(0.96); }
+
+    h2 { font-size: 1.25rem; font-weight: 800; color: var(--primary-color); margin: 0; }
+    .fecha-sesion { font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 2px; }
+
+    label { font-size: 0.85rem; font-weight: 700; color: #4b5563; display: block; margin-top: 8px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    input { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; background: #fafafa; color: #333; outline: none; }
+    input:focus { border-color: var(--primary-color); background: #fff; }
+    
+    .btn-accion { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(5,150,105,0.2); transition: background 0.2s; }
+    .btn-accion:active { transform: scale(0.98); }
+
+    .btn-registros { background: #64748b; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 8px; cursor: pointer; box-shadow: 0 3px 8px rgba(100,116,139,0.2); transition: background 0.2s; }
+    .btn-registros:active { transform: scale(0.98); }
+
+    .btn-cancelar-edicion { background: #64748b; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 8px; cursor: pointer; display: none; }
+    .btn-cancelar-edicion:active { transform: scale(0.98); }
+    
+    .btn-secundario { background: #0284c7; color: white; border: none; padding: 11px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(2,132,199,0.2); display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+    .btn-secundario:active { transform: scale(0.98); }
+
+    .btn-cerrar-gris { background: #64748b; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 8px; cursor: pointer; text-align: center; }
+    .btn-cerrar-gris:active { transform: scale(0.98); }
+
+    /* Modal Estilos */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .modal-overlay.active { display: flex; }
+    .modal-container { background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; flex-shrink: 0; }
+    .modal-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin: 0; }
+    .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    
+    .lista-clientes { margin-top: 8px; max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .cliente-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; font-size: 0.9rem; }
+    .cliente-info { display: flex; flex-direction: column; gap: 2px; }
+    .cliente-nombre { font-weight: bold; color: #1e293b; }
+    .cliente-detalles { font-size: 0.8rem; color: #64748b; }
+    
+    .acciones-item { display: flex; gap: 6px; align-items: center; }
+    .btn-editar-item { background: none; border: none; color: #0284c7; font-size: 1rem; cursor: pointer; padding: 4px; }
+    .btn-borrar-item { background: none; border: none; color: #ef4444; font-size: 1rem; cursor: pointer; padding: 4px; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      body { background: white; padding: 0; color: black; display: block; }
+      .container, .modal-overlay { display: none !important; }
+      #modal-clientes { position: static !important; background: white !important; display: block !important; width: 100% !important; height: auto !important; padding: 0 !important; }
+      #modal-clientes .modal-container { box-shadow: none !important; border: none !important; max-height: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+      .no-print { display: none !important; }
+      .lista-clientes { max-height: none; overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <div class="header-flex">
+        <div>
+          <h2 id="lblTituloForm">👥 Registrar Cliente</h2>
+          <div id="lblFechaTrabajo" class="fecha-sesion">Fecha de Trabajo: -</div>
+        </div>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+      </div>
+
+      <label>Nombre y Apellido / Razón Social:</label>
+      <input type="text" id="txtNombre" placeholder="Ej: Juan Pérez">
+
+      <label>Teléfono / WhatsApp:</label>
+      <input type="text" id="txtTelefono" placeholder="Ej: 11 2345-6789">
+
+      <label>Localidad:</label>
+      <input type="text" id="txtLocalidad" placeholder="Ej: Junín">
+
+      <label>E-mail:</label>
+      <input type="email" id="txtEmail" placeholder="Ej: juan@email.com">
+
+      <button id="btnAccion" class="btn-accion" onclick="guardarCliente()">➕ Registrar Cliente</button>
+      <button class="btn-registros" id="btnAbrirModal">📋 Mostrar Registros</button>
+      <button id="btnCancelarEdicion" class="btn-cancelar-edicion" onclick="cancelarEdicion()">Cancelar Edición</button>
+    </div>
+  </div>
+
+  <!-- Modal de Clientes -->
+  <div class="modal-overlay" id="modal-clientes">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>📋 Listado de Clientes</h3>
+        <button class="modal-close-btn" id="btnCerrarModalX">✕</button>
+      </div>
+      
+      <div style="margin-bottom: 8px;">
+        <label style="margin-top: 0;">🔍 Buscar Registro:</label>
+        <input type="text" id="txtBuscar" placeholder="Nombre, localidad, tel..." oninput="actualizarPantalla()">
+      </div>
+
+      <div id="listaClientes" class="lista-clientes">
+        <div style="text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 12px;">No hay clientes registrados.</div>
+      </div>
+
+      <button class="btn-secundario" onclick="window.print()">
+        🖨️ Imprimir / Guardar Listado PDF
+      </button>
+      <button class="btn-cerrar-gris" id="btnCerrarModalGris">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const config = JSON.parse(localStorage.getItem('sbo_config')) || {};
+      if(config.color) {
+        document.documentElement.style.setProperty('--primary-color', config.color);
+      }
+    });
+
+    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
+    document.getElementById('lblFechaTrabajo').innerText = `Fecha de Trabajo: ${fechaSesion}`;
+
+    let clientes = [];
+    let editIndex = null;
+
+    try {
+      const guardados = localStorage.getItem('sbo_clientes');
+      if (guardados) clientes = JSON.parse(guardados);
+    } catch (e) {
+      clientes = [];
+    }
+
+    function actualizarPantalla() {
+      const listaContainer = document.getElementById('listaClientes');
+      const filtro = document.getElementById('txtBuscar').value.toLowerCase().trim();
+      listaContainer.innerHTML = '';
+
+      const clientesFiltrados = clientes.filter(c => {
+        const nombre = (c.nombre || '').toLowerCase();
+        const localidad = (c.localidad || '').toLowerCase();
+        const telefono = (c.telefono || '').toLowerCase();
+        const email = (c.email || '').toLowerCase();
+        return nombre.includes(filtro) || localidad.includes(filtro) || telefono.includes(filtro) || email.includes(filtro);
+      });
+
+      if (clientesFiltrados.length === 0) {
+        listaContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 12px;">No se encontraron clientes.</div>';
+      } else {
+        clientesFiltrados.forEach((c) => {
+          const realIndex = clientes.indexOf(c);
+          const item = document.createElement('div');
+          item.className = 'cliente-item';
+          item.innerHTML = `
+            <div class="cliente-info">
+              <span class="cliente-nombre">${c.nombre}</span>
+              <span class="cliente-detalles">📞 ${c.telefono || 'Sin tel'} | 📍 ${c.localidad || 'Sin localidad'}</span>
+              <span class="cliente-detalles">✉️ ${c.email || 'Sin correo'}</span>
+            </div>
+            <div class="acciones-item">
+              <button class="btn-editar-item" onclick="cargarEdicion(${realIndex})" title="Editar">✏️</button>
+              <button class="btn-borrar-item" onclick="eliminarCliente(${realIndex})" title="Eliminar">❌</button>
+            </div>
+          `;
+          listaContainer.appendChild(item);
+        });
+      }
+    }
+
+    function guardarCliente() {
+      const nombre = document.getElementById('txtNombre').value.trim();
+      const telefono = document.getElementById('txtTelefono').value.trim();
+      const localidad = document.getElementById('txtLocalidad').value.trim();
+      const email = document.getElementById('txtEmail').value.trim();
+
+      if (!nombre) return alert('Por favor, ingresá el nombre del cliente.');
+
+      if (editIndex !== null) {
+        clientes[editIndex] = { nombre, telefono, localidad, email };
+        cancelarEdicion();
+      } else {
+        clientes.push({ nombre, telefono, localidad, email });
+        document.getElementById('txtNombre').value = '';
+        document.getElementById('txtTelefono').value = '';
+        document.getElementById('txtLocalidad').value = '';
+        document.getElementById('txtEmail').value = '';
+      }
+
+      guardarYActualizar();
+    }
+
+    function cargarEdicion(index) {
+      const c = clientes[index];
+      document.getElementById('txtNombre').value = c.nombre;
+      document.getElementById('txtTelefono').value = c.telefono;
+      document.getElementById('txtLocalidad').value = c.localidad;
+      document.getElementById('txtEmail').value = c.email;
+
+      editIndex = index;
+      document.getElementById('lblTituloForm').innerText = '✏️ Editar Cliente';
+      const btnAccion = document.getElementById('btnAccion');
+      btnAccion.innerText = '💾 Actualizar Cliente';
+      btnAccion.style.background = '#0284c7';
+      document.getElementById('btnCancelarEdicion').style.display = 'block';
+
+      // Cerrar modal al editar para volver al formulario principal
+      modalClientes.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelarEdicion() {
+      editIndex = null;
+      document.getElementById('txtNombre').value = '';
+      document.getElementById('txtTelefono').value = '';
+      document.getElementById('txtLocalidad').value = '';
+      document.getElementById('txtEmail').value = '';
+
+      document.getElementById('lblTituloForm').innerText = '👥 Registrar Cliente';
+      const btnAccion = document.getElementById('btnAccion');
+      btnAccion.innerText = '➕ Registrar Cliente';
+      btnAccion.style.background = 'var(--primary-color)';
+      document.getElementById('btnCancelarEdicion').style.display = 'none';
+    }
+
+    function eliminarCliente(index) {
+      if (confirm('¿Querés eliminar este cliente?')) {
+        if (editIndex === index) {
+          cancelarEdicion();
+        } else if (editIndex !== null && editIndex > index) {
+          editIndex--;
+        }
+        clientes.splice(index, 1);
+        guardarYActualizar();
+      }
+    }
+
+    function guardarYActualizar() {
+      localStorage.setItem('sbo_clientes', JSON.stringify(clientes));
+      actualizarPantalla();
+    }
+
+    // Control de Modal
+    const modalClientes = document.getElementById('modal-clientes');
+    document.getElementById('btnAbrirModal').addEventListener('click', () => modalClientes.classList.add('active'));
+    document.getElementById('btnCerrarModalX').addEventListener('click', () => modalClientes.classList.remove('active'));
+    document.getElementById('btnCerrarModalGris').addEventListener('click', () => modalClientes.classList.remove('active'));
+    modalClientes.addEventListener('click', (e) => { if (e.target === modalClientes) modalClientes.classList.remove('active'); });
+
+    actualizarPantalla();
+  </script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Libro Mensual - S. B. O. Control</title>
+
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <style>
+    :root {
+      --primary-color: #059669;
+      --font-scale: 15px;
+    }
+    html { font-size: var(--font-scale); }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; margin: 0; padding: 10px; color: #1f2937; display: flex; justify-content: center; min-height: 100vh; }
+    
+    .container { width: 100%; max-width: 480px; }
+    .card { background: white; padding: 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 12px; }
+    
+    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 10px; }
+    .btn-volver:active { transform: scale(0.96); }
+    
+    .mes-banner { background: #f3e8ff; border: 1px solid #e9d5ff; color: #6b21a8; padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; }
+    .mes-picker { padding: 6px 8px; border-radius: 8px; border: 1px solid #9333ea; background: white; font-weight: bold; font-size: 0.9rem; color: #6b21a8; outline: none; }
+    .mes-picker:focus { background: #fff; }
+
+    /* CARDS DE BALANCE MENSUAL */
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+    .kpi-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 6px; text-align: center; }
+    .kpi-title { font-size: 0.7rem; text-transform: uppercase; font-weight: bold; color: #64748b; margin-bottom: 4px; }
+    .kpi-value { font-size: 1.05rem; font-weight: 800; color: #0f172a; }
+    .val-ventas { color: var(--primary-color); }
+    .val-gastos { color: #dc2626; }
+    .val-neto { color: #2563eb; }
+
+    /* DESGLOSE DE PAGOS */
+    .pagos-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .pago-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 4px 0; border-bottom: 1px dashed #cbd5e1; }
+    .pago-row:last-child { border-bottom: none; }
+
+    /* TOP PRODUCTOS */
+    .top-prod-item { display: flex; justify-content: space-between; align-items: center; background: #fffdf5; border: 1px solid #fef08a; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem; flex-shrink: 0; }
+    .top-prod-rank { background: #f59e0b; color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-right: 8px; }
+
+    /* BOTONES DE ACCIÓN */
+    .btn-print { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; margin-top: 8px; box-shadow: 0 3px 8px rgba(2,132,199,0.2); }
+    .btn-print:active { transform: scale(0.98); }
+
+    .btn-registros { background: #64748b; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 8px; cursor: pointer; box-shadow: 0 3px 8px rgba(100,116,139,0.2); transition: background 0.2s; }
+    .btn-registros:active { transform: scale(0.98); }
+
+    .btn-top { background: #d97706; box-shadow: 0 3px 8px rgba(217,119,6,0.2); }
+
+    /* MODAL ESTILOS CON SCROLL INTERNO FIJO */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .modal-overlay.active { display: flex; }
+    
+    .modal-container { background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; }
+    
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; flex-shrink: 0; }
+    .modal-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin: 0; }
+    .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    
+    .lista-dias-modal { 
+      margin-top: 6px; 
+      margin-bottom: 10px;
+      max-height: 280px; 
+      overflow-y: auto; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px; 
+      padding-right: 6px;
+      flex-shrink: 1;
+    }
+
+    .lista-dias-modal::-webkit-scrollbar {
+      width: 6px;
+    }
+    .lista-dias-modal::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .lista-dias-modal::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .lista-dias-modal::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .dia-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; flex-shrink: 0; }
+    .dia-fecha { font-weight: bold; color: #1e293b; }
+    .dia-monto { font-weight: bold; color: var(--primary-color); }
+
+    .btn-cerrar-gris { background: #64748b; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; text-align: center; flex-shrink: 0; margin-top: auto; }
+    .btn-cerrar-gris:active { transform: scale(0.98); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      body { background: white; padding: 0; color: black; display: block; }
+      .container { max-width: 100%; }
+      .card { box-shadow: none; border: 1px solid #cbd5e1; margin-bottom: 10px; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <a href="menu.html" class="btn-volver no-print">⬅️ Volver al Menú</a>
+      <h2 style="margin: 0 0 4px; font-size: 1.25rem; color: var(--primary-color);">📊 Libro Mensual</h2>
+      <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 12px;">Estadísticas generales y rendimiento por mes</p>
+
+      <!-- SELECTOR DE MES -->
+      <div class="mes-banner">
+        <span>🗓️ Mes:</span>
+        <input type="month" id="selectMes" class="mes-picker" onchange="cargarMensual(this.value)">
+      </div>
+
+      <!-- INDICADORES CLAVE (KPIs) -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Ventas Totales</div>
+          <div class="kpi-value val-ventas" id="lblMesVentas">$0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Gastos</div>
+          <div class="kpi-value val-gastos" id="lblMesGastos">$0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Ganancia Neta</div>
+          <div class="kpi-value val-neto" id="lblMesNeto">$0</div>
+        </div>
+      </div>
+
+      <!-- DESGLOSE POR MEDIO DE PAGO -->
+      <div class="pagos-container">
+        <div style="font-weight:bold; font-size:0.9rem; margin-bottom:8px; color:#475569;">💳 Cobros por Medio de Pago:</div>
+        <div class="pago-row">
+          <span>💵 Efectivo:</span>
+          <strong id="lblMesEfectivo">$0</strong>
+        </div>
+        <div class="pago-row">
+          <span>🏦 MP / Transf.:</span>
+          <strong id="lblMesMP">$0</strong>
+        </div>
+        <div class="pago-row">
+          <span>💳 Tarjetas:</span>
+          <strong id="lblMesTarjetas">$0</strong>
+        </div>
+      </div>
+
+      <button class="btn-registros no-print" id="btnAbrirModalDias">📅 Ver Resumen Día por Día</button>
+      <button class="btn-print no-print" onclick="window.print()">🖨️ Imprimir / Guardar Balance del Mes</button>
+      <button class="btn-registros btn-top no-print" id="btnAbrirModalTop">🏆 Productos Más Vendidos</button>
+    </div>
+  </div>
+
+  <!-- Modal Resumen Día por Día -->
+  <div class="modal-overlay" id="modal-dias">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>📅 Resumen Día por Día</h3>
+        <button class="modal-close-btn" id="btnCerrarModalDiasX">✕</button>
+      </div>
+
+      <div id="listaDiasMes" class="lista-dias-modal">
+        <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 12px;">Sin actividad registrada en este mes.</div>
+      </div>
+
+      <button class="btn-cerrar-gris" id="btnCerrarModalDiasGris">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal Productos Más Vendidos -->
+  <div class="modal-overlay" id="modal-top">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>🏆 Productos Más Vendidos</h3>
+        <button class="modal-close-btn" id="btnCerrarModalTopX">✕</button>
+      </div>
+
+      <div id="listaTopProductos" class="lista-dias-modal">
+        <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 12px;">No hay registros de productos vendidos en este mes.</div>
+      </div>
+
+      <button class="btn-cerrar-gris" id="btnCerrarModalTopGris">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    let mesActual = new Date().toISOString().slice(0, 7);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const config = JSON.parse(localStorage.getItem('sbo_config')) || {};
+      if(config.color) {
+        document.documentElement.style.setProperty('--primary-color', config.color);
+      }
+
+      document.getElementById('selectMes').value = mesActual;
+      cargarMensual(mesActual);
+    });
+
+    function cargarMensual(mesElegido) {
+      if(!mesElegido) return;
+      mesActual = mesElegido;
+
+      const ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
+      const ventasMes = ventas.filter(v => v.fecha && v.fecha.startsWith(mesActual));
+
+      let movsMes = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('sbo_cajachica_' + mesActual)) {
+          try {
+            const arr = JSON.parse(localStorage.getItem(key)) || [];
+            arr.forEach(m => {
+              if (m.tipo === 'egreso') {
+                movsMes.push({ ...m, fecha: m.fecha || key.replace('sbo_cajachica_', '') });
+              }
+            });
+          } catch(e) {}
+        }
+      }
+
+      const totalVentas = ventasMes.reduce((sum, v) => sum + (v.total || 0), 0);
+      const totalGastos = movsMes.reduce((sum, m) => sum + Number(m.monto || 0), 0);
+      const gananciaNeta = totalVentas - totalGastos;
+
+      const efectivo = ventasMes.filter(v => v.pago === 'Efectivo').reduce((sum, v) => sum + v.total, 0);
+      const mpTransf = ventasMes.filter(v => v.pago && (v.pago.includes('Mercado') || v.pago.includes('Transf'))).reduce((sum, v) => sum + v.total, 0);
+      const tarjetas = ventasMes.filter(v => v.pago && (v.pago.includes('Tarjeta') || v.pago.includes('Débito') || v.pago.includes('Crédito'))).reduce((sum, v) => sum + v.total, 0);
+
+      document.getElementById('lblMesVentas').innerText = `$${totalVentas.toLocaleString('es-AR')}`;
+      document.getElementById('lblMesGastos').innerText = `$${totalGastos.toLocaleString('es-AR')}`;
+      document.getElementById('lblMesNeto').innerText = `$${gananciaNeta.toLocaleString('es-AR')}`;
+
+      document.getElementById('lblMesEfectivo').innerText = `$${efectivo.toLocaleString('es-AR')}`;
+      document.getElementById('lblMesMP').innerText = `$${mpTransf.toLocaleString('es-AR')}`;
+      document.getElementById('lblMesTarjetas').innerText = `$${tarjetas.toLocaleString('es-AR')}`;
+
+      const conteoProds = {};
+      ventasMes.forEach(v => {
+        (v.items || []).forEach(item => {
+          if (!conteoProds[item.nombre]) {
+            conteoProds[item.nombre] = { cant: 0, recaudado: 0 };
+          }
+          conteoProds[item.nombre].cant += item.cant || 0;
+          conteoProds[item.nombre].recaudado += item.subtotal || 0;
+        });
+      });
+
+      const ranking = Object.keys(conteoProds)
+        .map(nombre => ({ nombre, ...conteoProds[nombre] }))
+        .sort((a, b) => b.cant - a.cant);
+
+      let htmlTop = '';
+      ranking.forEach((p, idx) => {
+        htmlTop += `
+          <div class="top-prod-item">
+            <div>
+              <span class="top-prod-rank">${idx + 1}</span>
+              <strong>${p.nombre}</strong>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-weight:bold; color:var(--primary-color);">${p.cant} u.</span>
+              <div style="font-size:0.8rem; color:#64748b;">$${p.recaudado.toLocaleString('es-AR')}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      if (ranking.length === 0) {
+        htmlTop = '<p style="text-align:center; color:#9ca3af; font-size: 0.85rem; padding: 12px;">No hay registros de productos vendidos en este mes.</p>';
+      }
+      document.getElementById('listaTopProductos').innerHTML = htmlTop;
+
+      const diasMap = {};
+      ventasMes.forEach(v => {
+        if (!diasMap[v.fecha]) diasMap[v.fecha] = { ventas: 0, gastos: 0 };
+        diasMap[v.fecha].ventas += v.total || 0;
+      });
+
+      movsMes.forEach(m => {
+        if (!diasMap[m.fecha]) diasMap[m.fecha] = { ventas: 0, gastos: 0 };
+        diasMap[m.fecha].gastos += Number(m.monto || 0);
+      });
+
+      const diasOrdenados = Object.keys(diasMap).sort().reverse();
+      let htmlDias = '';
+
+      diasOrdenados.forEach(fechaStr => {
+        const d = diasMap[fechaStr];
+        const partes = fechaStr.split('-');
+        const dd = partes[2] || '01';
+        const mm = partes[1] || '01';
+        const yyyy = partes[0] || '2026';
+
+        htmlDias += `
+          <div class="dia-row">
+            <div>
+              <span class="dia-fecha">📅 ${dd}/${mm}/${yyyy}</span>
+            </div>
+            <div style="text-align:right;">
+              <span class="dia-monto">+$${d.ventas.toLocaleString('es-AR')}</span>
+              ${d.gastos > 0 ? `<div style="font-size:0.75rem; color:#dc2626;">Gastos: -$${d.gastos.toLocaleString('es-AR')}</div>` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      if (diasOrdenados.length === 0) {
+        htmlDias = '<p style="text-align:center; color:#9ca3af; font-size: 0.85rem; padding: 12px;">Sin actividad registrada en este mes.</p>';
+      }
+      document.getElementById('listaDiasMes').innerHTML = htmlDias;
+    }
+
+    // Control de Modales
+    const modalDias = document.getElementById('modal-dias');
+    document.getElementById('btnAbrirModalDias').addEventListener('click', () => modalDias.classList.add('active'));
+    document.getElementById('btnCerrarModalDiasX').addEventListener('click', () => modalDias.classList.remove('active'));
+    document.getElementById('btnCerrarModalDiasGris').addEventListener('click', () => modalDias.classList.remove('active'));
+    modalDias.addEventListener('click', (e) => { if (e.target === modalDias) modalDias.classList.remove('active'); });
+
+    const modalTop = document.getElementById('modal-top');
+    document.getElementById('btnAbrirModalTop').addEventListener('click', () => modalTop.classList.add('active'));
+    document.getElementById('btnCerrarModalTopX').addEventListener('click', () => modalTop.classList.remove('active'));
+    document.getElementById('btnCerrarModalTopGris').addEventListener('click', () => modalTop.classList.remove('active'));
+    modalTop.addEventListener('click', (e) => { if (e.target === modalTop) modalTop.classList.remove('active'); });
+  </script>
+</body>
+</html>

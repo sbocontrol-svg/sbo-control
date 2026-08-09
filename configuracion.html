@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.B.O. Control - Configuración</title>
+    <style>
+        :root {
+            --primary-color: #00796b;
+            --primary-light: #e0f2f1;
+            --accent-color: #2e7d32;
+            --font-scale: 15px; /* Tamaño base dinámico en la raíz */
+        }
+        html { font-size: var(--font-scale); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #0d1b2a; color: #333; padding: 10px; display: flex; justify-content: center; }
+        .container { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        .header-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; }
+        .header-top h2 { font-size: 1.15rem; color: var(--primary-color); font-weight: 700; }
+        .btn-volver { background: #546e7a; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; }
+        
+        .section-card { background: white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .section-card h3 { font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        
+        label { font-size: 0.8rem; font-weight: 700; color: #555; display: block; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; background: #fafafa; color: #333; outline: none; }
+        input:focus, select:focus { border-color: var(--primary-color); background: #fff; }
+
+        .color-picker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
+        .color-option { height: 42px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; font-weight: bold; }
+        .color-option.selected { border-color: #333; transform: scale(1.05); }
+
+        .btn-main { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: 700; font-size: 1rem; margin-top: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .btn-main:active { transform: scale(0.98); }
+
+        .btn-action { background: #f1f8e9; border: 1px solid #a5d6a7; color: #2e7d32; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; width: 100%; margin-top: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; text-align: center; }
+        .btn-backup-restore { background: #e1f5fe; border: 1px solid #b3e5fc; color: #0277bd; }
+        
+        /* Estilos para los Modales Flotantes */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
+        .modal-content { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 14px; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
+
+        /* Estilos lista de licencias */
+        .lista-licencias { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+        .licencia-item { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+        .licencia-info strong { color: #00796b; display: block; font-size: 1rem; }
+        .licencia-info p { color: #666; font-size: 0.85rem; margin-top: 2px; }
+        .acciones-item { display: flex; gap: 6px; align-items: center; }
+        .btn-editar { background: #e0f2f1; color: #00796b; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
+        .btn-eliminar { background: #ffebee; color: #c62828; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
+
+        @media print {
+            body { background: white !important; padding: 0 !important; }
+            .container, .modal-overlay:not(#modalLicenciasAdmin) { display: none !important; }
+            #modalLicenciasAdmin { display: block !important; position: static !important; background: white !important; padding: 0 !important; }
+            #modalLicenciasAdmin .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; max-height: none !important; background: white !important; }
+            #formLicencia, .acciones-item, .btn-action, button, .cambiar-clave-box { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-top">
+            <h2>⚙️ Configuración y Ajustes</h2>
+            <a href="menu.html" class="btn-volver">⬅️ Volver</a>
+        </div>
+
+        <!-- SECCIÓN 1: DATOS DEL TICKET Y NEGOCIO -->
+        <div class="section-card">
+            <h3>🏷️ Datos del Ticket y Emprendimiento</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 4px;">Personalizá cómo aparecerá tu negocio en los comprobantes y en WhatsApp.</p>
+            
+            <label>Nombre del Emprendimiento:</label>
+            <input type="text" id="cfgNombre" placeholder="Ej: S.B.O.Control">
+
+            <label>Eslogan / Descripción:</label>
+            <input type="text" id="cfgEslogan" placeholder="Ej: Gestión Integral p/Emprendedores">
+
+            <label>Teléfono de Contacto (WhatsApp):</label>
+            <input type="text" id="cfgContacto" placeholder="Ej: 236-4xxxxxx">
+
+            <button class="btn-main" onclick="guardarConfigGeneral()">💾 Guardar Ajustes del Negocio</button>
+        </div>
+
+        <!-- BOTÓN DE ACCESO AL MODAL DE AJUSTES DEL SISTEMA -->
+        <div class="section-card" style="background: #ffebee; border-color: #ffcdd2;">
+            <h3>🛠️ Ajustes del Sistema</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Configurá colores, tamaños de pantalla, respaldos y reinicio.</p>
+            <button class="btn-action" style="background: #c62828; color: white; border: none;" onclick="abrirModalAjustes()">
+                ⚙️ Abrir Ajustes del Sistema
+            </button>
+        </div>
+
+        <!-- SECCIÓN 4: ACCESO EXCLUSIVO DESARROLLADOR / LICENCIAS -->
+        <div class="section-card" style="background: #fdf8f6; border-color: #ffd8cc;">
+            <h3>🔑 Gestión de Licencias (Uso Exclusivo)</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Panel protegido para administrar altas y claves del sistema.</p>
+            <button class="btn-action" style="background: #fff3e0; border-color: #ffb74d; color: #e65100;" onclick="solicitarAccesoAdminLicencias()">
+                🔐 Desbloquear Panel de Licencias
+            </button>
+        </div>
+
+        <!-- SECCIÓN 5: MANUAL DE USUARIO (ENLAZA A manual.html) -->
+        <div class="section-card" style="margin-top: 10px;">
+            <h3>📖 Ayuda y Soporte</h3>
+            <a href="manual.html" class="btn-action" style="background: #e1f5fe; border-color: #b3e5fc; color: #0277bd;">
+                📖 Abrir Manual de Usuario y Licencia
+            </a>
+        </div>
+    </div>
+
+    <!-- MODAL FLOTANTE DE AJUSTES DEL SISTEMA -->
+    <div id="modalAjustes" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
+                <h3 style="color: var(--primary-color); margin: 0; font-size: 1.1rem;">⚙️ Ajustes del Sistema</h3>
+                <button onclick="cerrarModalAjustes()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
+            </div>
+
+            <!-- APARIENCIA Y VISUALIZACIÓN -->
+            <div class="section-card" style="margin-bottom: 10px;">
+                <h3>🎨 Apariencia y Visualización</h3>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Elegí el color principal y el tamaño de letra:</p>
+                
+                <label style="margin-top: 4px;">Color del Sistema (Tema):</label>
+                <div class="color-picker-grid">
+                    <div class="color-option" style="background: #00796b;" onclick="cambiarTema('#00796b', '#e0f2f1')" data-color="#00796b">✓</div>
+                    <div class="color-option" style="background: #0277bd;" onclick="cambiarTema('#0277bd', '#e1f5fe')" data-color="#0277bd">✓</div>
+                    <div class="color-option" style="background: #7b1fa2;" onclick="cambiarTema('#7b1fa2', '#f3e5f5')" data-color="#7b1fa2">✓</div>
+                    <div class="color-option" style="background: #d84315;" onclick="cambiarTema('#d84315', '#fbe9e7')" data-color="#d84315">✓</div>
+                </div>
+
+                <label style="margin-top: 10px;">Tamaño de Pantalla y Letra:</label>
+                <select id="selectTamanioLetra" onchange="cambiarTamanioGlobal(this.value)">
+                    <option value="13px">📱 Compacto</option>
+                    <option value="15px">👍 Normal (Recomendado)</option>
+                    <option value="18px">👓 Grande (Accesibilidad)</option>
+                </select>
+            </div>
+
+            <!-- COPIA DE SEGURIDAD -->
+            <div class="section-card" style="margin-bottom: 10px;">
+                <h3>💾 Copias de Seguridad (Backup)</h3>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 4px;">Exportá todos tus datos en un archivo o restauralos:</p>
+                
+                <button class="btn-action" onclick="exportarBackup()">📥 Exportar Datos</button>
+                <label class="btn-action btn-backup-restore" style="margin-top: 6px; cursor: pointer; text-align: center;">
+                    📤 Restaurar Datos de Backup
+                    <input type="file" id="inputImportar" accept=".json" style="display: none;" onchange="importarBackup(event)">
+                </label>
+            </div>
+
+            <!-- REINICIO DE FÁBRICA CON RESPALDO -->
+            <div class="section-card" style="margin-bottom: 0; background: #fff5f5; border-color: #fecaca;">
+                <h3 style="color: #991b1b; font-size: 0.95rem;">🔄 Reinicio de Fábrica</h3>
+                <p style="font-size: 0.82rem; color: #666; margin-bottom: 6px;">Descarga un respaldo automático y limpia todo el sistema:</p>
+                <button class="btn-action" style="background: #dc2626; border-color: #b91c1c; color: white; font-size: 0.9rem;" onclick="reiniciarSistemaDeFabrica()">
+                    ⚠️ Reiniciar Sistema (Con Respaldo)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FLOTANTE PROTEGIDO DE GESTIÓN DE LICENCIAS -->
+    <div id="modalLicenciasAdmin" class="modal-overlay">
+        <div class="modal-content" style="border: 2px dashed #00796b; background: #f0fdf4;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
+                <h3 style="color: #2e7d32; margin: 0; font-size: 1.1rem;">🛠️ Panel Activo de Licencias</h3>
+                <button onclick="cerrarModalLicencias()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
+            </div>
+
+            <form id="formLicencia">
+                <label>Nombre de la Licencia:</label>
+                <input type="text" id="txtNombreLicencia" placeholder="Ej: Licencia Anual Ferias" required>
+
+                <label>Duración:</label>
+                <input type="text" id="txtDuracion" placeholder="Ej: 365 días / 1 año" required>
+
+                <label>Clave Asignada:</label>
+                <input type="text" id="txtClave" placeholder="Ej: SBO-LVA-9922" required>
+
+                <button type="submit" class="btn-main" id="btnGuardar" style="background: #2e7d32; margin-top: 8px;">💾 Guardar Licencia</button>
+            </form>
+
+            <h4 style="font-size: 0.95rem; color: #0d47a1; margin-top: 12px; margin-bottom: 6px;">Listado Registrado</h4>
+            <div class="lista-licencias" id="contenedorLicencias">
+                <!-- Se carga dinámicamente -->
+            </div>
+
+            <button class="btn-action" style="background: #0277bd; color: white; border: none; margin-top: 10px;" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+
+            <!-- CAMBIAR CLAVE DE DESARROLLADOR -->
+            <div class="cambiar-clave-box" style="margin-top: 14px; border-top: 1px dashed #bbf7d0; padding-top: 10px;">
+                <label style="color: #166534; font-size: 0.85rem;">🔄 Cambiar Clave de Desarrollador:</label>
+                <div style="display: flex; gap: 6px; margin-top: 4px;">
+                    <input type="text" id="txtNuevaClave" placeholder="Nueva contraseña maestra" style="margin-top:0;">
+                    <button type="button" onclick="cambiarClaveDev()" style="background: #15803d; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function obtenerClaveDev() {
+            return localStorage.getItem('sbo_dev_clave') || "SBO_Admin2026*";
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || 'B. M. A. Artesanías';
+            document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || 'Bijou Macramé Artesanal';
+            document.getElementById('cfgContacto').value = localStorage.getItem('sbo_config_contacto') || '2364716004';
+
+            const colorGuardado = localStorage.getItem('sbo_config_color') || '#00796b';
+            marcarColorSeleccionado(colorGuardado);
+
+            const savedSize = localStorage.getItem('sbo_config_tamanio') || '15px';
+            document.documentElement.style.setProperty('--font-scale', savedSize);
+            document.getElementById('selectTamanioLetra').value = savedSize;
+
+            cargarLicencias();
+        });
+
+        // --- CONTROL DE MODALES ---
+        function abrirModalAjustes() {
+            document.getElementById('modalAjustes').style.display = 'flex';
+        }
+
+        function cerrarModalAjustes() {
+            document.getElementById('modalAjustes').style.display = 'none';
+        }
+
+        function cerrarModalLicencias() {
+            document.getElementById('modalLicenciasAdmin').style.display = 'none';
+        }
+
+        // --- CAMBIAR TAMAÑO GLOBAL ---
+        function cambiarTamanioGlobal(tamanio) {
+            localStorage.setItem('sbo_config_tamanio', tamanio);
+            document.documentElement.style.setProperty('--font-scale', tamanio);
+        }
+
+        // --- SISTEMA DE TRAMPA Y ACCESO PROTEGIDO ---
+        function solicitarAccesoAdminLicencias() {
+            let intentos = parseInt(localStorage.getItem('sbo_intentos_admin') || '0');
+
+            if (intentos >= 3) {
+                let codigoSecreto = prompt("⛔ Acceso bloqueado. Ingresá la clave maestra o escribí 'reset' para destrabar los intentos:");
+                if (codigoSecreto === 'reset') {
+                    localStorage.setItem('sbo_intentos_admin', '0');
+                    alert("✅ ¡Bloqueo reseteado! Volvé a tocar el botón para ingresar.");
+                    return;
+                }
+                if (codigoSecreto === obtenerClaveDev()) {
+                    localStorage.setItem('sbo_intentos_admin', '0');
+                    document.getElementById('modalLicenciasAdmin').style.display = 'flex';
+                    alert("¡Acceso concedido! Panel de licencias desbloqueado.");
+                    return;
+                }
+                alert("⛔ Sigue bloqueado.");
+                return;
+            }
+
+            let claveIngresada = prompt("Ingrese la clave de desarrollador:");
+            if (claveIngresada === null) return;
+
+            if (claveIngresada === obtenerClaveDev()) {
+                localStorage.setItem('sbo_intentos_admin', '0');
+                document.getElementById('modalLicenciasAdmin').style.display = 'flex';
+                alert("¡Acceso concedido! Panel de licencias desbloqueado.");
+            } else {
+                intentos++;
+                localStorage.setItem('sbo_intentos_admin', intentos);
+                let restantes = 3 - intentos;
+
+                if (restantes > 0) {
+                    alert(`❌ Clave incorrecta. Te quedan ${restantes} intento(s) antes del bloqueo.`);
+                } else {
+                    alert("🚨 ¡Sistema bloqueado! Volvé a tocar el botón y escribí 'reset' para destrabarlo.");
+                }
+            }
+        }
+
+        function cambiarClaveDev() {
+            const nuevaClave = document.getElementById('txtNuevaClave').value.trim();
+            if (!nuevaClave) {
+                alert('⚠️ La nueva clave no puede estar vacía.');
+                return;
+            }
+            if (confirm('¿Estás seguro de cambiar la clave de desarrollador?')) {
+                localStorage.setItem('sbo_dev_clave', nuevaClave);
+                document.getElementById('txtNuevaClave').value = '';
+                alert('✅ ¡Clave de desarrollador actualizada con éxito!');
+            }
+        }
+
+        // --- GESTIÓN GENERAL DE CONFIG ---
+        function guardarConfigGeneral() {
+            const nombre = document.getElementById('cfgNombre').value.trim();
+            const eslogan = document.getElementById('cfgEslogan').value.trim();
+            const contacto = document.getElementById('cfgContacto').value.trim();
+
+            if (!nombre) return alert('El nombre del emprendimiento no puede estar vacío.');
+
+            localStorage.setItem('sbo_config_nombre', nombre);
+            localStorage.setItem('sbo_config_eslogan', eslogan);
+            localStorage.setItem('sbo_config_contacto', contacto);
+
+            alert('✅ ¡Ajustes del negocio guardados con éxito!');
+        }
+
+        function cambiarTema(colorHex, colorLight) {
+            localStorage.setItem('sbo_config_color', colorHex);
+            localStorage.setItem('sbo_config_color_light', colorLight);
+            marcarColorSeleccionado(colorHex);
+            alert('🎨 ¡Tema actualizado!');
+        }
+
+        function marcarColorSeleccionado(color) {
+            document.querySelectorAll('.color-option').forEach(el => {
+                if (el.getAttribute('data-color') === color) {
+                    el.classList.add('selected');
+                } else {
+                    el.classList.remove('selected');
+                }
+            });
+        }
+
+        function exportarBackup() {
+            let backupData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('sbo_') || key.startsWith('bma_')) {
+                    try {
+                        backupData[key] = JSON.parse(localStorage.getItem(key));
+                    } catch(e) {
+                        backupData[key] = localStorage.getItem(key);
+                    }
+                }
+            }
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            let downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `sbo_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importarBackup(e) {
+            let file = e.target.files[0];
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    let backupData = JSON.parse(event.target.result);
+                    for (let key in backupData) {
+                        if (typeof backupData[key] === 'object') {
+                            localStorage.setItem(key, JSON.stringify(backupData[key]));
+                        } else {
+                            localStorage.setItem(key, backupData[key]);
+                        }
+                    }
+                    alert('¡Copia de seguridad restaurada con éxito!');
+                    location.reload();
+                } catch (err) {
+                    alert('Error al leer el archivo de backup.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- REINICIO DE FÁBRICA CON RESPALDO ---
+        function reiniciarSistemaDeFabrica() {
+            if (!confirm('⚠️ ¡Atención! Esto va a descargar una copia de seguridad de tus datos y dejará el sistema como nuevo. ¿Querés continuar?')) {
+                return;
+            }
+            
+            let backupData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('sbo_') || key.startsWith('bma_')) {
+                    try {
+                        backupData[key] = JSON.parse(localStorage.getItem(key));
+                    } catch(e) {
+                        backupData[key] = localStorage.getItem(key);
+                    }
+                }
+            }
+
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            let downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `sbo_respaldo_total_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+
+            setTimeout(() => {
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    let key = localStorage.key(i);
+                    if (key.startsWith('sbo_') || key.startsWith('bma_')) {
+                        localStorage.removeItem(key);
+                    }
+                }
+                alert('🔄 Sistema reiniciado de fábrica con éxito. Respaldo guardado en tu celu.');
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        // --- LÓGICA DE LICENCIAS INTERNAS ---
+        let editandoId = null;
+
+        document.getElementById('formLicencia').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nombreLicencia = document.getElementById('txtNombreLicencia').value.trim();
+            const duracion = document.getElementById('txtDuracion').value.trim();
+            const clave = document.getElementById('txtClave').value.trim();
+
+            let licencias = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+            
+            if (editandoId !== null) {
+                licencias = licencias.map(l => {
+                    if (l.id === editandoId) {
+                        return { ...l, nombreLicencia, duracion, clave };
+                    }
+                    return l;
+                });
+                editandoId = null;
+                document.getElementById('btnGuardar').innerText = '💾 Guardar Licencia';
+                document.getElementById('btnGuardar').style.backgroundColor = '#2e7d32';
+                alert('¡Licencia actualizada con éxito!');
+            } else {
+                licencias.push({
+                    id: Date.now(),
+                    nombreLicencia,
+                    duracion,
+                    clave
+                });
+                alert('¡Licencia guardada correctamente!');
+            }
+
+            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(licencias));
+            this.reset();
+            cargarLicencias();
+        });
+
+        function cargarLicencias() {
+            const contenedor = document.getElementById('contenedorLicencias');
+            const licencias = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+
+            if (licencias.length === 0) {
+                contenedor.innerHTML = '<div style="text-align:center; color:#666; font-size:0.85rem; padding:8px;">No hay licencias cargadas todavía.</div>';
+                return;
+            }
+
+            let html = '';
+            licencias.forEach(l => {
+                html += `
+                    <div class="licencia-item">
+                        <div class="licencia-info">
+                            <strong>${l.nombreLicencia}</strong>
+                            <p>Duración: ${l.duracion} | Clave: <code>${l.clave}</code></p>
+                        </div>
+                        <div class="acciones-item">
+                            <button class="btn-editar" onclick="editarLicencia(${l.id})" title="Editar">✏️</button>
+                            <button class="btn-eliminar" onclick="eliminarLicencia(${l.id})" title="Eliminar">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            contenedor.innerHTML = html;
+        }
+
+        window.editarLicencia = function(id) {
+            let licencias = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+            let lic = licencias.find(l => l.id === id);
+            if (!lic) return;
+
+            document.getElementById('txtNombreLicencia').value = lic.nombreLicencia;
+            document.getElementById('txtDuracion').value = lic.duracion;
+            document.getElementById('txtClave').value = lic.clave;
+            
+            editandoId = id;
+            const btn = document.getElementById('btnGuardar');
+            btn.innerText = '✏️ Actualizar Licencia';
+            btn.style.backgroundColor = '#0277bd';
+        };
+
+        window.eliminarLicencia = function(id) {
+            if(!confirm('¿Estás seguro de eliminar esta licencia?')) return;
+            let licencias = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+            licencias = licencias.filter(l => l.id !== id);
+            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(licencias));
+            
+            if (editandoId === id) {
+                editandoId = null;
+                document.getElementById('formLicencia').reset();
+                document.getElementById('btnGuardar').innerText = '💾 Guardar Licencia';
+                document.getElementById('btnGuardar').style.backgroundColor = '#2e7d32';
+            }
+
+            cargarLicencias();
+        };
+    </script>
+</body>
+</html>

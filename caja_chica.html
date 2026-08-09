@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caja Chica - S. B.O. Control</title>
+
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <style>
+    :root {
+      --primary-color: #059669;
+      --font-scale: 15px; /* Tamaño base dinámico de referencia */
+    }
+    html { font-size: var(--font-scale); }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; margin: 0; padding: 10px; color: #1f2937; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    
+    .container { width: 100%; max-width: 480px; }
+    
+    .card { background: white; padding: 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 0; }
+    
+    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-volver:active { transform: scale(0.96); }
+
+    h1 { font-size: 1.25rem; font-weight: 800; color: var(--primary-color); margin: 0; }
+    .fecha-sesion { font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 2px; }
+
+    .resumen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .caja-resumen { background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; }
+    .caja-resumen.total { grid-column: span 2; background: #ecfdf5; border-color: #a7f3d0; padding: 10px; }
+    .caja-resumen span { font-size: 0.8rem; font-weight: bold; color: #64748b; display: block; text-transform: uppercase; }
+    .caja-resumen strong { font-size: 1.15rem; color: #1e293b; }
+    .caja-resumen.total strong { font-size: 1.35rem; color: var(--primary-color); }
+
+    label { font-size: 0.85rem; font-weight: 700; color: #4b5563; display: block; margin-top: 8px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; background: #fafafa; color: #333; outline: none; }
+    input:focus, select:focus { border-color: var(--primary-color); background: #fff; }
+    
+    .btn-accion { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(5,150,105,0.2); transition: background 0.2s; }
+    .btn-accion:active { transform: scale(0.98); }
+
+    .btn-registros { background: #64748b; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 8px; cursor: pointer; box-shadow: 0 3px 8px rgba(100,116,139,0.2); transition: background 0.2s; }
+    .btn-registros:active { transform: scale(0.98); }
+
+    .btn-secundario { background: #0284c7; color: white; border: none; padding: 11px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(2,132,199,0.2); display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+    .btn-secundario:active { transform: scale(0.98); }
+
+    .btn-cerrar-gris { background: #64748b; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 8px; cursor: pointer; text-align: center; }
+    .btn-cerrar-gris:active { transform: scale(0.98); }
+
+    /* Modal Estilos */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .modal-overlay.active { display: flex; }
+    .modal-container { background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; flex-shrink: 0; }
+    .modal-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin: 0; }
+    .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    
+    .lista-movimientos { margin-top: 8px; max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .movimiento-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; font-size: 0.9rem; }
+    .mov-info { display: flex; flex-direction: column; }
+    .mov-concepto { font-weight: bold; color: #334155; }
+    .mov-tipo { font-size: 0.75rem; color: #94a3b8; font-weight: bold; }
+    .mov-monto { font-weight: bold; font-size: 1rem; }
+    .mov-monto.ingreso { color: #059669; }
+    .mov-monto.egreso { color: #dc2626; }
+    
+    .btn-borrar-item { background: none; border: none; color: #ef4444; font-size: 1rem; cursor: pointer; padding: 4px; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      body { background: white; padding: 0; color: black; display: block; }
+      .container, .modal-overlay { display: none !important; }
+      #modal-movimientos { position: static !important; background: white !important; display: block !important; width: 100% !important; height: auto !important; padding: 0 !important; }
+      #modal-movimientos .modal-container { box-shadow: none !important; border: none !important; max-height: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+      .no-print { display: none !important; }
+      .lista-movimientos { max-height: none; overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <div class="header-flex">
+        <div>
+          <h1>💵 Caja Chica</h1>
+          <div id="lblFechaTrabajo" class="fecha-sesion">Fecha: -</div>
+        </div>
+        <a href="menu.html" class="btn-volver">Volver al Menú</a>
+      </div>
+
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+        <label style="margin-top: 0; color: #166534;">Cambio Inicial / Fondo de Caja ($):</label>
+        <input type="number" id="txtCambioInicial" placeholder="0.00" step="0.01" oninput="guardarCambioInicial()" style="background: white;">
+      </div>
+
+      <div class="resumen-grid">
+        <div class="caja-resumen">
+          <span>Ingresos</span>
+          <strong id="lblTotalIngresos">$0.00</strong>
+        </div>
+        <div class="caja-resumen">
+          <span>Egresos</span>
+          <strong id="lblTotalEgresos">$0.00</strong>
+        </div>
+        <div class="caja-resumen total">
+          <span>Saldo Actual en Caja</span>
+          <strong id="lblSaldoActual">$0.00</strong>
+        </div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px dashed #e2e8f0; margin: 10px 0;">
+
+      <label>Tipo de Movimiento:</label>
+      <select id="txtTipo">
+        <option value="ingreso">🟢 Ingreso (Entrada de dinero)</option>
+        <option value="egreso">🔴 Egreso (Gasto / Salida)</option>
+      </select>
+
+      <label>Concepto / Detalle:</label>
+      <input type="text" id="txtConcepto" placeholder="Ej: Venta menor, Compra de hielo...">
+
+      <label>Monto ($):</label>
+      <input type="number" id="txtMonto" placeholder="0.00" step="0.01">
+
+      <button class="btn-accion" onclick="agregarMovimiento()">➕ Registrar Movimiento</button>
+      <button class="btn-registros" id="btnAbrirModal">📋 Mostrar Registros</button>
+    </div>
+  </div>
+
+  <!-- Modal de Movimientos -->
+  <div class="modal-overlay" id="modal-movimientos">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>📋 Movimientos del Día</h3>
+        <button class="modal-close-btn" id="btnCerrarModalX">✕</button>
+      </div>
+      
+      <div style="margin-bottom: 8px;">
+        <label style="margin-top: 0;">🔍 Buscar Movimiento:</label>
+        <input type="text" id="txtBuscar" placeholder="Filtrar por concepto..." oninput="actualizarPantalla()">
+      </div>
+
+      <div id="listaMovimientos" class="lista-movimientos">
+        <div style="text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 12px;">No hay movimientos registrados hoy.</div>
+      </div>
+
+      <button class="btn-secundario" onclick="window.print()">
+        🖨️ Imprimir / Guardar Listado PDF
+      </button>
+      <button class="btn-cerrar-gris" id="btnCerrarModalGris">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
+    document.getElementById('lblFechaTrabajo').innerText = `Fecha de Trabajo: ${fechaSesion}`;
+
+    let cambioInicialGuardado = localStorage.getItem(`sbo_cajachica_cambio_${fechaSesion}`);
+    if (cambioInicialGuardado !== null) {
+      document.getElementById('txtCambioInicial').value = cambioInicialGuardado;
+    }
+
+    let movimientos = [];
+    try {
+      const guardados = localStorage.getItem(`sbo_cajachica_${fechaSesion}`);
+      if (guardados) movimientos = JSON.parse(guardados);
+    } catch (e) {
+      movimientos = [];
+    }
+
+    function guardarCambioInicial() {
+      const cambioVal = document.getElementById('txtCambioInicial').value;
+      localStorage.setItem(`sbo_cajachica_cambio_${fechaSesion}`, cambioVal);
+      actualizarPantalla();
+    }
+
+    function actualizarPantalla() {
+      const listaContainer = document.getElementById('listaMovimientos');
+      const filtro = document.getElementById('txtBuscar').value.toLowerCase().trim();
+      listaContainer.innerHTML = '';
+
+      let totalIngresos = 0;
+      let totalEgresos = 0;
+
+      movimientos.forEach(m => {
+        if (m.tipo === 'ingreso') totalIngresos += Number(m.monto);
+        else totalEgresos += Number(m.monto);
+      });
+
+      const movimientosFiltrados = movimientos.filter(m => {
+        const concepto = (m.concepto || '').toLowerCase();
+        const tipo = (m.tipo || '').toLowerCase();
+        return concepto.includes(filtro) || tipo.includes(filtro);
+      });
+
+      if (movimientosFiltrados.length === 0) {
+        listaContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 12px;">No hay movimientos registrados hoy.</div>';
+      } else {
+        movimientosFiltrados.forEach((m) => {
+          const realIndex = movimientos.indexOf(m);
+          const item = document.createElement('div');
+          item.className = 'movimiento-item';
+          item.innerHTML = `
+            <div class="mov-info">
+              <span class="mov-concepto">${m.concepto}</span>
+              <span class="mov-tipo">${m.tipo.toUpperCase()}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="mov-monto ${m.tipo}">${m.tipo === 'ingreso' ? '+' : '-'}$${Number(m.monto).toFixed(2)}</span>
+              <button class="btn-borrar-item" onclick="eliminarMovimiento(${realIndex})">❌</button>
+            </div>
+          `;
+          listaContainer.appendChild(item);
+        });
+      }
+
+      const cambioInicial = parseFloat(document.getElementById('txtCambioInicial').value) || 0;
+      const saldo = cambioInicial + totalIngresos - totalEgresos;
+
+      document.getElementById('lblTotalIngresos').innerText = `$${totalIngresos.toFixed(2)}`;
+      document.getElementById('lblTotalEgresos').innerText = `$${totalEgresos.toFixed(2)}`;
+      document.getElementById('lblSaldoActual').innerText = `$${saldo.toFixed(2)}`;
+    }
+
+    function agregarMovimiento() {
+      const tipo = document.getElementById('txtTipo').value;
+      const concepto = document.getElementById('txtConcepto').value.trim();
+      const monto = parseFloat(document.getElementById('txtMonto').value);
+
+      if (!concepto) return alert('Por favor, ingresá un concepto.');
+      if (isNaN(monto) || monto <= 0) return alert('Por favor, ingresá un monto válido mayor a cero.');
+
+      movimientos.push({ tipo, concepto, monto });
+      guardarYActualizar();
+
+      document.getElementById('txtConcepto').value = '';
+      document.getElementById('txtMonto').value = '';
+    }
+
+    function eliminarMovimiento(index) {
+      if (confirm('¿Querés eliminar este movimiento?')) {
+        movimientos.splice(index, 1);
+        guardarYActualizar();
+      }
+    }
+
+    function guardarYActualizar() {
+      localStorage.setItem(`sbo_cajachica_${fechaSesion}`, JSON.stringify(movimientos));
+      actualizarPantalla();
+    }
+
+    // Control de Modal
+    const modalMovimientos = document.getElementById('modal-movimientos');
+    document.getElementById('btnAbrirModal').addEventListener('click', () => modalMovimientos.classList.add('active'));
+    document.getElementById('btnCerrarModalX').addEventListener('click', () => modalMovimientos.classList.remove('active'));
+    document.getElementById('btnCerrarModalGris').addEventListener('click', () => modalMovimientos.classList.remove('active'));
+    modalMovimientos.addEventListener('click', (e) => { if (e.target === modalMovimientos) modalMovimientos.classList.remove('active'); });
+
+    actualizarPantalla();
+  </script>
+</body>
+</html>

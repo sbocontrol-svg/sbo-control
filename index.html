@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#059669">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>S. B. O. Control</title>
+  <style>
+    :root {
+      --primary-color: #059669;
+      --font-scale: 15px;
+    }
+    html { font-size: var(--font-scale); }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .container {
+      background-color: #ffffff;
+      color: #1e293b;
+      width: 100%;
+      max-width: 480px;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    /* Ayuda global en la esquina superior derecha */
+    .global-help {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: inline-block;
+      z-index: 10;
+    }
+
+    .help-icon {
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      list-style: none;
+      box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+    }
+
+    .help-icon::-webkit-details-marker {
+      display: none;
+    }
+
+    .help-content {
+      position: absolute;
+      right: 0;
+      top: 30px;
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      width: 250px;
+      z-index: 20;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    .help-content strong {
+      color: #34d399;
+    }
+
+    .top-content {
+      text-align: center;
+    }
+
+    .brand-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 4px;
+      border: 2px solid var(--primary-color);
+      box-shadow: 0 2px 5px rgba(5, 150, 105, 0.2);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      margin: 0;
+    }
+
+    .brand-slogan {
+      font-size: 0.8rem;
+      color: #4b5563;
+      margin-top: 2px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-desc {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .divider {
+      border: 0;
+      border-top: 1px dashed #cbd5e1;
+      margin: 10px 0;
+    }
+
+    .date-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+
+    .date-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .date-input {
+      width: 140px;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #1e293b;
+      background-color: #f8fafc;
+      text-align: right;
+      outline: none;
+    }
+    .date-input:focus { border-color: var(--primary-color); background: #fff; }
+
+    /* Caja de Cliente Principal */
+    .client-display-section {
+      text-align: center;
+      margin: 8px 0;
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    .client-box-label {
+      font-size: 0.85rem;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      font-weight: 800;
+      margin-bottom: 2px;
+      letter-spacing: 0.5px;
+    }
+
+    .client-box-name {
+      font-size: 0.95rem;
+      color: #64748b;
+      font-weight: 400;
+    }
+
+    .btn-subtle-modify {
+      background: none;
+      border: none;
+      color: #0284c7;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .btn-subtle-modify:hover {
+      text-decoration: underline;
+    }
+
+    /* Modal Flotante */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.75);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 12px;
+    }
+
+    .modal-container {
+      background-color: #ffffff;
+      color: #1e293b;
+      width: 100%;
+      max-width: 400px;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      border: 1px solid #e2e8f0;
+      text-align: left;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .login-section {
+      text-align: left;
+      margin: 6px 0;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .form-group {
+      margin-bottom: 8px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #4b5563;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: #1e293b;
+      background-color: #f8fafc;
+      outline: none;
+    }
+    .form-control:focus { border-color: var(--primary-color); background: #fff; }
+
+    .input-uppercase {
+      text-transform: uppercase;
+    }
+
+    .btn-save {
+      background-color: #0284c7;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+      box-shadow: 0 3px 8px rgba(2, 132, 199, 0.2);
+    }
+    .btn-save:active { transform: scale(0.98); }
+
+    .modal-close-btn {
+      background: #64748b;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .modal-close-btn:active { transform: scale(0.98); }
+
+    .extra-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+
+    .support-link {
+      color: #0284c7;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .support-link:hover {
+      text-decoration: underline;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: #dc2626;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .clear-btn:hover {
+      text-decoration: underline;
+    }
+
+    .bottom-actions {
+      margin-top: 14px;
+    }
+
+    .btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(5, 150, 105, 0.2);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .footer-zocalo {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Ayuda global en la esquina superior derecha -->
+    <details class="help-dropdown global-help">
+      <summary class="help-icon">?</summary>
+      <div class="help-content">
+        <strong>Ayuda del Sistema:</strong><br><br>
+        • <strong>Registro:</strong> Tocá en "Registro" para cargar tu nombre, dirección y WhatsApp.<br><br>
+        • <strong>Licencia:</strong> Elegí la licencia del menú desplegable e ingresá la clave correspondiente que recibiste por WhatsApp.
+      </div>
+    </details>
+
+    <div class="top-content">
+      <img src="logosbo.jpg" alt="Logo SBO" class="brand-logo">
+      <h1>S. B. O. Control</h1>
+      <div class="brand-slogan">Small Business Owner</div>
+      <div class="brand-desc">Gestión Integral para emprendedores</div>
+    </div>
+    
+    <hr class="divider">
+
+    <div class="date-section">
+      <label class="date-label" for="txtFechaSesion">📅 FECHA:</label>
+      <input type="date" id="txtFechaSesion" class="date-input">
+    </div>
+
+    <hr class="divider">
+
+    <!-- Caja Principal del Cliente -->
+    <div class="client-display-section">
+      <div class="client-box-label">¡BIENVENIDO!</div>
+      <div id="lblNombreCliente" class="client-box-name">nombre-cliente</div>
+      <button type="button" class="btn-subtle-modify" onclick="abrirModalRegistro()">⚙️ Registro</button>
+    </div>
+
+    <hr class="divider">
+
+    <div class="login-section">
+      <div class="section-title">Ingresar al Sistema</div>
+      
+      <div class="form-group" style="margin-top: 6px;">
+        <label for="selectLicencia">Licencia:</label>
+        <select id="selectLicencia" class="form-control">
+          <option value="">Cargando licencias...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="txtClave">Clave:</label>
+        <input type="text" id="txtClave" class="form-control input-uppercase" placeholder="Ingrese siglas en mayúsculas">
+      </div>
+
+      <div class="extra-actions">
+        <a href="https://wa.me/?text=Hola%20SBO%20Control,%20necesito%20ayuda%20con%20mi%20licencia" target="_blank" class="support-link">💬 ¿Te olvidaste la Licencia?</a>
+        <button type="button" class="clear-btn" onclick="limpiarDatos()">🔄 Limpiar datos</button>
+      </div>
+    </div>
+
+    <div class="bottom-actions">
+      <button class="btn" onclick="entrarAlSistema()">Comenzar</button>
+    </div>
+  </div>
+
+  <!-- Modal Flotante de Registro / Modificación -->
+  <div id="modalRegistro" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-title">BIENVENIDO</div>
+      
+      <div class="form-group">
+        <label for="txtNombre">Nombre y Apellido:</label>
+        <input type="text" id="txtNombre" class="form-control" placeholder="Ingrese Nombre y Apellido">
+      </div>
+
+      <div class="form-group">
+        <label for="txtDireccion">Dirección/ Ciudad:</label>
+        <input type="text" id="txtDireccion" class="form-control" placeholder="Ingrese Dirección / Ciudad">
+      </div>
+
+      <div class="form-group">
+        <label for="txtWhatsapp">WhatsApp:</label>
+        <input type="tel" id="txtWhatsapp" class="form-control" placeholder="Ingrese WhatsApp">
+      </div>
+
+      <button class="btn-save" onclick="guardarRegistro()">Guardar Registro y Enviar</button>
+      <button type="button" class="modal-close-btn" onclick="cerrarModalRegistro()">Cerrar</button>
+    </div>
+  </div>
+
+  <div class="footer-zocalo">
+    S. B. O. Control™ - Small Business Owner - v1.0.0<br>
+    © 2026 - Todos los derechos reservados
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const ahora = new Date();
+      const año = ahora.getFullYear();
+      const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+      const dia = String(ahora.getDate()).padStart(2, '0');
+      const hoy = `${año}-${mes}-${dia}`;
+      document.getElementById('txtFechaSesion').value = hoy;
+
+      const nombreGuardado = localStorage.getItem('sbo_nombre');
+      const lblCliente = document.getElementById('lblNombreCliente');
+      
+      if(nombreGuardado) {
+        document.getElementById('txtNombre').value = nombreGuardado;
+        lblCliente.textContent = nombreGuardado;
+        lblCliente.style.color = '#0f172a';
+        lblCliente.style.fontWeight = '800';
+      } else {
+        lblCliente.textContent = 'nombre-cliente';
+        lblCliente.style.color = '#64748b';
+        lblCliente.style.fontWeight = '400';
+      }
+
+      if(localStorage.getItem('sbo_direccion')) document.getElementById('txtDireccion').value = localStorage.getItem('sbo_direccion');
+      if(localStorage.getItem('sbo_whatsapp')) document.getElementById('txtWhatsapp').value = localStorage.getItem('sbo_whatsapp');
+
+      document.getElementById('txtClave').value = '';
+
+      try {
+        const respuesta = await fetch('./licencias.json');
+        if (respuesta.ok) {
+          const licencias = await respuesta.json();
+          const select = document.getElementById('selectLicencia');
+          select.innerHTML = '<option value="">Seleccioná una licencia...</option>';
+          
+          licencias.forEach(item => {
+            if (item.activa) {
+              const opt = document.createElement('option');
+              opt.value = item.nombreLicencia;
+              opt.textContent = `${item.nombreLicencia} (${item.duracion})`;
+              select.appendChild(opt);
+            }
+          });
+        } else {
+          document.getElementById('selectLicencia').innerHTML = '<option value="">No se pudieron cargar las licencias</option>';
+        }
+      } catch (error) {
+        console.error('Error al cargar licencias:', error);
+        document.getElementById('selectLicencia').innerHTML = '<option value="">Error de conexión</option>';
+      }
+    });
+
+    function abrirModalRegistro() {
+      document.getElementById('modalRegistro').style.display = 'flex';
+    }
+
+    function cerrarModalRegistro() {
+      document.getElementById('modalRegistro').style.display = 'none';
+    }
+
+    function guardarRegistro() {
+      const nombre = document.getElementById('txtNombre').value.trim();
+      const direccion = document.getElementById('txtDireccion').value.trim();
+      const whatsapp = document.getElementById('txtWhatsapp').value.trim();
+
+      if (!nombre || !direccion || !whatsapp) {
+        alert('Por favor completá todos los campos del registro.');
+        return;
+      }
+
+      const soloNumeros = /^\d+$/;
+      if (!soloNumeros.test(whatsapp) || whatsapp.length < 8) {
+        alert('El número de WhatsApp debe contener solo números y ser válido.');
+        return;
+      }
+
+      localStorage.setItem('sbo_nombre', nombre);
+      localStorage.setItem('sbo_direccion', direccion);
+      localStorage.setItem('sbo_whatsapp', whatsapp);
+      
+      const lblCliente = document.getElementById('lblNombreCliente');
+      lblCliente.textContent = nombre;
+      lblCliente.style.color = '#0f172a';
+      lblCliente.style.fontWeight = '800';
+
+      cerrarModalRegistro();
+
+      const telefonoNegocio = "5492364502082";
+      const textoMensaje = encodeURIComponent(
+        `¡Hola! Me acabo de registrar en SBO Control:\n\n` +
+        `👤 Nombre: ${nombre}\n` +
+        `📍 Dirección/Ciudad: ${direccion}\n` +
+        `📱 WhatsApp: ${whatsapp}`
+      );
+
+      const urlWhatsApp = `https://wa.me/${telefonoNegocio}?text=${textoMensaje}`;
+      window.location.href = urlWhatsApp;
+    }
+
+    function limpiarDatos() {
+      if (confirm('¿Querés borrar los datos guardados en este dispositivo?')) {
+        localStorage.removeItem('sbo_nombre');
+        localStorage.removeItem('sbo_direccion');
+        localStorage.removeItem('sbo_whatsapp');
+        localStorage.removeItem('sbo_licenciaNombre');
+        localStorage.removeItem('sbo_clave');
+        location.reload();
+      }
+    }
+
+    async function entrarAlSistema() {
+      const fechaIngresada = document.getElementById('txtFechaSesion').value;
+      const licenciaNombre = document.getElementById('selectLicencia').value;
+      const clave = document.getElementById('txtClave').value.trim();
+      const nombreCliente = localStorage.getItem('sbo_nombre');
+
+      if (!fechaIngresada) {
+        alert('Por favor, seleccioná la fecha de trabajo.');
+        return;
+      }
+
+      if (!licenciaNombre || !clave) {
+        alert('Por favor, seleccioná una licencia del menú e ingresá su clave.');
+        return;
+      }
+
+      if (clave !== clave.toUpperCase()) {
+        alert('La clave debe ingresarse estrictamente en mayúsculas.');
+        return;
+      }
+
+      try {
+        const respuesta = await fetch('./licencias.json');
+        
+        if (!respuesta.ok) {
+          throw new Error('No se pudo conectar con el servidor de licencias.');
+        }
+
+        const licencias = await respuesta.json();
+
+        const licenciaValida = licencias.find(item => 
+          item.nombreLicencia.toLowerCase() === licenciaNombre.toLowerCase() &&
+          item.clave === clave &&
+          item.activa === true
+        );
+
+        if (!licenciaValida) {
+          alert('⚠️ La clave ingresada no es correcta para la licencia seleccionada o se encuentra inactiva.');
+          return;
+        }
+
+        localStorage.setItem('sbo_fechaSesion', fechaIngresada);
+        localStorage.setItem('sbo_licenciaNombre', licenciaValida.nombreLicencia);
+        localStorage.setItem('sbo_clave', clave);
+
+        window.location.href = 'menu.html';
+
+      } catch (error) {
+        console.error(error);
+        alert('❌ Error al validar con la nube. Verificá tu conexión a internet.');
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log("Service Worker de SBO Control registrado con éxito"))
+                .catch((err) => console.log("Fallo el registro", err));
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Libro Diario - S. B. O. Control</title>
+
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <style>
+    :root {
+      --primary-color: #059669;
+      --font-scale: 15px;
+    }
+    html { font-size: var(--font-scale); }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; margin: 0; padding: 10px; color: #1f2937; display: flex; justify-content: center; min-height: 100vh; }
+    
+    .container { width: 100%; max-width: 480px; }
+    .card { background: white; padding: 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 12px; }
+    
+    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 10px; }
+    .btn-volver:active { transform: scale(0.96); }
+    
+    .fecha-banner { background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; }
+    .fecha-picker { padding: 6px 8px; border-radius: 8px; border: 1px solid #0284c7; background: white; font-weight: bold; font-size: 0.9rem; color: #0369a1; outline: none; }
+    .fecha-picker:focus { background: #fff; }
+
+    /* DASHBOARD PRINCIPAL */
+    .hero-stat { background: #1e293b; color: white; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 12px; }
+    .hero-title { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; font-weight: bold; }
+    .hero-monto { font-size: 2rem; font-weight: 800; color: #38bdf8; margin: 4px 0; }
+    .hero-sub { font-size: 0.85rem; color: #cbd5e1; }
+
+    /* METODOS DE PAGO GRID */
+    .grid-pagos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+    .pago-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 8px; border-radius: 8px; text-align: center; }
+    .pago-label { font-size: 0.7rem; color: #64748b; font-weight: bold; text-transform: uppercase; }
+    .pago-val { font-size: 1rem; font-weight: 800; color: #0f172a; margin-top: 4px; }
+
+    /* RESUMEN DE MOVIMIENTOS Y CAJA */
+    .resumen-caja { background: #f8fafc; border-left: 4px solid var(--primary-color); padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem; border: 1px solid #e2e8f0; border-left-width: 4px; }
+    .resumen-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .resumen-row:last-child { margin-bottom: 0; border-top: 1px dashed #cbd5e1; padding-top: 8px; font-weight: bold; }
+
+    /* BOTONES DE ACCIÓN PRINCIPALES Y MODALES */
+    .btn-print { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; box-shadow: 0 3px 8px rgba(2,132,199,0.2); }
+    .btn-print:active { transform: scale(0.98); }
+
+    .botones-modales { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-abrir-modal { flex: 1; background: #475569; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+    .btn-abrir-modal:active { transform: scale(0.98); }
+
+    /* ESTILOS DE ITEMS DENTRO DE MODALES */
+    .venta-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem; }
+    .venta-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px; color: #1e293b; }
+    .venta-det { font-size: 0.8rem; color: #64748b; }
+    .pago-tag { font-size: 0.75rem; padding: 2px 6px; border-radius: 6px; font-weight: 600; display: inline-block; margin-top: 4px; }
+    .tag-efectivo { background: #dcfce7; color: #15803d; }
+    .tag-mp { background: #e0f2fe; color: #0369a1; }
+    .tag-tarjeta { background: #f3e8ff; color: #6b21a8; }
+
+    /* MODAL ESTILOS */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .modal-overlay.active { display: flex; }
+    .modal-container { background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; flex-shrink: 0; }
+    .modal-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin: 0; }
+    .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    
+    .lista-modal-content { margin-top: 6px; max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
+    .btn-cerrar-gris { background: #64748b; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; text-align: center; flex-shrink: 0; }
+    .btn-cerrar-gris:active { transform: scale(0.98); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      body { background: white; padding: 0; color: black; display: block; }
+      .container { max-width: 100%; }
+      .card { box-shadow: none; border: 1px solid #cbd5e1; margin-bottom: 10px; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <a href="menu.html" class="btn-volver no-print">⬅️ Volver al Menú</a>
+      <h2 style="margin: 0 0 4px; font-size: 1.25rem; color: var(--primary-color);">📖 Libro Diario</h2>
+      <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 12px;">Cierre y balance general de la jornada</p>
+
+      <!-- SELECTOR DE FECHA DE CONSULTA -->
+      <div class="fecha-banner">
+        <span>📅 Fecha:</span>
+        <input type="date" id="selectFecha" class="fecha-picker" onchange="cambiarFecha(this.value)">
+      </div>
+
+      <!-- TOTAL GENERAL VENDIDO -->
+      <div class="hero-stat">
+        <div class="hero-title">Total Facturado en el Día</div>
+        <div class="hero-monto" id="lblTotalVendido">$0</div>
+        <div class="hero-sub" id="lblCantidadVentas">0 operaciones realizadas</div>
+      </div>
+
+      <!-- DESGLOSE POR MEDIO DE PAGO -->
+      <div class="grid-pagos">
+        <div class="pago-box">
+          <div class="pago-label">💵 Efectivo</div>
+          <div class="pago-val" id="lblPagoEfectivo">$0</div>
+        </div>
+        <div class="pago-box">
+          <div class="pago-label">📱 MP / Transf.</div>
+          <div class="pago-val" id="lblPagoMP">$0</div>
+        </div>
+        <div class="pago-box">
+          <div class="pago-label">💳 Tarjetas</div>
+          <div class="pago-val" id="lblPagoTarjeta">$0</div>
+        </div>
+      </div>
+
+      <!-- RESUMEN DE MOVIMIENTOS Y CAJA -->
+      <div class="resumen-caja">
+        <div class="resumen-row">
+          <span>Otros Ingresos de Caja:</span>
+          <strong id="lblCajaIngresos" style="color: #059669;">+$0</strong>
+        </div>
+        <div class="resumen-row">
+          <span>Gastos / Salidas de Caja:</span>
+          <strong id="lblCajaGastos" style="color: #dc2626;">-$0</strong>
+        </div>
+        <div class="resumen-row">
+          <span>Efectivo Teórico Final:</span>
+          <strong id="lblCajaEfectivoFinal">$0</strong>
+        </div>
+        <div class="resumen-row">
+          <span>Ventas Digitales (MP / Tarj):</span>
+          <strong id="lblVentasDigitales" style="color: #0284c7;">+$0</strong>
+        </div>
+        <div class="resumen-row">
+          <span>Total General de la Jornada:</span>
+          <strong id="lblTotalGeneralJornada" style="color: var(--primary-color);">$0</strong>
+        </div>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN INFERIORES -->
+      <button class="btn-print no-print" onclick="window.print()">🖨️ Imprimir / Guardar Resumen del Día</button>
+      
+      <div class="botones-modales no-print">
+        <button class="btn-abrir-modal" onclick="abrirModalVentas()">🛍️ Ventas (<span id="countVentasBtn">0</span>)</button>
+        <button class="btn-abrir-modal" onclick="abrirModalMovs()">💸 Caja (<span id="countMovsBtn">0</span>)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL VENTAS DEL DÍA -->
+  <div class="modal-overlay" id="modal-ventas">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>🛍️ Ventas del Día (<span id="countVentasModal">0</span>)</h3>
+        <button class="modal-close-btn" onclick="cerrarModalVentas()">✕</button>
+      </div>
+      <div id="listaVentasDia" class="lista-modal-content"></div>
+      <button class="btn-cerrar-gris" onclick="cerrarModalVentas()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- MODAL MOVIMIENTOS CAJA CHICA -->
+  <div class="modal-overlay" id="modal-movs">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>💸 Movimientos Caja (<span id="countMovsModal">0</span>)</h3>
+        <button class="modal-close-btn" onclick="cerrarModalMovs()">✕</button>
+      </div>
+      <div id="listaMovsDia" class="lista-modal-content"></div>
+      <button class="btn-cerrar-gris" onclick="cerrarModalMovs()">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+    let fechaVer = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const config = JSON.parse(localStorage.getItem('sbo_config')) || {};
+      if(config.color) {
+        document.documentElement.style.setProperty('--primary-color', config.color);
+      }
+
+      document.getElementById('selectFecha').value = fechaVer;
+      cargarDiario();
+    });
+
+    function cambiarFecha(nuevaFecha) {
+      if(!nuevaFecha) return;
+      fechaVer = nuevaFecha;
+      cargarDiario();
+    }
+
+    function cargarDiario() {
+      const ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
+      const movsHoy = JSON.parse(localStorage.getItem(`sbo_cajachica_${fechaVer}`)) || [];
+
+      // Filtrar ventas de la fecha elegida
+      const ventasHoy = ventas.filter(v => v.fecha === fechaVer);
+      
+      // Totales de ventas por medio de pago
+      const totalVendido = ventasHoy.reduce((sum, v) => sum + (v.total || 0), 0);
+      const efecVentas = ventasHoy.filter(v => v.pago === 'Efectivo').reduce((sum, v) => sum + v.total, 0);
+      const mpVentas = ventasHoy.filter(v => v.pago === 'Mercado Pago' || v.pago === 'Transferencia').reduce((sum, v) => sum + v.total, 0);
+      const tarjVentas = ventasHoy.filter(v => v.pago.includes('Tarjeta') || v.pago.includes('Débito') || v.pago.includes('Crédito')).reduce((sum, v) => sum + v.total, 0);
+
+      // Render Totales Ventas
+      document.getElementById('lblTotalVendido').innerText = `$${totalVendido.toLocaleString('es-AR')}`;
+      document.getElementById('lblCantidadVentas').innerText = `${ventasHoy.length} operación(es) registrada(s)`;
+      
+      document.getElementById('lblPagoEfectivo').innerText = `$${efecVentas.toLocaleString('es-AR')}`;
+      document.getElementById('lblPagoMP').innerText = `$${mpVentas.toLocaleString('es-AR')}`;
+      document.getElementById('lblPagoTarjeta').innerText = `$${tarjVentas.toLocaleString('es-AR')}`;
+
+      // Cálculos de caja chica
+      const oIngresos = movsHoy.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + Number(m.monto), 0);
+      const egresos = movsHoy.filter(m => m.tipo === 'egreso').reduce((sum, m) => sum + Number(m.monto), 0);
+      
+      const efectivoFinal = efecVentas + oIngresos - egresos;
+      const ventasDigitales = mpVentas + tarjVentas;
+      const totalGeneralJornada = totalVendido;
+
+      // Render Resumen Caja
+      document.getElementById('lblCajaIngresos').innerText = `+$${oIngresos.toLocaleString('es-AR')}`;
+      document.getElementById('lblCajaGastos').innerText = `-$${egresos.toLocaleString('es-AR')}`;
+      document.getElementById('lblCajaEfectivoFinal').innerText = `$${efectivoFinal.toLocaleString('es-AR')}`;
+      document.getElementById('lblVentasDigitales').innerText = `+$${ventasDigitales.toLocaleString('es-AR')}`;
+      document.getElementById('lblTotalGeneralJornada').innerText = `$${totalGeneralJornada.toLocaleString('es-AR')}`;
+
+      // Actualizar Contadores en Botones y Modales
+      document.getElementById('countVentasBtn').innerText = ventasHoy.length;
+      document.getElementById('countVentasModal').innerText = ventasHoy.length;
+      document.getElementById('countMovsBtn').innerText = movsHoy.length;
+      document.getElementById('countMovsModal').innerText = movsHoy.length;
+
+      // Render Lista de Ventas
+      let htmlVentas = '';
+      ventasHoy.forEach(v => {
+        let tagClass = 'tag-efectivo';
+        if (v.pago.includes('Mercado') || v.pago.includes('Transf')) tagClass = 'tag-mp';
+        if (v.pago.includes('Tarj') || v.pago.includes('Débito') || v.pago.includes('Crédito')) tagClass = 'tag-tarjeta';
+
+        const prodList = (v.items || []).map(i => `${i.cant}x ${i.nombre}`).join(', ') || 'Venta rápida';
+
+        htmlVentas += `
+          <div class="venta-item">
+            <div class="venta-header">
+              <span>⏰ ${v.hora || 'S/H'} - ${v.cliente || 'Cliente Ocasional'}</span>
+              <span style="color: var(--primary-color);">$${v.total.toLocaleString('es-AR')}</span>
+            </div>
+            <div class="venta-det">${prodList}</div>
+            <span class="pago-tag ${tagClass}">${v.pago}</span>
+          </div>
+        `;
+      });
+
+      if (ventasHoy.length === 0) {
+        htmlVentas = '<p style="text-align:center; color:#9ca3af; font-size: 0.85rem; padding: 12px;">No hay ventas registradas en esta fecha.</p>';
+      }
+      document.querySelectorAll('#listaVentasDia').forEach(el => el.innerHTML = htmlVentas);
+
+      // Render Lista de Movimientos de Caja
+      let htmlMovs = '';
+      movsHoy.forEach(m => {
+        const esEgreso = m.tipo === 'egreso';
+        const color = esEgreso ? '#dc2626' : '#059669';
+        const signo = esEgreso ? '-' : '+';
+
+        htmlMovs += `
+          <div class="venta-item" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:bold;">${m.concepto}</div>
+              <div class="venta-det">${m.tipo.toUpperCase()}</div>
+            </div>
+            <div style="font-weight:800; color:${color};">
+              ${signo}$${Number(m.monto).toLocaleString('es-AR')}
+            </div>
+          </div>
+        `;
+      });
+
+      if (movsHoy.length === 0) {
+        htmlMovs = '<p style="text-align:center; color:#9ca3af; font-size: 0.85rem; padding: 12px;">Sin egresos ni ingresos extras en esta fecha.</p>';
+      }
+      document.querySelectorAll('#listaMovsDia').forEach(el => el.innerHTML = htmlMovs);
+    }
+
+    // Control de Modales
+    const modalVentas = document.getElementById('modal-ventas');
+    const modalMovs = document.getElementById('modal-movs');
+
+    function abrirModalVentas() { modalVentas.classList.add('active'); }
+    function cerrarModalVentas() { modalVentas.classList.remove('active'); }
+
+    function abrirModalMovs() { modalMovs.classList.add('active'); }
+    function cerrarModalMovs() { modalMovs.classList.remove('active'); }
+
+    modalVentas.addEventListener('click', (e) => { if (e.target === modalVentas) cerrarModalVentas(); });
+    modalMovs.addEventListener('click', (e) => { if (e.target === modalMovs) cerrarModalMovs(); });
+  </script>
+</body>
+</html>
