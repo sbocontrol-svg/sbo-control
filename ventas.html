@@ -31,7 +31,7 @@
     input, select { width: 100%; padding: 9px 10px; margin-top: 4px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.88rem; outline: none; }
     input:focus, select:focus { border-color: var(--primary-color); }
     
-    .btn-main { background: var(--primary-color); color: white; border: none; padding: 11px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.88rem; margin-top: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
+    .btn-main { background: var(--primary-color); color: white; border: none; padding: 11px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.88rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
     .btn-main:active { transform: scale(0.98); }
 
     .btn-add { background: #1976d2; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.82rem; cursor: pointer; width: 100%; margin-top: 10px; }
@@ -40,15 +40,33 @@
     .btn-registros { background: #455a64; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.85rem; margin-top: 8px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
     .btn-registros:active { transform: scale(0.98); }
 
-    /* CARRITO */
-    .cart-box { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 10px; }
+    /* BANDITA RECORDATORIO AMARILLA CON MOVIMIENTO */
+    .reminder-band {
+      background: #fef9c3;
+      color: #713f12;
+      font-size: 0.73rem;
+      padding: 8px 0;
+      border-radius: 8px;
+      font-weight: 700;
+      margin-top: 10px;
+      border: 1px dashed #eab308;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+    .reminder-band marquee {
+      width: 100%;
+      display: block;
+    }
+
+    /* CARRITO EN MODAL */
     .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #cbd5e1; padding: 6px 0; font-size: 0.8rem; }
     .cart-item:last-child { border-bottom: none; }
     .btn-del-cart { background: #ffebee; color: #c62828; border: none; padding: 3px 6px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.7rem; }
     
     .total-box { font-size: 1.1rem; font-weight: 800; color: var(--primary-color); text-align: right; margin-top: 8px; }
 
-    /* MODAL VENTAS ESTILOS */
+    /* MODAL ESTILOS GENERALES */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
     .modal-overlay.active { display: flex; }
     
@@ -115,7 +133,7 @@
         <option value="Consumidor Final">👤 Consumidor Final</option>
       </select>
 
-      <!-- AGREGAR PRODUCTOS -->
+      <!-- AGREGAR PRODUCTOS Y MÉTODO DE PAGO -->
       <div style="background:#f8f9fa; padding:10px; border-radius:8px; margin-top:8px; border: 1px solid #e2e8f0;">
         <label style="margin-top:0;">Seleccionar Producto:</label>
         <select id="vProducto" onchange="cargarPrecioMax()"></select>
@@ -131,30 +149,48 @@
           </div>
         </div>
 
+        <label>Método de Pago:</label>
+        <select id="vPago">
+          <option value="Efectivo">💵 Efectivo</option>
+          <option value="Transferencia">🏦 Transferencia Bancaria</option>
+          <option value="Mercado Pago">📱 Mercado Pago</option>
+          <option value="Tarjeta de Débito">💳 Tarjeta de Débito</option>
+          <option value="Tarjeta de Crédito">💳 Tarjeta de Crédito</option>
+        </select>
+
         <button class="btn-add" onclick="agregarAlCarrito()">➕ Agregar al Carrito</button>
       </div>
 
-      <!-- DETALLE DEL CARRITO -->
-      <div class="cart-box">
-        <strong style="font-size:0.8rem; color:#475569; display:block; margin-bottom:4px;">🛒 Resumen de Compra:</strong>
-        <div id="listaCarrito">
-          <p style="text-align:center; color:#9ca3af; font-size:0.78rem; margin:4px 0;">El carrito está vacío</p>
-        </div>
-        <div class="total-box" id="lblTotalVenta">Total: $0</div>
+      <!-- BOTÓN PARA ABRIR EL CARRITO / MODAL -->
+      <button class="btn-main" style="background:#0284c7; margin-top:10px;" onclick="abrirModalCarrito()">🛒 Ver Carrito y Confirmar (<span id="badgeCarrito">0</span>)</button>
+      
+      <button class="btn-registros" id="btnAbrirModalVentas">📋 Ver Ventas de la Jornada</button>
+
+      <!-- BANDITA RECORDATORIO AMARILLA CIRCULANTE -->
+      <div class="reminder-band">
+        <marquee behavior="scroll" direction="left" scrollamount="4">
+          💡 <strong>Recordatorio:</strong> Al finalizar la jornada hacer el Cierre Z y el backup diario de datos.
+        </marquee>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CARRITO / CONFIRMACIÓN -->
+  <div class="modal-overlay" id="modal-carrito">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>🛒 Carrito de Compras</h3>
+        <button class="modal-close-btn" onclick="cerrarModalCarrito()">✕</button>
       </div>
 
-      <!-- MÉTODOS DE PAGO Y CONFIRMACIÓN -->
-      <label>Método de Pago:</label>
-      <select id="vPago">
-        <option value="Efectivo">💵 Efectivo</option>
-        <option value="Transferencia">🏦 Transferencia Bancaria</option>
-        <option value="Mercado Pago">📱 Mercado Pago</option>
-        <option value="Tarjeta de Débito">💳 Tarjeta de Débito</option>
-        <option value="Tarjeta de Crédito">💳 Tarjeta de Crédito</option>
-      </select>
+      <div id="listaCarritoModal" class="lista-ventas-modal">
+        <p style="text-align:center; color:#9ca3af; font-size:0.78rem; padding: 12px;">El carrito está vacío</p>
+      </div>
 
-      <button class="btn-main" onclick="confirmarVenta()">🚀 Confirmar y Generar Comprobante</button>
-      <button class="btn-registros" id="btnAbrirModalVentas">📋 Ver Ventas de la Jornada</button>
+      <div class="total-box" id="lblTotalVentaModal">Total: $0</div>
+
+      <button class="btn-main" style="margin-top: 6px;" onclick="confirmarVenta()">🚀 Confirmar y Generar Comprobante</button>
+      <button class="btn-cerrar-gris" onclick="cerrarModalCarrito()">Volver</button>
     </div>
   </div>
 
@@ -227,6 +263,7 @@
       }
       cargarDesplegables();
       renderVentas();
+      renderCarrito();
     });
 
     function cargarDesplegables() {
@@ -284,13 +321,20 @@
       document.getElementById('vProducto').value = '';
       document.getElementById('vCant').value = 1;
       document.getElementById('vPrecioUnit').value = '';
+
+      abrirModalCarrito();
     }
 
     function renderCarrito() {
-      const cont = document.getElementById('listaCarrito');
+      const cont = document.getElementById('listaCarritoModal');
+      const badge = document.getElementById('badgeCarrito');
+      
+      const totalItems = carrito.reduce((acc, i) => acc + i.cant, 0);
+      badge.innerText = totalItems;
+
       if (carrito.length === 0) {
         cont.innerHTML = '<p style="text-align:center; color:#9ca3af; font-size:0.8rem; margin:5px 0;">El carrito está vacío</p>';
-        document.getElementById('lblTotalVenta').innerText = 'Total: $0';
+        document.getElementById('lblTotalVentaModal').innerText = 'Total: $0';
         return;
       }
 
@@ -314,12 +358,20 @@
       });
 
       cont.innerHTML = html;
-      document.getElementById('lblTotalVenta').innerText = `Total: $${total.toLocaleString('es-AR')}`;
+      document.getElementById('lblTotalVentaModal').innerText = `Total: $${total.toLocaleString('es-AR')}`;
     }
 
     function eliminarDelCarrito(idx) {
       carrito.splice(idx, 1);
       renderCarrito();
+    }
+
+    function abrirModalCarrito() {
+      document.getElementById('modal-carrito').classList.add('active');
+    }
+
+    function cerrarModalCarrito() {
+      document.getElementById('modal-carrito').classList.remove('active');
     }
 
     function confirmarVenta() {
@@ -358,6 +410,7 @@
 
       carrito = [];
       renderCarrito();
+      cerrarModalCarrito();
       cargarDesplegables();
       renderVentas();
 
@@ -481,6 +534,10 @@
     document.getElementById('btnCerrarModalVentasX').addEventListener('click', () => modalVentas.classList.remove('active'));
     document.getElementById('btnCerrarModalVentasGris').addEventListener('click', () => modalVentas.classList.remove('active'));
     modalVentas.addEventListener('click', (e) => { if (e.target === modalVentas) modalVentas.classList.remove('active'); });
+    
+    // Cerrar modal carrito al hacer click fuera
+    const modalCarrito = document.getElementById('modal-carrito');
+    modalCarrito.addEventListener('click', (e) => { if (e.target === modalCarrito) cerrarModalCarrito(); });
   </script>
 </body>
 </html>
