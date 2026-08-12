@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ventas y Comprobantes - S. B. O. Control</title>
+  <title>Ventas y Comprobantes - Infinito Corazón</title>
 
   <link rel="icon" type="image/jpeg" href="logosbo.jpg">
   <link rel="apple-touch-icon" href="logosbo.jpg">
-  <meta name="theme-color" content="#00796b">
+  <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
   <style>
     :root {
-      --primary-color: #00796b;
-      --primary-light: #e0f2f1;
+      --primary-color: #0f172a;
       --font-scale: 15px;
     }
     html { font-size: var(--font-scale); }
@@ -23,97 +22,54 @@
     
     .container { width: 100%; max-width: 440px; }
     .card { background: white; padding: 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
-    
-    .btn-volver { background: #546e7a; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; text-decoration: none; display: inline-block; }
-    .btn-volver:active { transform: scale(0.96); }
-    
-    label { font-size: 0.72rem; font-weight: 700; color: #4b5563; display: block; margin-top: 8px; text-align: left; }
-    input, select { width: 100%; padding: 9px 10px; margin-top: 4px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.88rem; outline: none; }
-    input:focus, select:focus { border-color: var(--primary-color); }
-    
-    .btn-main { background: var(--primary-color); color: white; border: none; padding: 11px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.88rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
-    .btn-main:active { transform: scale(0.98); }
 
-    .btn-add { background: #1976d2; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.82rem; cursor: pointer; width: 100%; margin-top: 10px; }
-    .btn-add:active { transform: scale(0.98); }
+    .ventas-container-box *, .ventas-modal-overlay * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    .ventas-container-box label { font-size: 11px; font-weight: 700; color: #475569; display: block; margin-top: 10px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    .ventas-container-box input, .ventas-container-box select { width: 100%; padding: 10px; margin-top: 4px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #f8fafc; color: #1e293b; outline: none; }
+    .ventas-container-box input:focus, .ventas-container-box select:focus { border-color: #3b82f6; background: #fff; }
+    
+    .ventas-btn-main { background: #0f172a; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: 700; font-size: 0.95rem; margin-top: 15px; cursor: pointer; box-shadow: 0 4px 12px rgba(15,23,42,0.3); }
+    .ventas-btn-add { background: #475569; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; }
+    .ventas-btn-historial { background: #475569; color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; width: 100%; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .ventas-btn-secundario { background: #334155; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+    
+    .ventas-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.7); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .ventas-modal-overlay.active { display: flex; }
+    .ventas-modal-container { background: white; width: 100%; max-width: 380px; border-radius: 16px; padding: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-height: 85vh; display: flex; flex-direction: column; overflow-y: auto; }
+    
+    .ventas-cart-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-top: 10px; }
+    .ventas-cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #cbd5e1; padding: 6px 0; font-size: 0.85rem; }
+    .ventas-cart-item:last-child { border-bottom: none; }
+    .ventas-btn-del-cart { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
+    .ventas-total-box { font-size: 1.15rem; font-weight: 800; color: #0f172a; text-align: right; margin-top: 8px; border-top: 1.5px solid #cbd5e1; padding-top: 6px; }
+    
+    .venta-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 10px; margin-bottom: 8px; }
+    .venta-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.85rem; color: #1e293b; }
+    .venta-detalles { font-size: 0.78rem; color: #64748b; margin: 4px 0; }
+    .ventas-acciones { display: flex; gap: 6px; margin-top: 6px; border-top: 1px dashed #e2e8f0; padding-top: 6px; }
+    .ventas-btn-action { flex: 1; padding: 6px; border-radius: 6px; border: none; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-align: center; }
 
-    .btn-registros { background: #455a64; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.85rem; margin-top: 8px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
-    .btn-registros:active { transform: scale(0.98); }
-
-    /* BANDITA RECORDATORIO AMARILLA CON MOVIMIENTO */
-    .reminder-band {
-      background: #fef9c3;
-      color: #713f12;
-      font-size: 0.73rem;
-      padding: 8px 0;
-      border-radius: 8px;
-      font-weight: 700;
-      margin-top: 10px;
-      border: 1px dashed #eab308;
+    .aviso-marquee-container {
+      background-color: #fef3c7;
+      border: 1.5px solid #fcd34d;
+      border-radius: 10px;
       overflow: hidden;
       white-space: nowrap;
-      position: relative;
-    }
-    .reminder-band marquee {
       width: 100%;
-      display: block;
+      padding: 8px 0;
+      margin-top: 12px;
     }
-
-    /* CARRITO EN MODAL */
-    .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #cbd5e1; padding: 6px 0; font-size: 0.8rem; }
-    .cart-item:last-child { border-bottom: none; }
-    .btn-del-cart { background: #ffebee; color: #c62828; border: none; padding: 3px 6px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.7rem; }
-    
-    .total-box { font-size: 1.1rem; font-weight: 800; color: var(--primary-color); text-align: right; margin-top: 8px; }
-
-    /* MODAL ESTILOS GENERALES */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
-    .modal-overlay.active { display: flex; }
-    
-    .modal-container { background: white; width: 100%; max-width: 360px; border-radius: 14px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; }
-    
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px; flex-shrink: 0; }
-    .modal-header h3 { font-size: 0.9rem; color: var(--primary-color); font-weight: 700; margin: 0; }
-    .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    
-    .lista-ventas-modal { 
-      margin-top: 4px; 
-      margin-bottom: 8px;
-      max-height: 220px; 
-      overflow-y: auto; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 6px; 
-      padding-right: 4px;
-      flex-shrink: 1;
+    .marquee-text {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 16s linear infinite;
+      font-size: 0.75rem;
+      color: #92400e;
+      font-weight: 700;
     }
-    .lista-ventas-modal::-webkit-scrollbar { width: 6px; }
-    .lista-ventas-modal::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-    .lista-ventas-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-
-    /* TARJETAS DE HISTORIAL DENTRO DEL MODAL */
-    .venta-item { background: #f8f9fa; border: 1px solid #e2e8f0; padding: 8px 10px; border-radius: 8px; flex-shrink: 0; }
-    .venta-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.82rem; color: #1e293b; }
-    .venta-detalles { font-size: 0.72rem; color: #64748b; margin: 3px 0; }
-    
-    .acciones { display: flex; gap: 6px; margin-top: 6px; border-top: 1px dashed #e2e8f0; padding-top: 6px; }
-    .btn-action { flex: 1; padding: 6px; border-radius: 6px; border: none; font-size: 0.72rem; font-weight: bold; cursor: pointer; text-align: center; }
-    .btn-ticket { background: #e0f2fe; color: #0369a1; }
-    .btn-del { background: #ffebee; color: #c62828; }
-
-    .btn-cerrar-gris { background: #546e7a; color: white; border: none; padding: 9px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; text-align: center; flex-shrink: 0; margin-top: 6px; }
-    .btn-cerrar-gris:active { transform: scale(0.98); }
-
-    /* MODAL TICKET */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 12px; }
-    .ticket-card { background: #fffdfa; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; max-width: 360px; width: 100%; font-family: monospace; box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
-    .ticket-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px; }
-    .ticket-row { display: flex; justify-content: space-between; font-size: 0.78rem; margin: 3px 0; }
-    .ticket-total { font-size: 1.05rem; font-weight: bold; border-top: 2px dashed #000; border-bottom: 2px dashed #000; padding: 6px 0; margin-top: 8px; text-align: right; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes marquee {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-100%, 0); }
     }
   </style>
 </head>
@@ -121,423 +77,593 @@
 
   <div class="container">
     <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <h2 style="margin: 0; font-size: 1.15rem; color: var(--primary-color);">💳 Registrar Venta</h2>
-        <a href="menu.html" class="btn-volver">Volver</a>
-      </div>
-      <p style="color: #6b7280; font-size: 0.78rem; margin: 0 0 10px;">Armá el pedido y generá el comprobante</p>
-
-      <!-- CLIENTE -->
-      <label>Cliente:</label>
-      <select id="vCliente">
-        <option value="Consumidor Final">👤 Consumidor Final</option>
-      </select>
-
-      <!-- AGREGAR PRODUCTOS Y MÉTODO DE PAGO -->
-      <div style="background:#f8f9fa; padding:10px; border-radius:8px; margin-top:8px; border: 1px solid #e2e8f0;">
-        <label style="margin-top:0;">Seleccionar Producto:</label>
-        <select id="vProducto" onchange="cargarPrecioMax()"></select>
-
-        <div style="display: flex; gap: 6px;">
-          <div style="flex: 1;">
-            <label>Cantidad:</label>
-            <input type="number" id="vCant" value="1" min="1">
+      <div class="ventas-container-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 4px;">
+          <div style="display: flex; flex-direction: column; justify-content: space-between; height: 48px;">
+            <h3 style="font-size: 1.05rem; color: #0f172a; font-weight: 800; margin: 0; line-height: 1;">💳 Registrar Venta</h3>
+            <div id="lblFechaTrabajoVentas" style="font-size: 0.80rem; color: #64748b; font-weight: 700; line-height: 1;">Fecha de Trabajo: -</div>
           </div>
-          <div style="flex: 1;">
-            <label>Precio U. ($):</label>
-            <input type="number" id="vPrecioUnit" placeholder="0">
+          
+          <button onclick="cerrarVentanaModalVentasGen()" title="Volver al Menú" style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <img src="icono.png" alt="Logo SBO" style="width: 56px; height: 56px; object-fit: contain;">
+          </button>
+        </div>
+
+        <button class="ventas-btn-historial" onclick="abrirModalVentasJornada()">
+          📋 Ver Ventas de la Jornada (<span id="contadorVentasBadge">0</span>)
+        </button>
+
+        <label>Tipo de Cliente:</label>
+        <div style="display: flex; gap: 12px; margin-top: 4px; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: #334155;">
+          <label style="margin: 0; display: flex; align-items: center; gap: 4px; cursor: pointer; text-transform: none; font-weight: 600;">
+            <input type="radio" name="tipoCliente" value="registrado" checked onchange="cambiarModoCliente()" style="width: auto; margin: 0;"> Registrado
+          </label>
+          <label style="margin: 0; display: flex; align-items: center; gap: 4px; cursor: pointer; text-transform: none; font-weight: 600;">
+            <input type="radio" name="tipoCliente" value="ocasional" onchange="cambiarModoCliente()" style="width: auto; margin: 0;"> Ocasional
+          </label>
+        </div>
+
+        <div id="divClienteRegistrado">
+          <label>Seleccionar Cliente:</label>
+          <select id="vCliente">
+            <option value="" disabled selected>👤 Seleccionar cliente</option>
+          </select>
+        </div>
+
+        <div id="divClienteOcasional" style="display: none;">
+          <label>Nombre:</label>
+          <input type="text" id="vNombreOcasional" placeholder="Ej: Juan Pérez">
+          <label>Teléfono:</label>
+          <input type="tel" id="vTelefonoOcasional" placeholder="Ej: 2364123456">
+        </div>
+
+        <div style="background:#f8fafc; padding:10px; border-radius:10px; margin-top:8px; border: 1.5px solid #e2e8f0;">
+          <label style="margin-top:0;">Seleccionar Producto:</label>
+          <select id="vProducto" onchange="cargarPrecioMaxVentas()"></select>
+
+          <div style="display: flex; gap: 8px;">
+            <div style="flex: 1;">
+              <label>Cantidad:</label>
+              <input type="number" id="vCant" value="1" min="1">
+            </div>
+            <div style="flex: 1;">
+              <label>Precio U. ($):</label>
+              <input type="number" id="vPrecioUnit" placeholder="0">
+            </div>
+          </div>
+
+          <label>Método de Pago:</label>
+          <select id="vPago">
+            <option value="Efectivo">💵 Efectivo</option>
+            <option value="Transferencia">🏦 Transferencia Bancaria</option>
+            <option value="Mercado Pago">📱 Mercado Pago</option>
+            <option value="Cuenta D.N.I.">🟢 Cuenta D.N.I.</option>
+            <option value="Naranja X">🟠 Naranja X</option>
+            <option value="Otra">🔷 Otra</option>
+          </select>
+
+          <button class="ventas-btn-add" onclick="agregarAlCarritoVentas()">🛒 Agregar al Carrito</button>
+        </div>
+
+        <div class="aviso-marquee-container">
+          <div class="marquee-text">
+            ⚠️ Recordatorio: Al finalizar la jornada realizá el Cierre Z y descargá el Backup diario en Configuración 💾
           </div>
         </div>
 
-        <label>Método de Pago:</label>
-        <select id="vPago">
-          <option value="Efectivo">💵 Efectivo</option>
-          <option value="Transferencia">🏦 Transferencia Bancaria</option>
-          <option value="Mercado Pago">📱 Mercado Pago</option>
-          <option value="Tarjeta de Débito">💳 Tarjeta de Débito</option>
-          <option value="Tarjeta de Crédito">💳 Tarjeta de Crédito</option>
-        </select>
-
-        <button class="btn-add" onclick="agregarAlCarrito()">➕ Agregar al Carrito</button>
+        <button onclick="cerrarVentanaModalVentasGen()" class="ventas-btn-secundario">Volver al Menú</button>
       </div>
+    </div>
+  </div>
 
-      <!-- BOTÓN PARA ABRIR EL CARRITO / MODAL -->
-      <button class="btn-main" style="background:#0284c7; margin-top:10px;" onclick="abrirModalCarrito()">🛒 Ver Carrito y Confirmar (<span id="badgeCarrito">0</span>)</button>
+  <!-- MODAL FLOTANTE DEL CARRITO -->
+  <div id="modalCarritoFlotante" class="ventas-modal-overlay">
+    <div class="ventas-modal-container">
+      <div style="margin-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 6px;">
+        <h3 style="margin: 0; font-size: 1rem; color: #0f172a;">🛒 Carrito de Compras</h3>
+      </div>
       
-      <button class="btn-registros" id="btnAbrirModalVentas">📋 Ver Ventas de la Jornada</button>
+      <div class="ventas-cart-box" style="margin-top:0;">
+        <div id="listaCarritoVentas">
+          <p style="text-align:center; color:#94a3b8; font-size:0.78rem; margin:4px 0;">El carrito está vacío</p>
+        </div>
 
-      <!-- BANDITA RECORDATORIO AMARILLA CIRCULANTE -->
-      <div class="reminder-band">
-        <marquee behavior="scroll" direction="left" scrollamount="4">
-          💡 <strong>Recordatorio:</strong> Al finalizar la jornada hacer el Cierre Z y el backup diario de datos.
-        </marquee>
+        <div style="display: flex; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px dashed #cbd5e1; align-items: flex-end;">
+          <div style="flex: 1;">
+            <label style="margin:0; font-size:10px; color:#334155;">Desc. (%)</label>
+            <input type="number" id="vDescuentoPorc" value="0" min="0" max="100" oninput="renderCarritoVentas()" style="margin-top:2px; padding:6px; font-size:13px; background:#fff;">
+          </div>
+          <div style="flex: 1;">
+            <label style="margin:0; font-size:10px; color:#334155;">Desc. ($)</label>
+            <input type="number" id="vDescuentoPesos" value="0" min="0" oninput="renderCarritoVentas()" style="margin-top:2px; padding:6px; font-size:13px; background:#fff;">
+          </div>
+        </div>
+
+        <div class="ventas-total-box" id="lblTotalVenta">Total: $0</div>
       </div>
+
+      <button class="ventas-btn-main" style="background:#16a34a; margin-top:12px;" onclick="confirmarVentaActual()">🚀 Confirmar Venta</button>
+      <button class="ventas-btn-secundario" style="background:#64748b;" onclick="cerrarModalCarritoFlotante()">Volver a Ventas</button>
     </div>
   </div>
 
-  <!-- MODAL CARRITO / CONFIRMACIÓN -->
-  <div class="modal-overlay" id="modal-carrito">
-    <div class="modal-container">
-      <div class="modal-header">
-        <h3>🛒 Carrito de Compras</h3>
-        <button class="modal-close-btn" onclick="cerrarModalCarrito()">✕</button>
+  <!-- MODAL HISTORIAL DE VENTAS -->
+  <div id="modalVentasJornada" class="ventas-modal-overlay">
+    <div class="ventas-modal-container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+        <h3 style="margin: 0; font-size: 1rem; color: #0f172a;">📋 Ventas de la Jornada</h3>
+        <button onclick="cerrarModalVentasJornada()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:#64748b; font-weight:bold;">✕</button>
       </div>
-
-      <div id="listaCarritoModal" class="lista-ventas-modal">
-        <p style="text-align:center; color:#9ca3af; font-size:0.78rem; padding: 12px;">El carrito está vacío</p>
-      </div>
-
-      <div class="total-box" id="lblTotalVentaModal">Total: $0</div>
-
-      <button class="btn-main" style="margin-top: 6px;" onclick="confirmarVenta()">🚀 Confirmar y Generar Comprobante</button>
-      <button class="btn-cerrar-gris" onclick="cerrarModalCarrito()">Volver</button>
+      <input type="text" id="buscarVentaInput" placeholder="🔍 Buscar por cliente o ticket..." onkeyup="renderizarHistorialVentas()" style="margin-top:0;">
+      <div id="listaVentasJornada" style="margin-top: 8px; max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
     </div>
   </div>
 
-  <!-- MODAL VENTAS DE LA JORNADA -->
-  <div class="modal-overlay" id="modal-ventas">
-    <div class="modal-container">
-      <div class="modal-header">
-        <h3>📋 Ventas de la Jornada</h3>
-        <button class="modal-close-btn" id="btnCerrarModalVentasX">✕</button>
+  <!-- MODAL TICKET DIGITAL -->
+  <div id="modalTicketVentas" class="ventas-modal-overlay">
+    <div class="ventas-modal-container" style="background: #fffdfa; font-family: monospace;">
+      <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 6px;">
+        <h3 id="tNombreEmpresa" style="margin:0; font-size:1.15rem; font-weight:800; color: #d9381e;">Infinito Corazón</h3>
+        <p id="tEsloganEmpresa" style="margin:2px 0 0; font-size:0.85rem; color:#4b5563;">by Bijou Macramé Artesanal</p>
+        <p style="margin:4px 0 0; font-size:0.72rem; font-weight:600;">📱 WhatsApp: 2364716004</p>
+        <p style="margin:4px 0 0; font-size:0.7rem;">----------------------------------</p>
+        <p id="tNumComprobante" style="margin:2px 0; font-weight:bold; font-size:0.78rem;">COMPROBANTE N° 0001</p>
+        <p id="tFechaHora" style="margin:0; font-size:0.7rem;">00/00/0000 00:00 hs</p>
       </div>
 
-      <input type="text" id="buscarVenta" placeholder="🔍 Buscar por cliente o ticket..." onkeyup="renderVentas()" style="margin-bottom: 6px;">
-
-      <div id="listaVentas" class="lista-ventas-modal">
-        <div style="text-align: center; color: #94a3b8; font-size: 0.78rem; padding: 12px;">No hay ventas registradas en esta jornada.</div>
-      </div>
-
-      <button class="btn-main" style="background:#1976d2; margin-top:4px;" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-      <button class="btn-cerrar-gris" id="btnCerrarModalVentasGris">Cerrar</button>
-    </div>
-  </div>
-
-  <!-- MODAL DEL TICKET DIGITAL -->
-  <div id="modalTicket" class="modal">
-    <div class="ticket-card">
-      <div class="ticket-header">
-        <h3 id="tNombreEmpresa" style="margin:0; font-size:1.1rem;">S. B. O. Control</h3>
-        <p id="tEsloganEmpresa" style="margin:2px 0 0; font-size:0.75rem; color:#666;">Gestión para Emprendedores</p>
-        <p style="margin:8px 0 0; font-size:0.75rem;">----------------------------------</p>
-        <p id="tNumComprobante" style="margin:2px 0; font-weight:bold; font-size:0.82rem;">COMPROBANTE N° 0001</p>
-        <p id="tFechaHora" style="margin:0; font-size:0.75rem;">00/00/0000 00:00 hs</p>
-      </div>
-
-      <div style="font-size:0.8rem; margin-bottom:10px;">
+      <div style="font-size:0.75rem; margin-bottom:8px;">
         <p style="margin:2px 0;"><strong>Cliente:</strong> <span id="tCliente">--</span></p>
-        <p style="margin:2px 0;"><strong>Forma de Pago:</strong> <span id="tPago">--</span></p>
+        <p style="margin:2px 0;"><strong>Pago:</strong> <span id="tPago">--</span></p>
       </div>
 
-      <p style="margin:5px 0; font-size:0.75rem; border-bottom:1px dashed #000;">DETALLE DE PRODUCTOS:</p>
-      <div id="tDetalleProductos"></div>
+      <p style="margin:4px 0; font-size:0.72rem; border-bottom:1px dashed #000;">DETALLE:</p>
+      <div id="tDetalleProductos" style="max-height: 120px; overflow-y: auto;"></div>
 
-      <div class="ticket-total" id="tTotal">TOTAL: $0</div>
+      <div style="font-size: 1.05rem; font-weight: bold; border-top: 2px dashed #000; border-bottom: 2px dashed #000; padding: 4px 0; margin-top: 6px; text-align: right;" id="tTotal">TOTAL: $0</div>
 
-      <p style="text-align:center; font-size:0.75rem; margin-top:15px; font-style:italic;">¡Muchas gracias por su compra!</p>
-
-      <div style="margin-top:15px; display:flex; flex-direction:column; gap:6px;">
-        <button class="btn-main" style="background:#2e7d32; margin-top:0;" id="btnWaTicket">💬 Compartir por WhatsApp</button>
-        <button class="btn-main" style="background:#1976d2; margin-top:0;" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-        <button class="btn-main" style="background:#546e7a; margin-top:0;" onclick="cerrarTicket()">Cerrar</button>
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+        <button class="ventas-btn-main" style="background:#16a34a; margin-top:0; padding: 10px;" id="btnWaTicket">💬 Compartir por WhatsApp</button>
+        <button class="ventas-btn-main" style="background:#3b82f6; margin-top:0; padding: 10px;" onclick="window.print()">🖨️ Imprimir / Guardar</button>
+        <button class="ventas-btn-secundario" style="background:#64748b; margin-top:0;" onclick="cerrarTicketVentas()">Cerrar</button>
       </div>
     </div>
   </div>
 
   <script>
-    let stock = JSON.parse(localStorage.getItem('sbo_stock')) || [];
-    let clientes = JSON.parse(localStorage.getItem('sbo_clientes')) || [];
-    let ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
-    let config = JSON.parse(localStorage.getItem('sbo_config')) || { nombre: 'S. B. O. Control', eslogan: 'Gestión Integral' };
-
-    let carrito = [];
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const customColor = localStorage.getItem('sbo_config_color') || config.color;
-      const customLight = localStorage.getItem('sbo_config_color_light');
-      if (customColor) {
-        document.documentElement.style.setProperty('--primary-color', customColor);
+    function cerrarVentanaModalVentasGen() {
+      if (typeof cerrarModalDinamico === 'function') {
+        cerrarModalDinamico();
+      } else {
+        window.location.href = 'menu.html';
       }
-      if (customLight) {
-        document.documentElement.style.setProperty('--primary-light', customLight);
-      }
-      cargarDesplegables();
-      renderVentas();
-      renderCarrito();
-    });
+    }
 
-    function cargarDesplegables() {
+    let stockVentas = [];
+    let clientesVentas = [];
+    let ventasList = [];
+    
+    let configVentas = { nombre: 'Infinito Corazón', eslogan: 'by Bijou Macramé Artesanal' };
+    
+    function obtenerFechaLocal() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    let fechaSesionVentas = localStorage.getItem('sbo_fechaSesion') || localStorage.getItem('bma_fechaSesion') || obtenerFechaLocal();
+
+    function formatearFechaVentas(fechaStr) {
+      if (!fechaStr) return '';
+      const partes = fechaStr.split('-');
+      return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : fechaStr;
+    }
+
+    let carritoVentas = [];
+
+    function inicializarModuloVentas() {
+      stockVentas = JSON.parse(localStorage.getItem('sbo_stock')) || JSON.parse(localStorage.getItem('bma_stock')) || JSON.parse(localStorage.getItem('stock')) || [];
+      clientesVentas = JSON.parse(localStorage.getItem('sbo_clientes')) || JSON.parse(localStorage.getItem('bma_clientes')) || JSON.parse(localStorage.getItem('clientes')) || [];
+      ventasList = JSON.parse(localStorage.getItem('sbo_ventas')) || JSON.parse(localStorage.getItem('bma_ventas')) || JSON.parse(localStorage.getItem('ventas')) || [];
+
+      const lblFecha = document.getElementById('lblFechaTrabajoVentas');
+      if (lblFecha) lblFecha.innerText = `Fecha de Trabajo: ${formatearFechaVentas(fechaSesionVentas)}`;
+      
+      cargarDesplegablesVentas();
+      renderizarHistorialVentas();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', inicializarModuloVentas);
+    } else {
+      inicializarModuloVentas();
+    }
+
+    function cambiarModoCliente() {
+      const modo = document.querySelector('input[name="tipoCliente"]:checked').value;
+      const divReg = document.getElementById('divClienteRegistrado');
+      const divOcas = document.getElementById('divClienteOcasional');
+      if (modo === 'registrado') {
+        divReg.style.display = 'block';
+        divOcas.style.display = 'none';
+      } else {
+        divReg.style.display = 'none';
+        divOcas.style.display = 'block';
+      }
+    }
+
+    function cargarDesplegablesVentas() {
       const selCli = document.getElementById('vCliente');
-      selCli.innerHTML = '<option value="Consumidor Final">👤 Consumidor Final</option>';
-      clientes.forEach(c => {
-        selCli.innerHTML += `<option value="${c.nombre}">${c.nombre} (${c.localidad || ''})</option>`;
-      });
+      if (selCli) {
+        selCli.innerHTML = '<option value="" disabled selected>👤 Seleccionar cliente</option>';
+        if (clientesVentas.length === 0) {
+          selCli.innerHTML += '<option value="" disabled>⚠️ No hay clientes cargados</option>';
+        } else {
+          clientesVentas.forEach(c => {
+            const nombreCli = c.nombre || c.cliente || c.AyN || '';
+            if (nombreCli) {
+              selCli.innerHTML += `<option value="${nombreCli}">${nombreCli} (${c.localidad || c.zona || ''})</option>`;
+            }
+          });
+        }
+      }
 
       const selProd = document.getElementById('vProducto');
-      selProd.innerHTML = '<option value="">-- Seleccionar Producto --</option>';
-      stock.forEach(p => {
-        let cant = p.cantidad !== undefined ? p.cantidad : (p.stock !== undefined ? p.stock : 0);
-        let nombre = p.producto || p.nombre || 'Artículo';
-        selProd.innerHTML += `<option value="${p.id || nombre}">${nombre} (Stock: ${cant} u. | $${p.precio})</option>`;
-      });
-    }
-
-    function cargarPrecioMax() {
-      const pId = document.getElementById('vProducto').value;
-      const prod = stock.find(p => (p.id == pId) || (p.producto == pId) || (p.nombre == pId));
-      if (prod) {
-        document.getElementById('vPrecioUnit').value = prod.precio;
+      if (selProd) {
+        selProd.innerHTML = '<option value="" disabled selected>-- Seleccionar Producto --</option>';
+        if (stockVentas.length === 0) {
+          selProd.innerHTML += '<option value="" disabled>⚠️ No hay stock cargado en el sistema</option>';
+        } else {
+          stockVentas.forEach((p, idx) => {
+            const idProd = p.id !== undefined ? p.id : idx;
+            const nombreProd = p.producto || p.nombre || p.descripcion || '';
+            const stockProd = p.cantidad !== undefined ? p.cantidad : (p.stock !== undefined ? p.stock : 0);
+            const precioProd = p.precio || p.precioVenta || 0;
+            
+            if (nombreProd) {
+              selProd.innerHTML += `<option value="${idProd}">${nombreProd} (Stock: ${stockProd} u. | $${precioProd})</option>`;
+            }
+          });
+        }
       }
     }
 
-    function agregarAlCarrito() {
+    function buscarProductoVentasPorId(pId) {
+      return stockVentas.find((p, idx) => (p.id == pId) || (idx == pId) || (p.producto == pId) || (p.nombre == pId));
+    }
+
+    function cargarPrecioMaxVentas() {
+      const pId = document.getElementById('vProducto').value;
+      const prod = buscarProductoVentasPorId(pId);
+      if (prod) {
+        document.getElementById('vPrecioUnit').value = prod.precio || prod.precioVenta || 0;
+      }
+    }
+
+    function agregarAlCarritoVentas() {
       const pId = document.getElementById('vProducto').value;
       const cant = parseInt(document.getElementById('vCant').value) || 0;
       const precio = parseFloat(document.getElementById('vPrecioUnit').value) || 0;
 
-      if (!pId) return alert('Seleccioná un producto.');
+      if (pId === "") return alert('Seleccioná un producto.');
       if (cant <= 0) return alert('Ingresá una cantidad válida.');
 
-      const prod = stock.find(p => (p.id == pId) || (p.producto == pId) || (p.nombre == pId));
-      if (!prod) return alert('Producto no encontrado.');
+      const prod = buscarProductoVentasPorId(pId);
+      if (!prod) return alert('No se encontró el producto seleccionado.');
 
-      const stockActual = prod.cantidad !== undefined ? prod.cantidad : prod.stock;
-      const nombreProd = prod.producto !== undefined ? prod.producto : prod.nombre;
+      const stockActual = prod.cantidad !== undefined ? prod.cantidad : (prod.stock !== undefined ? prod.stock : 0);
+      const nombreProd = prod.producto || prod.nombre || prod.descripcion || 'Producto';
       
       if (cant > stockActual) {
-        return alert(`⚠️ Stock insuficiente. Solo quedan ${stockActual} unidades de ${nombreProd}.`);
+        return alert(`⚠️ Stock insuficiente. Solo quedan ${stockActual} unidades.`);
       }
 
-      carrito.push({
-        productoId: prod.id !== undefined ? prod.id : nombreProd,
+      carritoVentas.push({
+        productoId: pId,
         nombre: nombreProd,
         cant,
         precio,
         subtotal: cant * precio
       });
 
-      renderCarrito();
-
+      renderCarritoVentas();
       document.getElementById('vProducto').value = '';
       document.getElementById('vCant').value = 1;
       document.getElementById('vPrecioUnit').value = '';
 
-      abrirModalCarrito();
+      abrirModalCarritoFlotante();
     }
 
-    function renderCarrito() {
-      const cont = document.getElementById('listaCarritoModal');
-      const badge = document.getElementById('badgeCarrito');
-      
-      const totalItems = carrito.reduce((acc, i) => acc + i.cant, 0);
-      badge.innerText = totalItems;
+    function abrirModalCarritoFlotante() {
+      const modal = document.getElementById('modalCarritoFlotante');
+      if (modal) modal.classList.add('active');
+    }
 
-      if (carrito.length === 0) {
-        cont.innerHTML = '<p style="text-align:center; color:#9ca3af; font-size:0.8rem; margin:5px 0;">El carrito está vacío</p>';
-        document.getElementById('lblTotalVentaModal').innerText = 'Total: $0';
+    function cerrarModalCarritoFlotante() {
+      const modal = document.getElementById('modalCarritoFlotante');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function renderCarritoVentas() {
+      const cont = document.getElementById('listaCarritoVentas');
+      const totalBox = document.getElementById('lblTotalVenta');
+      if (!cont) return;
+
+      if (carritoVentas.length === 0) {
+        cont.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.78rem; margin:4px 0;">El carrito está vacío</p>';
+        if (totalBox) totalBox.innerText = 'Total: $0';
         return;
       }
 
       let html = '';
-      let total = 0;
+      let subtotalBruto = 0;
 
-      carrito.forEach((item, idx) => {
-        total += item.subtotal;
+      carritoVentas.forEach((item, idx) => {
+        subtotalBruto += item.subtotal;
         html += `
-          <div class="cart-item">
+          <div class="ventas-cart-item">
             <div>
               <strong>${item.nombre}</strong><br>
               <small>${item.cant} u. x $${item.precio.toLocaleString('es-AR')}</small>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
+            <div style="display:flex; align-items:center; gap:6px;">
               <span><strong>$${item.subtotal.toLocaleString('es-AR')}</strong></span>
-              <button class="btn-del-cart" onclick="eliminarDelCarrito(${idx})">✕</button>
+              <button class="ventas-btn-del-cart" onclick="eliminarDelCarritoVentas(${idx})">✕</button>
             </div>
           </div>
         `;
       });
 
       cont.innerHTML = html;
-      document.getElementById('lblTotalVentaModal').innerText = `Total: $${total.toLocaleString('es-AR')}`;
+
+      const descPorc = parseFloat(document.getElementById('vDescuentoPorc')?.value) || 0;
+      const descPesos = parseFloat(document.getElementById('vDescuentoPesos')?.value) || 0;
+
+      let montoDescuento = 0;
+      if (descPorc > 0) {
+        montoDescuento = subtotalBruto * (descPorc / 100);
+      } else if (descPesos > 0) {
+        montoDescuento = descPesos;
+      }
+
+      let totalFinal = Math.max(0, subtotalBruto - montoDescuento);
+
+      if (totalBox) {
+        if (montoDescuento > 0) {
+          totalBox.innerHTML = `
+            <div style="font-size: 0.8rem; color: #64748b; font-weight: normal;">Subtotal: $${subtotalBruto.toLocaleString('es-AR')}</div>
+            <div style="font-size: 0.8rem; color: #dc2626; font-weight: normal;">Descuento: -$${montoDescuento.toLocaleString('es-AR')}</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-top: 2px;">Total: $${totalFinal.toLocaleString('es-AR')}</div>
+          `;
+        } else {
+          totalBox.innerHTML = `Total: $${totalFinal.toLocaleString('es-AR')}`;
+        }
+      }
     }
 
-    function eliminarDelCarrito(idx) {
-      carrito.splice(idx, 1);
-      renderCarrito();
+    function eliminarDelCarritoVentas(idx) {
+      carritoVentas.splice(idx, 1);
+      renderCarritoVentas();
     }
 
-    function abrirModalCarrito() {
-      document.getElementById('modal-carrito').classList.add('active');
-    }
+    function confirmarVentaActual() {
+      if (carritoVentas.length === 0) return alert('El carrito está vacío.');
 
-    function cerrarModalCarrito() {
-      document.getElementById('modal-carrito').classList.remove('active');
-    }
+      const modoCliente = document.querySelector('input[name="tipoCliente"]:checked').value;
+      let clienteNombre = "";
+      let clienteTelefono = "";
 
-    function confirmarVenta() {
-      if (carrito.length === 0) return alert('El carrito está vacío.');
+      if (modoCliente === 'registrado') {
+        clienteNombre = document.getElementById('vCliente').value;
+        if (!clienteNombre) return alert('Por favor, seleccioná un cliente de la lista.');
+        const cliObj = clientesVentas.find(c => (c.nombre || c.cliente || c.AyN) === clienteNombre);
+        if (cliObj) clienteTelefono = cliObj.tel || cliObj.telefono || '';
+      } else {
+        clienteNombre = document.getElementById('vNombreOcasional').value.trim();
+        clienteTelefono = document.getElementById('vTelefonoOcasional').value.trim();
+        if (!clienteNombre) return alert('Por favor, ingresá el nombre del cliente ocasional.');
+      }
 
-      const cliente = document.getElementById('vCliente').value;
       const pago = document.getElementById('vPago').value;
-      const fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
-      const total = carrito.reduce((acc, i) => acc + i.subtotal, 0);
+      
+      const subtotalBruto = carritoVentas.reduce((acc, i) => acc + i.subtotal, 0);
+      const descPorc = parseFloat(document.getElementById('vDescuentoPorc').value) || 0;
+      const descPesos = parseFloat(document.getElementById('vDescuentoPesos').value) || 0;
 
-      carrito.forEach(item => {
-        const prod = stock.find(p => (p.id === item.productoId) || (p.producto === item.productoId) || (p.nombre === item.productoId));
+      let montoDescuento = 0;
+      if (descPorc > 0) {
+        montoDescuento = subtotalBruto * (descPorc / 100);
+      } else if (descPesos > 0) {
+        montoDescuento = descPesos;
+      }
+      const total = Math.max(0, subtotalBruto - montoDescuento);
+
+      carritoVentas.forEach(item => {
+        const prod = buscarProductoVentasPorId(item.productoId);
         if (prod) {
-          if (prod.cantidad !== undefined) {
-            prod.cantidad = Math.max(0, prod.cantidad - item.cant);
-          } else if (prod.stock !== undefined) {
-            prod.stock = Math.max(0, prod.stock - item.cant);
-          }
+          if (prod.cantidad !== undefined) prod.cantidad = Math.max(0, prod.cantidad - item.cant);
+          else if (prod.stock !== undefined) prod.stock = Math.max(0, prod.stock - item.cant);
         }
       });
-      localStorage.setItem('sbo_stock', JSON.stringify(stock));
+      localStorage.setItem('sbo_stock', JSON.stringify(stockVentas));
 
       const nuevaVenta = {
         id: Date.now(),
-        numTicket: String(ventas.length + 1).padStart(4, '0'),
-        fecha: fechaSesion,
+        numTicket: String(ventasList.length + 1).padStart(4, '0'),
+        fecha: fechaSesionVentas,
         hora: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
-        cliente,
+        cliente: clienteNombre,
+        telefono: clienteTelefono,
         pago,
-        items: [...carrito],
+        items: [...carritoVentas],
+        subtotalBruto,
+        descuentoAplicado: montoDescuento,
         total
       };
 
-      ventas.unshift(nuevaVenta);
-      localStorage.setItem('sbo_ventas', JSON.stringify(ventas));
+      ventasList.unshift(nuevaVenta);
+      localStorage.setItem('sbo_ventas', JSON.stringify(ventasList));
 
-      carrito = [];
-      renderCarrito();
-      cerrarModalCarrito();
-      cargarDesplegables();
-      renderVentas();
+      carritoVentas = [];
+      if (document.getElementById('vDescuentoPorc')) document.getElementById('vDescuentoPorc').value = 0;
+      if (document.getElementById('vDescuentoPesos')) document.getElementById('vDescuentoPesos').value = 0;
 
-      verTicket(nuevaVenta.id);
+      renderCarritoVentas();
+      cerrarModalCarritoFlotante();
+      cargarDesplegablesVentas();
+      renderizarHistorialVentas();
+
+      document.getElementById('vNombreOcasional').value = '';
+      document.getElementById('vTelefonoOcasional').value = '';
+      document.querySelector('input[name="tipoCliente"][value="registrado"]').checked = true;
+      cambiarModoCliente();
+
+      verTicketVentas(nuevaVenta.id);
     }
 
-    function renderVentas() {
-      const fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
-      const ventasJornada = ventas.filter(v => v.fecha === fechaSesion);
+    function abrirModalVentasJornada() {
+      const modal = document.getElementById('modalVentasJornada');
+      if (modal) modal.classList.add('active');
+      renderizarHistorialVentas();
+    }
 
-      const filtro = document.getElementById('buscarVenta').value.toLowerCase();
-      const cont = document.getElementById('listaVentas');
+    function cerrarModalVentasJornada() {
+      const modal = document.getElementById('modalVentasJornada');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function renderizarHistorialVentas() {
+      const filtro = document.getElementById('buscarVentaInput') ? document.getElementById('buscarVentaInput').value.toLowerCase() : '';
+      const cont = document.getElementById('listaVentasJornada');
+      const badge = document.getElementById('contadorVentasBadge');
+      if (badge) badge.innerText = ventasList.length;
+      if (!cont) return;
+
       let html = '';
-
-      const filtradas = ventasJornada.filter(v => 
-        v.cliente.toLowerCase().includes(filtro) || 
-        v.numTicket.includes(filtro)
-      );
+      const filtradas = ventasList.filter(v => v.cliente.toLowerCase().includes(filtro) || v.numTicket.includes(filtro));
 
       filtradas.forEach(v => {
         html += `
           <div class="venta-item">
             <div class="venta-header">
               <span>Ticket N° ${v.numTicket} - ${v.cliente}</span>
-              <span style="color:var(--primary-color);">$${v.total.toLocaleString('es-AR')}</span>
+              <span style="color:#0f172a;">$${v.total.toLocaleString('es-AR')}</span>
             </div>
             <div class="venta-detalles">
-              📅 ${v.fecha} ${v.hora} hs | 💳 ${v.pago}<br>
+              📅 ${formatearFechaVentas(v.fecha)} ${v.hora} hs | 💳 ${v.pago}<br>
               📦 ${v.items.map(i => `${i.cant}x ${i.nombre}`).join(', ')}
+              ${v.descuentoAplicado > 0 ? `<br><span style="color:#dc2626;">🏷️ Descuento aplicado: -$${v.descuentoAplicado.toLocaleString('es-AR')}</span>` : ''}
             </div>
-            <div class="acciones">
-              <button class="btn-action btn-ticket" onclick="verTicket(${v.id})">📄 Ver Ticket</button>
-              <button class="btn-action btn-del" onclick="anularVenta(${v.id})">🚫 Anular</button>
+            <div class="ventas-acciones">
+              <button class="ventas-btn-action" style="background: #e0f2fe; color: #0369a1;" onclick="verTicketVentas(${v.id})">📄 Ver</button>
+              <button class="ventas-btn-action" style="background: #fee2e2; color: #b91c1c;" onclick="anularVentaActual(${v.id})">🚫 Anular</button>
             </div>
           </div>
         `;
       });
 
       if (filtradas.length === 0) {
-        html = '<p style="text-align:center; color:#94a3b8; font-size: 0.78rem; padding: 12px;">No hay ventas registradas en esta jornada.</p>';
+        html = '<p style="text-align:center; color:#94a3b8; font-size: 0.8rem; padding: 10px;">No hay ventas registradas.</p>';
       }
 
       cont.innerHTML = html;
     }
 
-    function verTicket(idVenta) {
-      const v = ventas.find(x => x.id === idVenta);
+    function verTicketVentas(idVenta) {
+      const v = ventasList.find(x => x.id === idVenta);
       if (!v) return;
 
-      document.getElementById('tNombreEmpresa').innerText = config.nombre;
-      document.getElementById('tEsloganEmpresa').innerText = config.eslogan;
+      document.getElementById('tNombreEmpresa').innerText = configVentas.nombre;
+      document.getElementById('tEsloganEmpresa').innerText = configVentas.eslogan;
       document.getElementById('tNumComprobante').innerText = `COMPROBANTE N° ${v.numTicket}`;
-      document.getElementById('tFechaHora').innerText = `${v.fecha} - ${v.hora} hs`;
+      document.getElementById('tFechaHora').innerText = `${formatearFechaVentas(v.fecha)} - ${v.hora} hs`;
       document.getElementById('tCliente').innerText = v.cliente;
       document.getElementById('tPago').innerText = v.pago;
 
       let itemsHtml = '';
-      let textoWa = `*${config.nombre}*\n_Comprobante de Compra N° ${v.numTicket}_\n\n📌 *Cliente:* ${v.cliente}\n📅 *Fecha:* ${v.fecha}\n💳 *Pago:* ${v.pago}\n\n*Detalle:*\n`;
+      let textoWa = `*${configVentas.nombre}*\n_${configVentas.eslogan}_\n_Comprobante N° ${v.numTicket}_\n📱 *WhatsApp:* 2364716004\n\n📌 *Cliente:* ${v.cliente}\n📅 *Fecha:* ${formatearFechaVentas(v.fecha)}\n💳 *Pago:* ${v.pago}\n\n*Detalle:*\n`;
 
       v.items.forEach(i => {
+        let descItem = `${i.cant}x ${i.nombre}`;
+        if (i.cant > 1) descItem += ` ($${i.precio.toLocaleString('es-AR')} c/u)`;
+
         itemsHtml += `
-          <div class="ticket-row">
-            <span>${i.cant}x ${i.nombre}</span>
+          <div style="display: flex; justify-content: space-between; font-size: 0.72rem; margin: 3px 0;">
+            <span>${descItem}</span>
             <span>$${i.subtotal.toLocaleString('es-AR')}</span>
           </div>
         `;
-        textoWa += `• ${i.cant}x ${i.nombre} - $${i.subtotal.toLocaleString('es-AR')}\n`;
+        textoWa += `• ${i.cant}x ${i.nombre}${i.cant > 1 ? ` ($${i.precio.toLocaleString('es-AR')} c/u)` : ''} - $${i.subtotal.toLocaleString('es-AR')}\n`;
       });
 
-      textoWa += `\n*TOTAL: $${v.total.toLocaleString('es-AR')}*\n\n¡Muchas gracias por elegirnos!`;
+      if (v.descuentoAplicado && v.descuentoAplicado > 0) {
+        const subBruto = v.subtotalBruto || (v.total + v.descuentoAplicado);
+        itemsHtml += `
+          <div style="border-top: 1px dashed #000; margin-top: 4px; padding-top: 4px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.72rem;">
+              <span>Subtotal:</span>
+              <span>$${subBruto.toLocaleString('es-AR')}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #b91c1c;">
+              <span>Descuento:</span>
+              <span>-$${v.descuentoAplicado.toLocaleString('es-AR')}</span>
+            </div>
+          </div>
+        `;
+        textoWa += `\nSubtotal: $${subBruto.toLocaleString('es-AR')}\nDescuento: -$${v.descuentoAplicado.toLocaleString('es-AR')}\n`;
+      }
+
+      textoWa += `\n*TOTAL: $${v.total.toLocaleString('es-AR')}*\n\n¡Muchas gracias!`;
 
       document.getElementById('tDetalleProductos').innerHTML = itemsHtml;
       document.getElementById('tTotal').innerText = `TOTAL: $${v.total.toLocaleString('es-AR')}`;
 
-      const cliObj = clientes.find(c => c.nombre === v.cliente);
-      const telWa = cliObj && (cliObj.tel || cliObj.telefono) ? (cliObj.tel || cliObj.telefono).replace(/\D/g,'') : '';
+      let telCliente = v.telefono || '';
+      if (!telCliente && v.cliente) {
+        const cliObj = clientesVentas.find(c => (c.nombre || c.cliente || c.AyN) === v.cliente);
+        telCliente = cliObj ? (cliObj.tel || cliObj.telefono || '') : '';
+      }
+      const telWa = telCliente.replace(/\D/g,'');
       const urlWa = telWa 
         ? `https://wa.me/549${telWa}?text=${encodeURIComponent(textoWa)}` 
         : `https://api.whatsapp.com/send?text=${encodeURIComponent(textoWa)}`;
 
-      document.getElementById('btnWaTicket').onclick = () => window.open(urlWa, '_blank');
+      const btnWa = document.getElementById('btnWaTicket');
+      if (btnWa) btnWa.onclick = () => window.open(urlWa, '_blank');
 
-      document.getElementById('modalTicket').style.display = 'flex';
+      const modalT = document.getElementById('modalTicketVentas');
+      if (modalT) modalT.classList.add('active');
     }
 
-    function cerrarTicket() {
-      document.getElementById('modalTicket').style.display = 'none';
+    function cerrarTicketVentas() {
+      const modalT = document.getElementById('modalTicketVentas');
+      if (modalT) modalT.classList.remove('active');
     }
 
-    function anularVenta(idVenta) {
-      if (confirm('¿Anular esta venta? El stock de los productos será devuelto al inventario.')) {
-        const idx = ventas.findIndex(v => v.id === idVenta);
+    function anularVentaActual(idVenta) {
+      if (confirm('¿Anular esta venta? El stock será devuelto.')) {
+        const idx = ventasList.findIndex(v => v.id === idVenta);
         if (idx !== -1) {
-          const ventaAnulada = ventas[idx];
-
+          const ventaAnulada = ventasList[idx];
           ventaAnulada.items.forEach(item => {
-            const prod = stock.find(p => (p.id === item.productoId) || (p.producto === item.productoId) || (p.nombre === item.productoId));
+            const prod = buscarProductoVentasPorId(item.productoId);
             if (prod) {
-              if (prod.cantidad !== undefined) {
-                prod.cantidad += item.cant;
-              } else if (prod.stock !== undefined) {
-                prod.stock += item.cant;
-              }
+              if (prod.cantidad !== undefined) prod.cantidad += item.cant;
+              else if (prod.stock !== undefined) prod.stock += item.cant;
             }
           });
 
-          localStorage.setItem('sbo_stock', JSON.stringify(stock));
-          ventas.splice(idx, 1);
-          localStorage.setItem('sbo_ventas', JSON.stringify(ventas));
+          localStorage.setItem('sbo_stock', JSON.stringify(stockVentas));
+          ventasList.splice(idx, 1);
+          localStorage.setItem('sbo_ventas', JSON.stringify(ventasList));
 
           alert('✅ Venta anulada y stock devuelto.');
-          cargarDesplegables();
-          renderVentas();
+          cargarDesplegablesVentas();
+          renderizarHistorialVentas();
         }
       }
     }
-
-    /* CONTROL DE MODAL VENTAS */
-    const modalVentas = document.getElementById('modal-ventas');
-    document.getElementById('btnAbrirModalVentas').addEventListener('click', () => modalVentas.classList.add('active'));
-    document.getElementById('btnCerrarModalVentasX').addEventListener('click', () => modalVentas.classList.remove('active'));
-    document.getElementById('btnCerrarModalVentasGris').addEventListener('click', () => modalVentas.classList.remove('active'));
-    modalVentas.addEventListener('click', (e) => { if (e.target === modalVentas) modalVentas.classList.remove('active'); });
-    
-    // Cerrar modal carrito al hacer click fuera
-    const modalCarrito = document.getElementById('modal-carrito');
-    modalCarrito.addEventListener('click', (e) => { if (e.target === modalCarrito) cerrarModalCarrito(); });
   </script>
 </body>
 </html>
