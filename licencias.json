@@ -10,7 +10,7 @@
   },
   {
     "id": 2,
-    "nombreLicencia": "Licencia Vitalicia Anual",
+    "nombreLicencia": "Licencia Anual Ferias",
     "duracion": "365 días / 1 año",
     "clave": "SBO-LVA-9922",
     "activa": true,
@@ -41,7 +41,7 @@
     "duracion": "24 horas",
     "clave": "SBO-T24H",
     "activa": true,
-    "mostrar": false,
-    "seleccionable": false
+    "mostrar": true,
+    "seleccionable": true
   }
 ]
