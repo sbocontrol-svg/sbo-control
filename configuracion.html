@@ -41,21 +41,9 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
         .modal-content { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 14px; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
 
-        /* Estilos lista de licencias */
-        .lista-licencias { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
-        .licencia-item { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
-        .licencia-info strong { color: #00796b; display: block; font-size: 1rem; }
-        .licencia-info p { color: #666; font-size: 0.85rem; margin-top: 2px; }
-        .acciones-item { display: flex; gap: 6px; align-items: center; }
-        .btn-editar { background: #e0f2f1; color: #00796b; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
-        .btn-eliminar { background: #ffebee; color: #c62828; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
-
         @media print {
             body { background: white !important; padding: 0 !important; }
-            .container, .modal-overlay:not(#modalLicenciasAdmin) { display: none !important; }
-            #modalLicenciasAdmin { display: block !important; position: static !important; background: white !important; padding: 0 !important; }
-            #modalLicenciasAdmin .modal-content { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; max-height: none !important; background: white !important; }
-            #formLicencia, .acciones-item, .btn-action, button, .cambiar-clave-box { display: none !important; }
+            .container, .modal-overlay { display: none !important; }
         }
     </style>
 </head>
@@ -83,7 +71,7 @@
             <button class="btn-main" onclick="guardarConfigGeneral()">💾 Guardar Ajustes del Negocio</button>
         </div>
 
-        <!-- BOTÓN DE ACCESO AL MODAL DE AJUSTES DEL SISTEMA -->
+        <!-- SECCIÓN 2: AJUSTES DEL SISTEMA -->
         <div class="section-card" style="background: #ffebee; border-color: #ffcdd2;">
             <h3>🛠️ Ajustes del Sistema</h3>
             <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Configurá colores, tamaños de pantalla, respaldos y reinicio.</p>
@@ -92,16 +80,16 @@
             </button>
         </div>
 
-        <!-- SECCIÓN 4: ACCESO EXCLUSIVO DESARROLLADOR / LICENCIAS -->
-        <div class="section-card" style="background: #fdf8f6; border-color: #ffd8cc;">
-            <h3>🔑 Gestión de Licencias (Uso Exclusivo)</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Panel protegido para administrar altas y claves del sistema.</p>
-            <button class="btn-action" style="background: #fff3e0; border-color: #ffb74d; color: #e65100;" onclick="solicitarAccesoAdminLicencias()">
-                🔐 Desbloquear Panel de Licencias
+        <!-- SECCIÓN 3: ESTADO DE LICENCIA Y SUSCRIPCIÓN -->
+        <div class="section-card" style="background: #f0fdf4; border-color: #bbf7d0;">
+            <h3>💳 Mi Licencia y Suscripción</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Consultá el estado de tu plan o ingresá un código de activación.</p>
+            <button class="btn-action" style="background: #2e7d32; color: white; border: none;" onclick="abrirModalLicenciaUsuario()">
+                🔑 Ver Estado / Activar Licencia
             </button>
         </div>
 
-        <!-- SECCIÓN 5: MANUAL DE USUARIO (ENLAZA A manual.html) -->
+        <!-- SECCIÓN 4: MANUAL DE USUARIO -->
         <div class="section-card" style="margin-top: 10px;">
             <h3>📖 Ayuda y Soporte</h3>
             <a href="manual.html" class="btn-action" style="background: #e1f5fe; border-color: #b3e5fc; color: #0277bd;">
@@ -162,54 +150,54 @@
         </div>
     </div>
 
-    <!-- MODAL FLOTANTE PROTEGIDO DE GESTIÓN DE LICENCIAS -->
-    <div id="modalLicenciasAdmin" class="modal-overlay">
-        <div class="modal-content" style="border: 2px dashed #00796b; background: #f0fdf4;">
+    <!-- MODAL FLOTANTE DE LICENCIA Y SUSCRIPCIÓN PARA EL USUARIO -->
+    <div id="modalLicenciaUsuario" class="modal-overlay">
+        <div class="modal-content" style="border: 2px solid #2e7d32; background: #ffffff;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
-                <h3 style="color: #2e7d32; margin: 0; font-size: 1.1rem;">🛠️ Panel Activo de Licencias</h3>
-                <button onclick="cerrarModalLicencias()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
+                <h3 style="color: #2e7d32; margin: 0; font-size: 1.1rem;">💳 Mi Licencia y Suscripción</h3>
+                <button onclick="cerrarModalLicenciaUsuario()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
             </div>
 
-            <form id="formLicencia">
-                <label>Nombre de la Licencia:</label>
-                <input type="text" id="txtNombreLicencia" placeholder="Ej: Licencia Anual Ferias" required>
-
-                <label>Duración:</label>
-                <input type="text" id="txtDuracion" placeholder="Ej: 365 días / 1 año" required>
-
-                <label>Clave Asignada:</label>
-                <input type="text" id="txtClave" placeholder="Ej: SBO-LVA-9922" required>
-
-                <button type="submit" class="btn-main" id="btnGuardar" style="background: #2e7d32; margin-top: 8px;">💾 Guardar Licencia</button>
-            </form>
-
-            <h4 style="font-size: 0.95rem; color: #0d47a1; margin-top: 12px; margin-bottom: 6px;">Listado Registrado</h4>
-            <div class="lista-licencias" id="contenedorLicencias">
-                <!-- Se carga dinámicamente -->
+            <!-- RESUMEN DE LA LICENCIA ACTUAL -->
+            <div style="background: #f4fbf7; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <p style="font-size: 0.9rem; color: #333; margin-bottom: 6px;">
+                    <strong>Tipo de Licencia:</strong> <span id="lblPlanActivo" style="color: #2e7d32; font-weight: bold;">Cargando...</span>
+                </p>
+                <p style="font-size: 0.9rem; color: #333; margin-bottom: 6px;">
+                    <strong>Clave Registrada:</strong> 
+                    <code id="lblClaveActiva" style="background: #e8f5e9; padding: 3px 8px; border-radius: 4px; color: #1b5e20; font-weight: bold; font-size: 0.88rem;">SBO-XXXX-XXXX</code>
+                </p>
+                <p style="font-size: 0.9rem; color: #333; margin-bottom: 0;">
+                    <strong>Estado:</strong> <span id="lblEstadoLicencia" style="font-weight: bold;">Cargando...</span>
+                </p>
             </div>
 
-            <button class="btn-action" style="background: #0277bd; color: white; border: none; margin-top: 10px;" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+            <!-- INGRESO / ACTIVACIÓN DE NUEVA CLAVE -->
+            <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px; margin-bottom: 12px;">
+                <label style="color: #1e293b; font-size: 0.85rem; font-weight: bold;">🔑 ¿Ingresar o renovar clave?</label>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 2px; margin-bottom: 6px;">Pegá acá tu nuevo código de activación:</p>
+                <input type="text" id="txtClaveRenovacion" placeholder="Ej: SBO-2026-AB12" style="text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">
+                
+                <button type="button" onclick="activarNuevaLicencia()" class="btn-main" style="background: #2e7d32; margin-top: 8px;">
+                    ✨ Activar Clave
+                </button>
+            </div>
 
-            <!-- CAMBIAR CLAVE DE DESARROLLADOR -->
-            <div class="cambiar-clave-box" style="margin-top: 14px; border-top: 1px dashed #bbf7d0; padding-top: 10px;">
-                <label style="color: #166534; font-size: 0.85rem;">🔄 Cambiar Clave de Desarrollador:</label>
-                <div style="display: flex; gap: 6px; margin-top: 4px;">
-                    <input type="text" id="txtNuevaClave" placeholder="Nueva contraseña maestra" style="margin-top:0;">
-                    <button type="button" onclick="cambiarClaveDev()" style="background: #15803d; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; white-space: nowrap;">Actualizar</button>
-                </div>
+            <!-- SOLICITAR RENOVACIÓN VÍA WHATSAPP -->
+            <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px;">
+                <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 6px; text-align: center;">¿Querés cambiar de plan o solicitar soporte?</p>
+                <button class="btn-action" style="background: #25d366; color: white; border: none; font-weight: bold;" onclick="solicitarRenovacionWA()">
+                    💬 Contactar Soporte / Ventas
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        function obtenerClaveDev() {
-            return localStorage.getItem('sbo_dev_clave') || "SBO_Admin2026*";
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || 'B. M. A. Artesanías';
-            document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || 'Bijou Macramé Artesanal';
-            document.getElementById('cfgContacto').value = localStorage.getItem('sbo_config_contacto') || '2364716004';
+            document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || '';
+            document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || '';
+            document.getElementById('cfgContacto').value = localStorage.getItem('sbo_config_contacto') || '';
 
             const colorGuardado = localStorage.getItem('sbo_config_color') || '#00796b';
             marcarColorSeleccionado(colorGuardado);
@@ -217,8 +205,6 @@
             const savedSize = localStorage.getItem('sbo_config_tamanio') || '15px';
             document.documentElement.style.setProperty('--font-scale', savedSize);
             document.getElementById('selectTamanioLetra').value = savedSize;
-
-            cargarLicencias();
         });
 
         // --- CONTROL DE MODALES ---
@@ -230,68 +216,54 @@
             document.getElementById('modalAjustes').style.display = 'none';
         }
 
-        function cerrarModalLicencias() {
-            document.getElementById('modalLicenciasAdmin').style.display = 'none';
+        function abrirModalLicenciaUsuario() {
+            cargarInfoLicenciaUsuario();
+            document.getElementById('modalLicenciaUsuario').style.display = 'flex';
+        }
+
+        function cerrarModalLicenciaUsuario() {
+            document.getElementById('modalLicenciaUsuario').style.display = 'none';
+        }
+
+        // --- GESTIÓN DE LICENCIA PARA EL USUARIO ---
+        function cargarInfoLicenciaUsuario() {
+            const plan = localStorage.getItem('sbo_licencia_plan') || 'Licencia Inicial / Demo';
+            const clave = localStorage.getItem('sbo_licencia_clave_activa') || 'SIN-CLAVE-REGISTRADA';
+            const estado = localStorage.getItem('sbo_licencia_estado') || 'Activa ✅';
+
+            document.getElementById('lblPlanActivo').innerText = plan;
+            document.getElementById('lblClaveActiva').innerText = clave;
+            document.getElementById('lblEstadoLicencia').innerText = estado;
+        }
+
+        function activarNuevaLicencia() {
+            const clave = document.getElementById('txtClaveRenovacion').value.trim().toUpperCase();
+            if (!clave) {
+                alert('⚠️ Por favor ingresá un código de clave válido.');
+                return;
+            }
+
+            localStorage.setItem('sbo_licencia_clave_activa', clave);
+            localStorage.setItem('sbo_licencia_estado', 'Activa / Validada ✅');
+            localStorage.setItem('sbo_licencia_plan', 'Licencia Pro / Comercial');
+
+            alert('🎉 ¡Clave de licencia activada correctamente!');
+            document.getElementById('txtClaveRenovacion').value = '';
+            cargarInfoLicenciaUsuario();
+        }
+
+        function solicitarRenovacionWA() {
+            const claveActual = localStorage.getItem('sbo_licencia_clave_activa') || 'Sin clave';
+            const negocio = localStorage.getItem('sbo_config_nombre') || 'Mi Negocio';
+            
+            const mensaje = encodeURIComponent(`¡Hola! Quisiera renovar o consultar por la licencia de S.B.O. Control.\n\nEmprendimiento: ${negocio}\nClave Actual: ${claveActual}`);
+            window.open(`https://wa.me/5492364502082?text=${mensaje}`, '_blank');
         }
 
         // --- CAMBIAR TAMAÑO GLOBAL ---
         function cambiarTamanioGlobal(tamanio) {
             localStorage.setItem('sbo_config_tamanio', tamanio);
             document.documentElement.style.setProperty('--font-scale', tamanio);
-        }
-
-        // --- SISTEMA DE TRAMPA Y ACCESO PROTEGIDO ---
-        function solicitarAccesoAdminLicencias() {
-            let intentos = parseInt(localStorage.getItem('sbo_intentos_admin') || '0');
-
-            if (intentos >= 3) {
-                let codigoSecreto = prompt("⛔ Acceso bloqueado. Ingresá la clave maestra o escribí 'reset' para destrabar los intentos:");
-                if (codigoSecreto === 'reset') {
-                    localStorage.setItem('sbo_intentos_admin', '0');
-                    alert("✅ ¡Bloqueo reseteado! Volvé a tocar el botón para ingresar.");
-                    return;
-                }
-                if (codigoSecreto === obtenerClaveDev()) {
-                    localStorage.setItem('sbo_intentos_admin', '0');
-                    document.getElementById('modalLicenciasAdmin').style.display = 'flex';
-                    alert("¡Acceso concedido! Panel de licencias desbloqueado.");
-                    return;
-                }
-                alert("⛔ Sigue bloqueado.");
-                return;
-            }
-
-            let claveIngresada = prompt("Ingrese la clave de desarrollador:");
-            if (claveIngresada === null) return;
-
-            if (claveIngresada === obtenerClaveDev()) {
-                localStorage.setItem('sbo_intentos_admin', '0');
-                document.getElementById('modalLicenciasAdmin').style.display = 'flex';
-                alert("¡Acceso concedido! Panel de licencias desbloqueado.");
-            } else {
-                intentos++;
-                localStorage.setItem('sbo_intentos_admin', intentos);
-                let restantes = 3 - intentos;
-
-                if (restantes > 0) {
-                    alert(`❌ Clave incorrecta. Te quedan ${restantes} intento(s) antes del bloqueo.`);
-                } else {
-                    alert("🚨 ¡Sistema bloqueado! Volvé a tocar el botón y escribí 'reset' para destrabarlo.");
-                }
-            }
-        }
-
-        function cambiarClaveDev() {
-            const nuevaClave = document.getElementById('txtNuevaClave').value.trim();
-            if (!nuevaClave) {
-                alert('⚠️ La nueva clave no puede estar vacía.');
-                return;
-            }
-            if (confirm('¿Estás seguro de cambiar la clave de desarrollador?')) {
-                localStorage.setItem('sbo_dev_clave', nuevaClave);
-                document.getElementById('txtNuevaClave').value = '';
-                alert('✅ ¡Clave de desarrollador actualizada con éxito!');
-            }
         }
 
         // --- GESTIÓN GENERAL DE CONFIG ---
@@ -407,101 +379,6 @@
                 window.location.href = 'index.html';
             }, 1000);
         }
-
-        // --- LÓGICA DE LICENCIAS INTERNAS ---
-        let editandoId = null;
-
-        document.getElementById('formLicencia').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const nombreLicencia = document.getElementById('txtNombreLicencia').value.trim();
-            const duracion = document.getElementById('txtDuracion').value.trim();
-            const clave = document.getElementById('txtClave').value.trim();
-
-            let licencias = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
-            
-            if (editandoId !== null) {
-                licencias = licencias.map(l => {
-                    if (l.id === editandoId) {
-                        return { ...l, nombreLicencia, duracion, clave };
-                    }
-                    return l;
-                });
-                editandoId = null;
-                document.getElementById('btnGuardar').innerText = '💾 Guardar Licencia';
-                document.getElementById('btnGuardar').style.backgroundColor = '#2e7d32';
-                alert('¡Licencia actualizada con éxito!');
-            } else {
-                licencias.push({
-                    id: Date.now(),
-                    nombreLicencia,
-                    duracion,
-                    clave
-                });
-                alert('¡Licencia guardada correctamente!');
-            }
-
-            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(licencias));
-            this.reset();
-            cargarLicencias();
-        });
-
-        function cargarLicencias() {
-            const contenedor = document.getElementById('contenedorLicencias');
-            const licencias = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
-
-            if (licencias.length === 0) {
-                contenedor.innerHTML = '<div style="text-align:center; color:#666; font-size:0.85rem; padding:8px;">No hay licencias cargadas todavía.</div>';
-                return;
-            }
-
-            let html = '';
-            licencias.forEach(l => {
-                html += `
-                    <div class="licencia-item">
-                        <div class="licencia-info">
-                            <strong>${l.nombreLicencia}</strong>
-                            <p>Duración: ${l.duracion} | Clave: <code>${l.clave}</code></p>
-                        </div>
-                        <div class="acciones-item">
-                            <button class="btn-editar" onclick="editarLicencia(${l.id})" title="Editar">✏️</button>
-                            <button class="btn-eliminar" onclick="eliminarLicencia(${l.id})" title="Eliminar">✕</button>
-                        </div>
-                    </div>
-                `;
-            });
-            contenedor.innerHTML = html;
-        }
-
-        window.editarLicencia = function(id) {
-            let licencias = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
-            let lic = licencias.find(l => l.id === id);
-            if (!lic) return;
-
-            document.getElementById('txtNombreLicencia').value = lic.nombreLicencia;
-            document.getElementById('txtDuracion').value = lic.duracion;
-            document.getElementById('txtClave').value = lic.clave;
-            
-            editandoId = id;
-            const btn = document.getElementById('btnGuardar');
-            btn.innerText = '✏️ Actualizar Licencia';
-            btn.style.backgroundColor = '#0277bd';
-        };
-
-        window.eliminarLicencia = function(id) {
-            if(!confirm('¿Estás seguro de eliminar esta licencia?')) return;
-            let licencias = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
-            licencias = licencias.filter(l => l.id !== id);
-            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(licencias));
-            
-            if (editandoId === id) {
-                editandoId = null;
-                document.getElementById('formLicencia').reset();
-                document.getElementById('btnGuardar').innerText = '💾 Guardar Licencia';
-                document.getElementById('btnGuardar').style.backgroundColor = '#2e7d32';
-            }
-
-            cargarLicencias();
-        };
     </script>
 </body>
 </html>

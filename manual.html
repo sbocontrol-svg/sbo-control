@@ -37,7 +37,7 @@
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
     .modal-overlay.active { display: flex; }
     
-    .modal-container { background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; text-align: left; }
+    .modal-container { background: white; width: 100%; max-width: 420px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; text-align: left; }
     
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; flex-shrink: 0; }
     .modal-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin: 0; }
@@ -47,7 +47,7 @@
     .modal-body-scroll { 
       margin-top: 6px; 
       margin-bottom: 10px;
-      max-height: 300px; 
+      max-height: 52vh; 
       overflow-y: auto; 
       display: flex; 
       flex-direction: column; 
@@ -85,7 +85,7 @@
         <h2 style="margin: 0; font-size: 1.25rem; color: var(--primary-color);">📖 Manual y Ayuda</h2>
         <button onclick="regresarConfig()" class="btn-volver">Volver</button>
       </div>
-      <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 16px;">Consultá la guía de uso del sistema o comunicate con soporte técnico.</p>
+      <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 16px;">Consultá la guía de uso completa del sistema o comunicate con soporte técnico.</p>
 
       <button class="btn-main" id="btnAbrirManual">📚 Ver Manual de Usuario Completo</button>
       <button class="btn-contacto" id="btnAbrirContacto">📞 Soporte Técnico</button>
@@ -96,47 +96,59 @@
   <div class="modal-overlay" id="modal-manual">
     <div class="modal-container">
       <div class="modal-header">
-        <h3>📚 Manual de Usuario</h3>
+        <h3>📚 Manual de Usuario - S.B.O. Control</h3>
         <button class="modal-close-btn" id="btnCerrarManualX">✕</button>
       </div>
 
       <div class="modal-body-scroll">
         <div class="manual-item">
-          <strong>1. Primeros Pasos y Configuración</strong>
-          Ingresá al módulo de Configuración para definir el nombre de tu emprendimiento, eslogan y color institucional. Estos datos se reflejarán automáticamente en todos los tickets y comprobantes generados.
+          <strong>1. Registro de Cliente y Clave de Acceso</strong>
+          Al ingresar por primera vez, abrí la opción <em>"Registro"</em>. Seleccioná tu plan de licencia, completá tus datos personales y hacé clic en <em>"Guardar Registro y Enviar"</em>. El sistema generará una huella de dispositivo (HW) para enviarla por WhatsApp al equipo de soporte y recibir tu clave oficial de acceso.
         </div>
 
         <div class="manual-item">
-          <strong>2. Gestión de Clientes</strong>
-          Permite registrar la base de datos de tus compradores (nombre, teléfono, localidad). El número de teléfono es clave para que, al emitir un ticket, puedas enviarlo directamente por WhatsApp con un solo toque.
+          <strong>2. Configuración del Negocio y Apariencia</strong>
+          Desde el menú de <strong>Configuración</strong> podés personalizar el nombre de tu emprendimiento, eslogan y teléfono de contacto. Estos datos figurarán en los tickets digitales. Además, en <em>"Ajustes del Sistema"</em> podés cambiar la paleta de color y ajustar el tamaño de fuente global para mejor legibilidad.
         </div>
 
         <div class="manual-item">
-          <strong>3. Control de Stock e Inventario</strong>
-          Cargá tus productos especificando nombre, precio y cantidad disponible. El sistema descuenta automáticamente las unidades a medida que concretás ventas y te avisa si intentás vender más stock del disponible.
+          <strong>3. Gestión de Clientes</strong>
+          Registrá tu base de compradores especificando Nombre, Teléfono/WhatsApp, Localidad y E-mail. Mantener actualizada esta sección te facilita el envío directo de comprobantes de compra por WhatsApp con un solo toque.
         </div>
 
         <div class="manual-item">
-          <strong>4. Registro de Ventas y Carrito</strong>
-          Armá los pedidos seleccionando el cliente y agregando uno o varios productos al carrito de compras. Podrás definir la cantidad, revisar subtotales, elegir el medio de pago (Efectivo, Transferencia, Mercado Pago, Tarjetas) y confirmar la operación.
+          <strong>4. Control de Inventario y Stock</strong>
+          Cargá tus productos especificando descripción, precio unitario y cantidad disponible. El sistema descuenta las unidades de forma automática con cada venta concretada y advierte cuando intentás sobrepasar el stock físico disponible.
         </div>
 
         <div class="manual-item">
-          <strong>5. Comprobantes y Tickets Digitales</strong>
-          Cada venta confirmada genera un ticket digital detallado. Desde allí podés compartirlo al instante por WhatsApp al cliente, imprimirlo o guardarlo como PDF en tu dispositivo.
+          <strong>5. Ventas, Carrito y Tickets Digitales</strong>
+          Seleccioná un cliente, armá el pedido agregando productos al carrito y elegí el medio de pago (Efectivo, Transferencia, Mercado Pago, Tarjeta). Al confirmar, se genera el comprobante digital detallado listo para compartir por WhatsApp, guardar en PDF o imprimir.
         </div>
 
         <div class="manual-item">
-          <strong>6. Ventas de la Jornada</strong>
-          Accedé al historial diario de ventas mediante el botón flotante. Podés buscar por cliente o número de ticket, ver el detalle, imprimir reportes o anular una venta (la cual devuelve automáticamente los productos al stock).
+          <strong>6. Control de Caja Chica</strong>
+          Administrá el dinero en efectivo del día a día. Podés ingresar un <em>Fondo / Cambio Inicial</em> y registrar todos los ingresos o egresos extras (pago a proveedores, insumos, compras menores). El sistema recalcula en tiempo real el <strong>Saldo Actual en Caja</strong>.
         </div>
 
         <div class="manual-item">
-          <strong>7. Licencias, Claves y Activación</strong>
-          El sistema cuenta con un sistema de licencias para garantizar el acceso según tu plan contratado:
-          <br>• <strong>Tipos de Licencia:</strong> Demo (prueba limitada), Mensual, Anual y Vitalicia.
-          <br>• <strong>Claves de Registro:</strong> Al adquirir o renovar tu plan, recibirás una clave alfanumérica única.
-          <br>• <strong>Cómo activar:</strong> Ingresá al módulo de Licencias/Registro, introduci tu clave provista y hacé clic en Validar. El sistema actualizará el estado de tu licencia y la fecha de expiración automáticamente en el almacenamiento local del dispositivo.
+          <strong>7. Libro Diario y Consulta de Métodos de Pago</strong>
+          Visualizá el desglose diario de tus ingresos. Podés filtrar por fecha para analizar las ventas globales, la facturación por método de pago (Efectivo vs. Medios Digitales) y el balance de la jornada de trabajo.
+        </div>
+
+        <div class="manual-item">
+          <strong>8. Cierre Z y Blanqueo de Jornada</strong>
+          Al finalizar el día, accedé al módulo de <strong>Cierre Z</strong>. El sistema realiza un balance completo: ventas del día, arqueo de efectivo esperado en caja, saldo acumulado del mes y valorización de inventario. Al pulsar <em>"Confirmar Cierre Z"</em>, se resguardan las estadísticas del mes y se reinicia la jornada a cero para el próximo día.
+        </div>
+
+        <div class="manual-item">
+          <strong>9. Respaldo de Datos (Backup) y Restauración</strong>
+          En Configuración &gt; Ajustes del Sistema podés pulsar <em>"Exportar Datos"</em> para descargar un archivo de copia de seguridad (`.json`). Podés restaurar este archivo en cualquier momento o realizar un <em>"Reinicio de Fábrica"</em> que vacía los registros locales conservando un respaldo de seguridad previo.
+        </div>
+
+        <div class="manual-item">
+          <strong>10. Tipos de Licencias y Renovaciones</strong>
+          El sistema administra licencias comerciales (Mensual, Semestral, Anual o Vitalicia). Al renovar tu suscripción, ingresá la clave entregada en la pantalla de inicio para extender la validez de tu acceso sin perder ninguno de tus datos.
         </div>
       </div>
 
@@ -149,7 +161,7 @@
   <div class="modal-overlay" id="modal-contacto">
     <div class="modal-container" style="max-width: 360px;">
       <div class="modal-header">
-        <h3>📞 Contactanos.</h3>
+        <h3>📞 Contactanos</h3>
         <button class="modal-close-btn" id="btnCerrarContactoX">✕</button>
       </div>
 
@@ -157,9 +169,9 @@
         <p><strong>S. B. O. Control</strong></p>
         <p style="color: #64748b; font-size: 0.85rem;">Gestión Integral para Emprendedores</p>
         <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0;">
-        <p>💬 <strong>WhatsApp:</strong><br><a href="https://wa.me/5492364502082" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">+5492364502082</a></p>
-        <p>📧 <strong>Email:</strong><br><a href="mailto:sbocontrol@gmail.com" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">sbocontrol@gmail.com</a></p>
-        <p>🕒 <strong>Horario:</strong><br><span style="color: #334155; font-size: 0.85rem;">Lunes a Viernes de 8:30 a 12:30 hs - Sábado de 9:00 13:00 hs</span></p>
+        <p>💬 <strong>WhatsApp Oficial:</strong><br><a href="https://wa.me/5492364502082" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">+54 9 236 450-2082</a></p>
+        <p>📧 <strong>Email de Soporte:</strong><br><a href="mailto:sbocontrol@gmail.com" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">sbocontrol@gmail.com</a></p>
+        <p>🕒 <strong>Horario de Atención:</strong><br><span style="color: #334155; font-size: 0.85rem;">Lun a Vie de 8:30 a 12:30 hs<br>Sábados de 9:00 a 13:00 hs</span></p>
       </div>
 
       <button class="btn-cerrar-gris" id="btnCerrarContactoGris">Cerrar</button>
@@ -191,4 +203,4 @@
     modalContacto.addEventListener('click', (e) => { if (e.target === modalContacto) modalContacto.classList.remove('active'); });
   </script>
 </body>
-</html
+</html>
