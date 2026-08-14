@@ -6,7 +6,7 @@
     <title>S.B.O. Control - Menú</title>
     <style>
         :root {
-            --primary-color: #00796b;
+            --primary-color: #059669;
             --primary-light: #e0f2f1;
             --font-scale: 15px;
         }
@@ -97,7 +97,7 @@
                 <h1>S. B. O. Control</h1>
                 <p>Small Business Owner</p>
             </div>
-            <img src="logosbo.jpg" alt="Logo" class="logo-img">
+            <img src="sbologo.png" alt="Logo" class="logo-img">
             <div class="header-right">
                 <span class="fecha-trabajo" id="lblFechaMenu">-</span>
             </div>
@@ -233,6 +233,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar configuración de colores guardada
             const customColor = localStorage.getItem('sbo_config_color');
             const customLight = localStorage.getItem('sbo_config_color_light');
             if (customColor) {
@@ -242,6 +243,7 @@
                 document.documentElement.style.setProperty('--primary-light', customLight);
             }
 
+            // Configuración de la fecha de sesión
             const fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
             const partesFecha = fechaSesion.split('-');
             if (partesFecha.length === 3) {
@@ -249,82 +251,114 @@
                 document.getElementById('lblFechaMenu').innerText = `${partesFecha[2]} ${meses[parseInt(partesFecha[1]) - 1]} ${partesFecha[0]}`;
             }
 
-            // --- CONTROL DE VENCIMIENTO Y ALERTAS DE LICENCIA ACTUALIZADO ---
+            // --- CONTROL DE VENCIMIENTO Y ALERTAS DE LICENCIA ---
             const elemLicencia = document.querySelector('.licencia');
-            const licenciaGuardada = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licenciaNombre') || localStorage.getItem('sbo_licencia') || localStorage.getItem('sbo_tipoLicencia');
+            const licenciaGuardada = localStorage.getItem('sbo_licenciaElegida') || 
+                                     localStorage.getItem('sbo_licenciaNombre') || 
+                                     localStorage.getItem('sbo_licencia') || 
+                                     localStorage.getItem('sbo_tipoLicencia') || 
+                                     'Licencia Activa Mensual';
 
-            if (licenciaGuardada) {
-                let textoLicencia = licenciaGuardada.replace(/['"]+/g, '');
-                
-                const licenciasPersonalizadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
-                const licenciaObj = licenciasPersonalizadas.find(l => l.nombreLicencia.toLowerCase() === textoLicencia.toLowerCase());
-                
-                let duracionStr = licenciaObj ? (licenciaObj.duracion || '') : '';
-                let esVitalicia = textoLicencia.toLowerCase().includes('vida') || textoLicencia.toLowerCase().includes('vitalicia') || duracionStr.toLowerCase().includes('vida') || duracionStr.toLowerCase().includes('vitalicia');
+            let textoLicencia = licenciaGuardada.replace(/['"]+/g, '');
+            const textoCompleto = textoLicencia.toLowerCase();
 
-                if (esVitalicia) {
-                    elemLicencia.innerHTML = `🛡️ "${textoLicencia}" (Sin Vencimiento)`;
+            // 1. Clasificación estricta de licencias especiales
+            let esHonorifica = textoCompleto.includes('honorífica') || 
+                               textoCompleto.includes('honorifica') || 
+                               textoCompleto.includes('aeternum');
+            let esProbation = textoCompleto.includes('probation');
+
+            // 2. Calcular días transcurridos desde la activación
+            let fechaActivacion = localStorage.getItem('sbo_fechaActivacion');
+            if (!fechaActivacion) {
+                fechaActivacion = new Date().toISOString().split('T')[0];
+                localStorage.setItem('sbo_fechaActivacion', fechaActivacion);
+            }
+
+            const inicio = new Date(fechaActivacion);
+            const hoy = new Date();
+            inicio.setHours(0, 0, 0, 0);
+            hoy.setHours(0, 0, 0, 0);
+
+            const diferenciaTiempo = hoy - inicio;
+            const diasPasados = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
+            const DIAS_PRUEBA = 15;
+
+            // --- LÓGICA DE VISUALIZACIÓN ---
+            if (esHonorifica) {
+                // Licencia Honorífica / Ilimitada
+                elemLicencia.innerHTML = `🛡️ Licencia Activa: "${textoLicencia}" (Sin Vencimiento)`;
+                elemLicencia.style.backgroundColor = '#e8f5e9';
+                elemLicencia.style.color = '#2e7d32';
+                elemLicencia.style.borderColor = '#c8e6c9';
+            } else if (esProbation) {
+                // Licencia Ad-Probation (24 Horas = 1 día)
+                const diasRestantesProbation = 1 - diasPasados;
+                if (diasRestantesProbation > 0) {
+                    elemLicencia.innerHTML = `⚠️ Licencia Ad-Probation (24 hs) - Activa por hoy`;
+                    elemLicencia.style.backgroundColor = '#fff9c4';
+                    elemLicencia.style.color = '#f57f17';
+                    elemLicencia.style.borderColor = '#fff59d';
+                } else {
+                    elemLicencia.innerHTML = `❌ Licencia Ad-Probation Vencida (24 hs)`;
+                    elemLicencia.style.backgroundColor = '#ffebee';
+                    elemLicencia.style.color = '#c62828';
+                    elemLicencia.style.borderColor = '#ffcdd2';
+                    setTimeout(() => {
+                        alert('La licencia Ad-Probation de 24 horas ha finalizado. Comunícate con soporte para adquirir un plan.');
+                        window.location.href = 'index.html';
+                    }, 1000);
+                }
+            } else if (diasPasados < DIAS_PRUEBA) {
+                // Período de Prueba Gratis inicial (Días 1 al 15)
+                const diasRestantesPrueba = DIAS_PRUEBA - diasPasados;
+                elemLicencia.innerHTML = `🎁 Período de Prueba - Te quedan ${diasRestantesPrueba} ${diasRestantesPrueba === 1 ? 'día' : 'días'}`;
+                elemLicencia.style.backgroundColor = '#e3f2fd';
+                elemLicencia.style.color = '#1565c0';
+                elemLicencia.style.borderColor = '#bbdefb';
+            } else {
+                // Licencias Comerciales (Mensual 30d, Semestral 180d, Vitalicia Anual 365d)
+                let diasLicenciaTotal = 30; // Base Mensual
+                if (textoCompleto.includes('anual') || textoCompleto.includes('365')) {
+                    diasLicenciaTotal = 365;
+                } else if (textoCompleto.includes('semestral') || textoCompleto.includes('180')) {
+                    diasLicenciaTotal = 180;
+                } else if (textoCompleto.includes('mensual') || textoCompleto.includes('30')) {
+                    diasLicenciaTotal = 30;
+                }
+
+                const diasLicenciaPasados = diasPasados - DIAS_PRUEBA;
+                const diasRestantesLicencia = diasLicenciaTotal - diasLicenciaPasados;
+
+                if (diasRestantesLicencia > 5) {
+                    elemLicencia.innerHTML = `🛡️ Licencia Activa (${textoLicencia}) - Restan ${diasRestantesLicencia} días`;
                     elemLicencia.style.backgroundColor = '#e8f5e9';
                     elemLicencia.style.color = '#2e7d32';
                     elemLicencia.style.borderColor = '#c8e6c9';
+                } else if (diasRestantesLicencia > 2 && diasRestantesLicencia <= 5) {
+                    elemLicencia.innerHTML = `⚠️ Licencia (${textoLicencia}) - ¡Atención! Restan ${diasRestantesLicencia} días`;
+                    elemLicencia.style.backgroundColor = '#fff9c4';
+                    elemLicencia.style.color = '#f57f17';
+                    elemLicencia.style.borderColor = '#fff59d';
+                } else if (diasRestantesLicencia > 0 && diasRestantesLicencia <= 2) {
+                    elemLicencia.innerHTML = `⚠️ Licencia (${textoLicencia}) - ¡Alerta! Restan ${diasRestantesLicencia} días`;
+                    elemLicencia.style.backgroundColor = '#ffe0b2';
+                    elemLicencia.style.color = '#e65100';
+                    elemLicencia.style.borderColor = '#ffcc80';
                 } else {
-                    let diasPrueba = 30;
-                    if (duracionStr) {
-                        const matchDias = duracionStr.match(/(\d+)\s*d[ií]as?/i);
-                        const matchMeses = duracionStr.match(/(\d+)\s*mes(es)?/i);
-                        if (matchDias) {
-                            diasPrueba = parseInt(matchDias[1]);
-                        } else if (matchMeses) {
-                            diasPrueba = parseInt(matchMeses[1]) * 30;
-                        }
-                    }
-
-                    let fechaActivacion = localStorage.getItem('sbo_fechaActivacion');
-                    if (!fechaActivacion) {
-                        fechaActivacion = new Date().toISOString().split('T')[0];
-                        localStorage.setItem('sbo_fechaActivacion', fechaActivacion);
-                    }
-
-                    const inicio = new Date(fechaActivacion);
-                    const hoy = new Date();
-                    inicio.setHours(0, 0, 0, 0);
-                    hoy.setHours(0, 0, 0, 0);
+                    elemLicencia.innerHTML = `❌ Licencia Vencida (${textoLicencia})`;
+                    elemLicencia.style.backgroundColor = '#ffebee';
+                    elemLicencia.style.color = '#c62828';
+                    elemLicencia.style.borderColor = '#ffcdd2';
                     
-                    const diferenciaTiempo = hoy - inicio;
-                    const diasPasados = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
-                    const diasRestantes = diasPrueba - diasPasados;
-
-                    if (diasRestantes > 5) {
-                        elemLicencia.innerHTML = `🛡️ ${textoLicencia} - Te quedan ${diasRestantes} días`;
-                        elemLicencia.style.backgroundColor = '#e8f5e9';
-                        elemLicencia.style.color = '#2e7d32';
-                        elemLicencia.style.borderColor = '#c8e6c9';
-                    } else if (diasRestantes > 2 && diasRestantes <= 5) {
-                        elemLicencia.innerHTML = `⚠️ ${textoLicencia} - ¡Atención! Te quedan ${diasRestantes} días`;
-                        elemLicencia.style.backgroundColor = '#fff9c4';
-                        elemLicencia.style.color = '#f57f17';
-                        elemLicencia.style.borderColor = '#fff59d';
-                    } else if (diasRestantes > 0 && diasRestantes <= 2) {
-                        elemLicencia.innerHTML = `⚠️ ${textoLicencia} - ¡Alerta! Te quedan ${diasRestantes} días`;
-                        elemLicencia.style.backgroundColor = '#ffe0b2';
-                        elemLicencia.style.color = '#e65100';
-                        elemLicencia.style.borderColor = '#ffcc80';
-                    } else {
-                        elemLicencia.innerHTML = `❌ ${textoLicencia} - ¡Licencia Vencida!`;
-                        elemLicencia.style.backgroundColor = '#ffebee';
-                        elemLicencia.style.color = '#c62828';
-                        elemLicencia.style.borderColor = '#ffcdd2';
-                        
-                        setTimeout(() => {
-                            alert('Tu licencia ha vencido. Comunícate con soporte para renovarla.');
-                            window.location.href = 'index.html';
-                        }, 1000);
-                    }
+                    setTimeout(() => {
+                        alert('El tiempo de uso de tu licencia ha finalizado. Comunícate con soporte para renovarla.');
+                        window.location.href = 'index.html';
+                    }, 1000);
                 }
-            } else {
-                elemLicencia.innerHTML = `🛡️ "Licencia Estándar" (Sin Vencimiento)`;
             }
 
+            // Cargar y procesar Ventas del día
             const ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
             const ventasJornada = ventas.filter(v => v.fecha === fechaSesion);
 
@@ -350,39 +384,55 @@
                 contenedorVentasModal.innerHTML = htmlVentas;
             }
 
+            // Cargar y procesar Stock disponible
             const stock = JSON.parse(localStorage.getItem('sbo_stock')) || [];
             let totalUnidadesStock = 0;
             let contenedorStockModal = document.getElementById('modalListaStockDetalle');
             let htmlStock = '';
 
             if (stock.length === 0) {
-                contenedorStockModal.innerHTML = '<div style="text-align:center; color:#666; font-size:0.8rem; padding:10px;">No hay productos cargados.</div>';
+                contenedorStockModal.innerHTML = '<div style="text-align:center; color:#666; font-size:0.8rem; padding:10px;">No hay productos cargados en el inventario.</div>';
             } else {
-                stock.forEach(p => {
-                    let cant = p.cantidad !== undefined ? Number(p.cantidad) : (p.stock !== undefined ? Number(p.stock) : 0);
-                    let nombre = p.producto || p.nombre || 'Artículo';
+                stock.forEach(item => {
+                    const cant = item.cantidad || item.stock || 0;
                     totalUnidadesStock += cant;
-                    htmlStock += `<div class="modal-row"><span>${nombre}:</span> <strong>${cant} un.</strong></div>`;
+                    htmlStock += `<div class="modal-row"><span>${item.nombre || item.producto || 'Producto'}:</span> <strong>${cant} un.</strong></div>`;
                 });
                 contenedorStockModal.innerHTML = htmlStock;
             }
 
             document.getElementById('valTotalStock').innerText = `${totalUnidadesStock} un.`;
-        });
 
-        const setupModal = (cardId, modalId, closeBtnId) => {
-            const card = document.getElementById(cardId);
-            const modal = document.getElementById(modalId);
-            const closeBtn = document.getElementById(closeBtnId);
-            if(card && modal && closeBtn) {
-                card.addEventListener('click', () => modal.classList.add('active'));
-                closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-                modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+            // Controladores de apertura y cierre para los Modales
+            const cardVentas = document.getElementById('card-ventas');
+            const cardStock = document.getElementById('card-stock');
+            const modalVentas = document.getElementById('modal-ventas');
+            const modalStock = document.getElementById('modal-stock');
+            const btnCerrarVentas = document.getElementById('btn-cerrar-ventas');
+            const btnCerrarStock = document.getElementById('btn-cerrar-stock');
+
+            if (cardVentas && modalVentas) {
+                cardVentas.addEventListener('click', function() {
+                    modalVentas.classList.add('active');
+                });
             }
-        };
+            if (btnCerrarVentas && modalVentas) {
+                btnCerrarVentas.addEventListener('click', function() {
+                    modalVentas.classList.remove('active');
+                });
+            }
 
-        setupModal('card-ventas', 'modal-ventas', 'btn-cerrar-ventas');
-        setupModal('card-stock', 'modal-stock', 'btn-cerrar-stock');
+            if (cardStock && modalStock) {
+                cardStock.addEventListener('click', function() {
+                    modalStock.classList.add('active');
+                });
+            }
+            if (btnCerrarStock && modalStock) {
+                btnCerrarStock.addEventListener('click', function() {
+                    modalStock.classList.remove('active');
+                });
+            }
+        });
     </script>
 </body>
 </html>

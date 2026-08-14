@@ -99,8 +99,15 @@
   </div>
 
   <script>
-    // ⚙️ CAMBIÁ ESTE NÚMERO POR TU WHATSAPP REAL DE SBO CONTROL (con código de país y área, sin el +)
+    // ⚙️ NÚMERO OFICIAL DE WHATSAPP SBO CONTROL
     const NUMERO_WHATSAPP_SBO = "5492364502982"; 
+
+    // 📋 Licencias comerciales visibles por defecto para los clientes
+    const licenciasOficialesDefault = [
+      { nombreLicencia: "Licencia Activa Mensual", duracion: "30 días" },
+      { nombreLicencia: "Licencia Plena Semestral", duracion: "180 días" },
+      { nombreLicencia: "Licencia Vitalicia Anual", duracion: "365 días" }
+    ];
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('txtFechaSesion').value = new Date().toISOString().split('T')[0];
@@ -108,21 +115,27 @@
       const nombre = localStorage.getItem('sbo_nombre');
       if(nombre) document.getElementById('lblNombreCliente').textContent = nombre;
 
-      // Configurar enlace de soporte con el número correcto
+      // Configurar enlace de soporte
       document.getElementById('linkSoporte').href = `https://wa.me/${NUMERO_WHATSAPP_SBO}?text=Hola,%20%C2%BFpodr%C3%ADas%20reenviarme%20la%20licencia%3F`;
 
-      // Cargar licencias desde localStorage (sbo_db_licencias_personalizadas)
+      // Cargar licencias comerciales disponibles
       try {
-        const licenciasGlobal = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
-        const selectModal = document.getElementById('selectLicenciaModal');
+        const licenciasGuardadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas'));
         
-        if (licenciasGlobal.length === 0) {
-          selectModal.innerHTML = '<option value="">No hay licencias cargadas</option>';
-          return;
-        }
+        // Si hay guardadas personalizadas, filtramos de todas formas cualquier licencia interna o privada
+        let listaLicencias = (licenciasGuardadas && licenciasGuardadas.length > 0) 
+          ? licenciasGuardadas.filter(item => 
+              !item.nombreLicencia.toLowerCase().includes('honorífica') && 
+              !item.nombreLicencia.toLowerCase().includes('probation')
+            )
+          : licenciasOficialesDefault;
 
+        if (listaLicencias.length === 0) listaLicencias = licenciasOficialesDefault;
+
+        const selectModal = document.getElementById('selectLicenciaModal');
         selectModal.innerHTML = '<option value="">Seleccioná una licencia...</option>';
-        licenciasGlobal.forEach(item => {
+        
+        listaLicencias.forEach(item => {
           const opt = document.createElement('option');
           opt.value = item.nombreLicencia;
           opt.textContent = `${item.nombreLicencia} (${item.duracion})`;
@@ -161,7 +174,6 @@
       const w = document.getElementById('txtWhatsapp').value.trim();
       if (!n || !d || !w) return alert('Completá todos los campos.');
 
-      // Guardar datos básicos en localStorage
       localStorage.setItem('sbo_nombre', n);
       localStorage.setItem('sbo_direccion', d);
       localStorage.setItem('sbo_whatsapp', w);
@@ -171,7 +183,6 @@
         localStorage.setItem('sbo_huellaHardware', generarHuellaDispositivo());
       }
 
-      // Enviar datos por WhatsApp al número oficial de SBO (sin duplicar claves)
       const msg = encodeURIComponent(`¡Hola! Solicito clave para SBO Control:\n\n👤 Cliente: ${n}\n📍 Dirección: ${d}\n📱 WhatsApp: ${w}\n\n📋 Licencia elegida: ${licenciaSeleccionadaNombre}\n\n------------------\n🔒 [SYS_DATA]\nHW: ${localStorage.getItem('sbo_huellaHardware')}`);
       
       window.location.href = `https://wa.me/${NUMERO_WHATSAPP_SBO}?text=${msg}`;
@@ -182,7 +193,6 @@
         const claveInput = document.getElementById('txtClave').value.trim().toUpperCase();
         if (!claveInput) return alert('¡Ingresá la clave!');
 
-        // Buscar si la clave ingresada existe en las claves creadas desde el panel de administración (gestor_clave.html)
         const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
         const claveValida = clavesCreadas.find(c => c.clave.toUpperCase() === claveInput);
 
@@ -192,7 +202,6 @@
             return alert('❌ Clave incorrecta. La clave ingresada no se encuentra registrada en el sistema.');
         }
 
-        // Si es una clave válida del gestor, la guardamos localmente para futuros ingresos directos
         if (claveValida) {
             localStorage.setItem('sbo_claveSecreta', claveValida.clave);
             localStorage.setItem('sbo_licenciaElegida', claveValida.licencia);
