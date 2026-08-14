@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S. B. O. - Sistema</title>
+  <style>
+    :root { --primary-color: #059669; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { background-color: #ffffff; color: #1e293b; width: 100%; max-width: 480px; padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
+    h1 { font-size: 1.5rem; color: var(--primary-color); text-align: center; margin-bottom: 10px; }
+    .welcome-box { background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px dashed var(--primary-color); text-align: center; margin-bottom: 20px; }
+    .btn-salir { background-color: #dc2626; color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 20px; cursor: pointer; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>¡Sistema Activo!</h1>
+    <div class="welcome-box">
+      <p>Bienvenido al panel principal,</p>
+      <h2 id="lblNombreUsuario" style="color: #0f172a; margin-top: 5px;">...</h2>
+    </div>
+    <p style="text-align: center;">Acá es donde vamos a armar toda la magia de SBO.</p>
+    
+    <button class="btn-salir" onclick="salir()">Cerrar Sesión</button>
+  </div>
+
+  <script>
+    // Recuperamos el nombre para saludar al cliente
+    const nombre = localStorage.getItem('sbo_nombre');
+    document.getElementById('lblNombreUsuario').textContent = nombre || "Usuario";
+
+    function salir() {
+      // Por ahora, solo te redirige al index de nuevo
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

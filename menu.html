@@ -249,26 +249,42 @@
                 document.getElementById('lblFechaMenu').innerText = `${partesFecha[2]} ${meses[parseInt(partesFecha[1]) - 1]} ${partesFecha[0]}`;
             }
 
-            // --- CONTROL DE VENCIMIENTO Y ALERTAS DE LICENCIA ---
+            // --- CONTROL DE VENCIMIENTO Y ALERTAS DE LICENCIA ACTUALIZADO ---
             const elemLicencia = document.querySelector('.licencia');
-            const licenciaGuardada = localStorage.getItem('sbo_licenciaNombre') || localStorage.getItem('sbo_licencia') || localStorage.getItem('sbo_tipoLicencia');
+            const licenciaGuardada = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licenciaNombre') || localStorage.getItem('sbo_licencia') || localStorage.getItem('sbo_tipoLicencia');
 
             if (licenciaGuardada) {
                 let textoLicencia = licenciaGuardada.replace(/['"]+/g, '');
                 
-                if (textoLicencia.toLowerCase().includes('vida') || textoLicencia.toLowerCase().includes('vitalicia')) {
-                    elemLicencia.innerHTML = `🛡️ "Licencia de por Vida" (Sin Vencimiento)`;
+                const licenciasPersonalizadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+                const licenciaObj = licenciasPersonalizadas.find(l => l.nombreLicencia.toLowerCase() === textoLicencia.toLowerCase());
+                
+                let duracionStr = licenciaObj ? (licenciaObj.duracion || '') : '';
+                let esVitalicia = textoLicencia.toLowerCase().includes('vida') || textoLicencia.toLowerCase().includes('vitalicia') || duracionStr.toLowerCase().includes('vida') || duracionStr.toLowerCase().includes('vitalicia');
+
+                if (esVitalicia) {
+                    elemLicencia.innerHTML = `🛡️ "${textoLicencia}" (Sin Vencimiento)`;
                     elemLicencia.style.backgroundColor = '#e8f5e9';
                     elemLicencia.style.color = '#2e7d32';
                     elemLicencia.style.borderColor = '#c8e6c9';
                 } else {
+                    let diasPrueba = 30;
+                    if (duracionStr) {
+                        const matchDias = duracionStr.match(/(\d+)\s*d[ií]as?/i);
+                        const matchMeses = duracionStr.match(/(\d+)\s*mes(es)?/i);
+                        if (matchDias) {
+                            diasPrueba = parseInt(matchDias[1]);
+                        } else if (matchMeses) {
+                            diasPrueba = parseInt(matchMeses[1]) * 30;
+                        }
+                    }
+
                     let fechaActivacion = localStorage.getItem('sbo_fechaActivacion');
                     if (!fechaActivacion) {
                         fechaActivacion = new Date().toISOString().split('T')[0];
                         localStorage.setItem('sbo_fechaActivacion', fechaActivacion);
                     }
 
-                    const diasPrueba = 15;
                     const inicio = new Date(fechaActivacion);
                     const hoy = new Date();
                     inicio.setHours(0, 0, 0, 0);
@@ -284,29 +300,29 @@
                         elemLicencia.style.color = '#2e7d32';
                         elemLicencia.style.borderColor = '#c8e6c9';
                     } else if (diasRestantes > 2 && diasRestantes <= 5) {
-                        elemLicencia.innerHTML = `⚠️ ${textoLicencia} - ¡Atención! Te quedan 5 días de licencia`;
+                        elemLicencia.innerHTML = `⚠️ ${textoLicencia} - ¡Atención! Te quedan ${diasRestantes} días`;
                         elemLicencia.style.backgroundColor = '#fff9c4';
                         elemLicencia.style.color = '#f57f17';
                         elemLicencia.style.borderColor = '#fff59d';
                     } else if (diasRestantes > 0 && diasRestantes <= 2) {
-                        elemLicencia.innerHTML = `⚠️ ${textoLicencia} - ¡Alerta! Te quedan 2 días de licencia`;
+                        elemLicencia.innerHTML = `⚠️ ${textoLicencia} - ¡Alerta! Te quedan ${diasRestantes} días`;
                         elemLicencia.style.backgroundColor = '#ffe0b2';
                         elemLicencia.style.color = '#e65100';
                         elemLicencia.style.borderColor = '#ffcc80';
                     } else {
-                        elemLicencia.innerHTML = `❌ ${textoLicencia} - ¡Licencia Vencida! Renovala`;
+                        elemLicencia.innerHTML = `❌ ${textoLicencia} - ¡Licencia Vencida!`;
                         elemLicencia.style.backgroundColor = '#ffebee';
                         elemLicencia.style.color = '#c62828';
                         elemLicencia.style.borderColor = '#ffcdd2';
                         
                         setTimeout(() => {
-                            alert('Tu licencia ha vencido. Te invitamos a comunicarte con soporte para renovarla.');
+                            alert('Tu licencia ha vencido. Comunícate con soporte para renovarla.');
                             window.location.href = 'index.html';
                         }, 1000);
                     }
                 }
             } else {
-                elemLicencia.innerHTML = `🛡️ "Licencia de por Vida" (Sin Vencimiento)`;
+                elemLicencia.innerHTML = `🛡️ "Licencia Estándar" (Sin Vencimiento)`;
             }
 
             const ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];

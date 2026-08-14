@@ -50,7 +50,7 @@
 <body>
 
   <div class="container">
-    <details class="global-help"><summary class="help-icon">?</summary><div class="help-content">Ayuda: Tocá "Registro" para completar tus datos.</div></details>
+    <details class="global-help"><summary class="help-icon">?</summary><div class="help-content">Ayuda: Tocá "Registro" para completar tus datos y elegir tu licencia.</div></details>
     <div class="top-content">
       <img src="sbologo.png" alt="Logo SBO" class="brand-logo">
       <h1>S. B. O. Control</h1>
@@ -68,20 +68,16 @@
       <button type="button" class="btn-subtle-modify" onclick="abrirModalRegistro()">⚙️ Registro</button>
     </div>
     
-    <div class="marquee-container"><div class="marquee-text">👉 Tocá en registro para ingresar tus datos y validarte como cliente. ¡Gracias! 👈</div></div>
+    <div class="marquee-container"><div class="marquee-text">👉 Tocá en registro para completar tus datos y elegir tu licencia. ¡Gracias! 👈</div></div>
     
     <hr class="divider">
     <div class="login-section">
       <div class="form-group">
-        <label for="selectLicencia">Licencia:</label>
-        <select id="selectLicencia" class="form-control"><option value="">Cargando...</option></select>
-      </div>
-      <div class="form-group">
-        <label for="txtClave">Clave:</label>
-        <input type="text" id="txtClave" class="form-control" style="text-transform: uppercase;">
+        <label for="txtClave" style="font-weight: 800; color: var(--primary-color); display: block; margin-bottom: 6px;">⏩ Ingresar al sistema:</label>
+        <input type="text" id="txtClave" class="form-control" style="text-transform: uppercase;" placeholder="Ingresá tu clave">
       </div>
       <div class="extra-actions">
-        <a href="https://wa.me/5492364502082?text=Hola,%20%C2%BFpodr%C3%ADas%20reenviarme%20la%20licencia%3F" target="_blank" class="support-link">💬 ¿Te olvidaste la licencia?</a>
+        <a id="linkSoporte" href="#" target="_blank" class="support-link">💬 ¿Te olvidaste la licencia?</a>
         <button type="button" class="clear-btn" onclick="limpiarDatos()">🔄 Limpiar datos</button>
       </div>
     </div>
@@ -91,7 +87,11 @@
   <div id="modalRegistro" class="modal-overlay">
     <div class="modal-container">
       <h3 style="margin-bottom: 12px; color: var(--primary-color);">👥 Registro de Cliente:</h3>
-      <div class="form-group"><label>Nombre:</label><input type="text" id="txtNombre" class="form-control"></div>
+      <div class="form-group">
+        <label for="selectLicenciaModal">Seleccioná tu Licencia:</label>
+        <select id="selectLicenciaModal" class="form-control"><option value="">Cargando...</option></select>
+      </div>
+      <div class="form-group"><label>Nombre y Apellido:</label><input type="text" id="txtNombre" class="form-control"></div>
       <div class="form-group"><label>Dirección:</label><input type="text" id="txtDireccion" class="form-control"></div>
       <div class="form-group"><label>WhatsApp:</label><input type="tel" id="txtWhatsapp" class="form-control"></div>
       <button class="btn-save" onclick="guardarRegistro()">Guardar Registro y Enviar</button>
@@ -99,38 +99,37 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
+    // ⚙️ CAMBIÁ ESTE NÚMERO POR TU WHATSAPP REAL DE SBO CONTROL (con código de país y área, sin el +)
+    const NUMERO_WHATSAPP_SBO = "5492364502982"; 
+
+    document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('txtFechaSesion').value = new Date().toISOString().split('T')[0];
       
       const nombre = localStorage.getItem('sbo_nombre');
       if(nombre) document.getElementById('lblNombreCliente').textContent = nombre;
 
+      // Configurar enlace de soporte con el número correcto
+      document.getElementById('linkSoporte').href = `https://wa.me/${NUMERO_WHATSAPP_SBO}?text=Hola,%20%C2%BFpodr%C3%ADas%20reenviarme%20la%20licencia%3F`;
+
+      // Cargar licencias desde localStorage (sbo_db_licencias_personalizadas)
       try {
-        const res = await fetch('./licencias.json');
-        const licencias = await res.json();
-        const select = document.getElementById('selectLicencia');
-        select.innerHTML = '<option value="">Seleccioná una licencia...</option>';
-        licencias.forEach(item => {
-          if (item.activa && item.mostrar) {
-            const opt = document.createElement('option');
-            opt.value = item.nombreLicencia;
-            opt.textContent = `${item.nombreLicencia} (${item.duracion})`;
-            if (!item.seleccionable) {
-              opt.disabled = true;
-              opt.style.color = "#94a3b8";
-            }
-            select.appendChild(opt);
-          }
+        const licenciasGlobal = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+        const selectModal = document.getElementById('selectLicenciaModal');
+        
+        if (licenciasGlobal.length === 0) {
+          selectModal.innerHTML = '<option value="">No hay licencias cargadas</option>';
+          return;
+        }
+
+        selectModal.innerHTML = '<option value="">Seleccioná una licencia...</option>';
+        licenciasGlobal.forEach(item => {
+          const opt = document.createElement('option');
+          opt.value = item.nombreLicencia;
+          opt.textContent = `${item.nombreLicencia} (${item.duracion})`;
+          selectModal.appendChild(opt);
         });
       } catch (e) { console.error(e); }
     });
-
-    function generarClaveSecreta() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let res = '';
-      for (let i = 0; i < 6; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
-      return res;
-    }
 
     function generarHuellaDispositivo() {
       const rawData = `${navigator.userAgent}|${window.screen.width}x${window.screen.height}|${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
@@ -149,50 +148,66 @@
         }
     }
 
+    function abrirModalRegistro() { 
+      document.getElementById('modalRegistro').style.display = 'flex'; 
+    }
+
     function guardarRegistro() {
+      const licenciaSeleccionadaNombre = document.getElementById('selectLicenciaModal').value;
+      if (!licenciaSeleccionadaNombre) return alert('¡Seleccioná una licencia antes de registrarte!');
+
       const n = document.getElementById('txtNombre').value.trim();
       const d = document.getElementById('txtDireccion').value.trim();
       const w = document.getElementById('txtWhatsapp').value.trim();
-      if (!n || !d || !w) return alert('Completá los campos.');
+      if (!n || !d || !w) return alert('Completá todos los campos.');
 
-      if (!localStorage.getItem('sbo_claveSecreta')) localStorage.setItem('sbo_claveSecreta', generarClaveSecreta());
-      if (!localStorage.getItem('sbo_huellaHardware')) localStorage.setItem('sbo_huellaHardware', generarHuellaDispositivo());
+      // Guardar datos básicos en localStorage
+      localStorage.setItem('sbo_nombre', n);
+      localStorage.setItem('sbo_direccion', d);
+      localStorage.setItem('sbo_whatsapp', w);
+      localStorage.setItem('sbo_licenciaElegida', licenciaSeleccionadaNombre);
 
-      localStorage.setItem('sbo_nombre', n); localStorage.setItem('sbo_direccion', d); localStorage.setItem('sbo_whatsapp', w);
+      if (!localStorage.getItem('sbo_huellaHardware')) {
+        localStorage.setItem('sbo_huellaHardware', generarHuellaDispositivo());
+      }
 
-      const msg = encodeURIComponent(`¡Hola! Registro en SBO Control:\n\n👤 ${n}\n📍 ${d}\n📱 ${w}\n\n------------------\n🔒 [SYS_DATA]\nKey: ${localStorage.getItem('sbo_claveSecreta')}\nHW: ${localStorage.getItem('sbo_huellaHardware')}`);
-      window.location.href = `https://wa.me/5492364502082?text=${msg}`;
+      // Enviar datos por WhatsApp al número oficial de SBO (sin duplicar claves)
+      const msg = encodeURIComponent(`¡Hola! Solicito clave para SBO Control:\n\n👤 Cliente: ${n}\n📍 Dirección: ${d}\n📱 WhatsApp: ${w}\n\n📋 Licencia elegida: ${licenciaSeleccionadaNombre}\n\n------------------\n🔒 [SYS_DATA]\nHW: ${localStorage.getItem('sbo_huellaHardware')}`);
+      
+      window.location.href = `https://wa.me/${NUMERO_WHATSAPP_SBO}?text=${msg}`;
       document.getElementById('modalRegistro').style.display = 'none';
     }
 
-    async function entrarAlSistema() {
+    function entrarAlSistema() {
         const claveInput = document.getElementById('txtClave').value.trim().toUpperCase();
-        const licenciaSeleccionada = document.getElementById('selectLicencia').value;
-        
-        const claveGuardada = localStorage.getItem('sbo_claveSecreta');
-        const huellaGuardada = localStorage.getItem('sbo_huellaHardware');
-        const huellaActual = generarHuellaDispositivo();
+        if (!claveInput) return alert('¡Ingresá la clave!');
 
-        if (!licenciaSeleccionada) return alert('Seleccioná una licencia, che.');
-        if (!claveGuardada) return alert('No tenés un registro previo. ¡Andá a registrarte!');
+        // Buscar si la clave ingresada existe en las claves creadas desde el panel de administración (gestor_clave.html)
+        const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
+        const claveValida = clavesCreadas.find(c => c.clave.toUpperCase() === claveInput);
 
-        const claveCoincide = (claveInput === claveGuardada);
-        const huellaCoincide = (huellaActual === huellaGuardada);
+        const claveSecretaLocal = localStorage.getItem('sbo_claveSecreta');
 
-        if (claveCoincide && huellaCoincide) {
-            alert('¡Acceso concedido! Bienvenido al sistema.');
-            // window.location.href = 'principal.html';
-        } else {
-            if (!huellaCoincide) {
-                alert('⚠️ ERROR DE SEGURIDAD: Esta licencia no pertenece a este dispositivo. Contactá al soporte.');
-            } else {
-                alert('❌ Clave incorrecta. Revisá bien lo que escribiste.');
-            }
-            document.getElementById('txtClave').value = '';
+        if (!claveValida && claveInput !== claveSecretaLocal) {
+            return alert('❌ Clave incorrecta. La clave ingresada no se encuentra registrada en el sistema.');
         }
+
+        // Si es una clave válida del gestor, la guardamos localmente para futuros ingresos directos
+        if (claveValida) {
+            localStorage.setItem('sbo_claveSecreta', claveValida.clave);
+            localStorage.setItem('sbo_licenciaElegida', claveValida.licencia);
+            if(claveValida.cliente && claveValida.cliente !== "Sin nombre") {
+                localStorage.setItem('sbo_nombre', claveValida.cliente);
+            }
+        }
+
+        if (!localStorage.getItem('sbo_huellaHardware')) {
+            localStorage.setItem('sbo_huellaHardware', generarHuellaDispositivo());
+        }
+
+        alert('¡Acceso concedido! Bienvenido al sistema.');
+        window.location.href = 'menu.html';
     }
-    
-    function abrirModalRegistro() { document.getElementById('modalRegistro').style.display = 'flex'; }
   </script>
 </body>
 </html>
