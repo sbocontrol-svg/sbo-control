@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Clave - S.B.O. Control</title>
+    <style>
+        body { background: transparent !important; background-color: transparent !important; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; margin: 0; }
+        .modal-content { background: #ffffff; width: 100%; max-width: 480px; padding: 20px; border-radius: 16px; border: 2px solid #2e7d32; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .btn-main { background: #2e7d32; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-action { background: #0277bd; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-top: 5px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="modal-content">
+        <h3 style="color: #2e7d32; margin-top: 0;">💳 Mi Licencia y Suscripción</h3>
+        <div style="background: #f4fbf7; padding: 10px; border-radius: 8px; margin: 10px 0;">
+            <p style="margin-bottom: 6px;"><strong>Cliente:</strong> <span id="lblCliente" style="color: #2e7d32;">Cargando...</span></p>
+            <p style="margin: 0;"><strong>Licencia:</strong> <span id="lblLicencia" style="color: #2e7d32;">Cargando...</span></p>
+        </div>
+        
+        <label>🔑 ¿Ingresar o renovar clave?</label>
+        <input type="text" id="txtClaveRenovacion" placeholder="Ej: SBO-2026-AB12">
+        <button class="btn-main" onclick="activarNuevaLicencia()">✨ Activar Clave</button>
+        
+        <p style="text-align: center; margin-top: 20px;">¿Querés cambiar la clave?</p>
+        <button class="btn-action" onclick="solicitarRenovacionWA()">💬 Contactar al Soporte</button>
+        <button onclick="window.history.back()" style="width: 100%; background: none; border: none; margin-top: 10px; cursor: pointer;">⬅️ Volver</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cliente = localStorage.getItem('sbo_nombre') || 'Sin nombre registrado';
+            const licencia = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia_plan') || 'Sin licencia seleccionada';
+            
+            document.getElementById('lblCliente').innerText = cliente;
+            document.getElementById('lblLicencia').innerText = licencia;
+        });
+
+        function activarNuevaLicencia() {
+            const clave = document.getElementById('txtClaveRenovacion').value.trim().toUpperCase();
+            if (!clave) return alert('Ingresá una clave');
+            localStorage.setItem('sbo_licencia_clave_activa', clave);
+            alert('¡Clave activada!');
+            location.reload();
+        }
+
+        function solicitarRenovacionWA() {
+            const clienteActual = localStorage.getItem('sbo_nombre') || 'Sin nombre';
+            const licenciaActual = localStorage.getItem('sbo_licenciaElegida') || 'Sin licencia';
+            window.open(`https://wa.me/5492364502082?text=Hola, quiero renovar mi clave. Mi nombre es: ${clienteActual} y mi licencia es: ${licenciaActual}`, '_blank');
+        }
+    </script>
+</body>
+</html>

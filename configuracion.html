@@ -84,7 +84,7 @@
         <div class="section-card" style="background: #f0fdf4; border-color: #bbf7d0;">
             <h3>💳 Mi Licencia y Suscripción</h3>
             <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Consultá el estado de tu plan o ingresá un código de activación.</p>
-            <button class="btn-action" style="background: #2e7d32; color: white; border: none;" onclick="abrirModalLicenciaUsuario()">
+            <button class="btn-action" style="background: #2e7d32; color: white; border: none;" onclick="window.location.href='recuperaclave.html'">
                 🔑 Ver Estado / Activar Licencia
             </button>
         </div>
@@ -150,49 +150,6 @@
         </div>
     </div>
 
-    <!-- MODAL FLOTANTE DE LICENCIA Y SUSCRIPCIÓN PARA EL USUARIO -->
-    <div id="modalLicenciaUsuario" class="modal-overlay">
-        <div class="modal-content" style="border: 2px solid #2e7d32; background: #ffffff;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
-                <h3 style="color: #2e7d32; margin: 0; font-size: 1.1rem;">💳 Mi Licencia y Suscripción</h3>
-                <button onclick="cerrarModalLicenciaUsuario()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
-            </div>
-
-            <!-- RESUMEN DE LA LICENCIA ACTUAL -->
-            <div style="background: #f4fbf7; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-                <p style="font-size: 0.9rem; color: #333; margin-bottom: 6px;">
-                    <strong>Tipo de Licencia:</strong> <span id="lblPlanActivo" style="color: #2e7d32; font-weight: bold;">Cargando...</span>
-                </p>
-                <p style="font-size: 0.9rem; color: #333; margin-bottom: 6px;">
-                    <strong>Clave Registrada:</strong> 
-                    <code id="lblClaveActiva" style="background: #e8f5e9; padding: 3px 8px; border-radius: 4px; color: #1b5e20; font-weight: bold; font-size: 0.88rem;">SBO-XXXX-XXXX</code>
-                </p>
-                <p style="font-size: 0.9rem; color: #333; margin-bottom: 0;">
-                    <strong>Estado:</strong> <span id="lblEstadoLicencia" style="font-weight: bold;">Cargando...</span>
-                </p>
-            </div>
-
-            <!-- INGRESO / ACTIVACIÓN DE NUEVA CLAVE -->
-            <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px; margin-bottom: 12px;">
-                <label style="color: #1e293b; font-size: 0.85rem; font-weight: bold;">🔑 ¿Ingresar o renovar clave?</label>
-                <p style="font-size: 0.8rem; color: #64748b; margin-top: 2px; margin-bottom: 6px;">Pegá acá tu nuevo código de activación:</p>
-                <input type="text" id="txtClaveRenovacion" placeholder="Ej: SBO-2026-AB12" style="text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">
-                
-                <button type="button" onclick="activarNuevaLicencia()" class="btn-main" style="background: #2e7d32; margin-top: 8px;">
-                    ✨ Activar Clave
-                </button>
-            </div>
-
-            <!-- SOLICITAR RENOVACIÓN VÍA WHATSAPP -->
-            <div style="border-top: 1px dashed #cbd5e1; padding-top: 10px;">
-                <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 6px; text-align: center;">¿Querés cambiar de plan o solicitar soporte?</p>
-                <button class="btn-action" style="background: #25d366; color: white; border: none; font-weight: bold;" onclick="solicitarRenovacionWA()">
-                    💬 Contactar Soporte / Ventas
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || '';
@@ -214,50 +171,6 @@
 
         function cerrarModalAjustes() {
             document.getElementById('modalAjustes').style.display = 'none';
-        }
-
-        function abrirModalLicenciaUsuario() {
-            cargarInfoLicenciaUsuario();
-            document.getElementById('modalLicenciaUsuario').style.display = 'flex';
-        }
-
-        function cerrarModalLicenciaUsuario() {
-            document.getElementById('modalLicenciaUsuario').style.display = 'none';
-        }
-
-        // --- GESTIÓN DE LICENCIA PARA EL USUARIO ---
-        function cargarInfoLicenciaUsuario() {
-            const plan = localStorage.getItem('sbo_licencia_plan') || 'Licencia Inicial / Demo';
-            const clave = localStorage.getItem('sbo_licencia_clave_activa') || 'SIN-CLAVE-REGISTRADA';
-            const estado = localStorage.getItem('sbo_licencia_estado') || 'Activa ✅';
-
-            document.getElementById('lblPlanActivo').innerText = plan;
-            document.getElementById('lblClaveActiva').innerText = clave;
-            document.getElementById('lblEstadoLicencia').innerText = estado;
-        }
-
-        function activarNuevaLicencia() {
-            const clave = document.getElementById('txtClaveRenovacion').value.trim().toUpperCase();
-            if (!clave) {
-                alert('⚠️ Por favor ingresá un código de clave válido.');
-                return;
-            }
-
-            localStorage.setItem('sbo_licencia_clave_activa', clave);
-            localStorage.setItem('sbo_licencia_estado', 'Activa / Validada ✅');
-            localStorage.setItem('sbo_licencia_plan', 'Licencia Pro / Comercial');
-
-            alert('🎉 ¡Clave de licencia activada correctamente!');
-            document.getElementById('txtClaveRenovacion').value = '';
-            cargarInfoLicenciaUsuario();
-        }
-
-        function solicitarRenovacionWA() {
-            const claveActual = localStorage.getItem('sbo_licencia_clave_activa') || 'Sin clave';
-            const negocio = localStorage.getItem('sbo_config_nombre') || 'Mi Negocio';
-            
-            const mensaje = encodeURIComponent(`¡Hola! Quisiera renovar o consultar por la licencia de S.B.O. Control.\n\nEmprendimiento: ${negocio}\nClave Actual: ${claveActual}`);
-            window.open(`https://wa.me/5492364502082?text=${mensaje}`, '_blank');
         }
 
         // --- CAMBIAR TAMAÑO GLOBAL ---
