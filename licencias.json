@@ -1,47 +1,42 @@
 [
   {
     "id": 1,
-    "nombreLicencia": "Licencia Modo a Prueba",
-    "duracion": "15 días",
-    "clave": "SBO-LMP15",
+    "nombreLicencia": "Licencia Mensual",
+    "duracion": "30 días",
     "activa": true,
     "mostrar": true,
     "seleccionable": true
   },
   {
     "id": 2,
-    "nombreLicencia": "Licencia Anual Ferias",
-    "duracion": "365 días / 1 año",
-    "clave": "SBO-LVA-9922",
+    "nombreLicencia": "Licencia Semestral",
+    "duracion": "180 días",
     "activa": true,
     "mostrar": true,
     "seleccionable": true
   },
   {
     "id": 3,
-    "nombreLicencia": "Licencia Activa Mensual",
-    "duracion": "1 mes",
-    "clave": "SBO-LAM01",
+    "nombreLicencia": "Licencia Anual",
+    "duracion": "365 días / 1 año",
     "activa": true,
     "mostrar": true,
     "seleccionable": true
   },
   {
     "id": 4,
-    "nombreLicencia": "Licencia Vitalicia de por Vida",
+    "nombreLicencia": "Licencia de por Vida",
     "duracion": "In Aeternum",
-    "clave": "SBO-LVDPV",
     "activa": true,
     "mostrar": true,
     "seleccionable": false
   },
   {
     "id": 5,
-    "nombreLicencia": "Licencia Test 24hs",
+    "nombreLicencia": "Licencia Prueba",
     "duracion": "24 horas",
-    "clave": "SBO-T24H",
     "activa": true,
-    "mostrar": true,
-    "seleccionable": true
+    "mostrar": false,
+    "seleccionable": false
   }
 ]
