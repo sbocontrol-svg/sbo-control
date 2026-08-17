@@ -100,7 +100,7 @@
 
   <script>
     // ⚙️ NÚMERO OFICIAL DE WHATSAPP SBO CONTROL
-    const NUMERO_WHATSAPP_SBO = "5492364502982"; 
+    const NUMERO_WHATSAPP_SBO = "5492364502082"; 
 
     // 📋 Licencias comerciales visibles por defecto para los clientes
     const licenciasOficialesDefault = [
@@ -119,23 +119,39 @@
       try {
         const licenciasGuardadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas'));
         
-        // Si hay guardadas personalizadas, filtramos de todas formas cualquier licencia interna o privada
-        let listaLicencias = (licenciasGuardadas && licenciasGuardadas.length > 0) 
-          ? licenciasGuardadas.filter(item => 
-              !item.nombreLicencia.toLowerCase().includes('honorífica') && 
-              !item.nombreLicencia.toLowerCase().includes('probation')
-            )
+        let listaLicencias = (Array.isArray(licenciasGuardadas) && licenciasGuardadas.length > 0)
+          ? licenciasGuardadas
           : licenciasOficialesDefault;
+
+        // FILTRO: Ocultar únicamente licencias de pruebas de 24 hs o internas
+        listaLicencias = listaLicencias.filter(item => {
+          const nombreLic = (item.nombreLicencia || item.nombre || item.licencia || '').toLowerCase();
+          const dur = (item.duracion || '').toLowerCase();
+          const es24hs = nombreLic.includes('24') || dur.includes('24') || nombreLic.includes('probation') || nombreLic.includes('honorífica');
+          return !es24hs;
+        });
 
         if (listaLicencias.length === 0) listaLicencias = licenciasOficialesDefault;
 
         const selectModal = document.getElementById('selectLicenciaModal');
         selectModal.innerHTML = '<option value="">Seleccioná una licencia...</option>';
         
-        listaLicencias.forEach(item => {
+        listaLicencias.forEach((item, index) => {
           const opt = document.createElement('option');
-          opt.value = item.nombreLicencia;
-          opt.textContent = `${item.nombreLicencia} (${item.duracion})`;
+          const nombreLic = item.nombreLicencia || item.nombre || item.licencia || 'Licencia Comercial';
+          const duracionLic = item.duracion ? ` (${item.duracion})` : '';
+          
+          opt.value = nombreLic;
+          opt.textContent = `${nombreLic}${duracionLic}`;
+
+          // Si es la última opción (o dice Vitalicia), se deja como Solo Lectura / Deshabilitada
+          const esUltima = index === (listaLicencias.length - 1);
+          const esVitalicia = nombreLic.toLowerCase().includes('vitalicia') || nombreLic.toLowerCase().includes('vida');
+
+          if (esUltima || esVitalicia) {
+            opt.disabled = true;
+          }
+
           selectModal.appendChild(opt);
         });
       } catch (e) { console.error(e); }

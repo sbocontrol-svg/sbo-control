@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.B.O. Control - Panel Dev & Demo</title>
+    <style>
+        :root {
+            --primary-color: #059669;
+            --primary-light: #e0f2f1;
+            --danger-color: #c62828;
+            --warning-color: #f57f17;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #0d1b2a; color: #333; padding: 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        .header h1 { font-size: 1.2rem; color: var(--primary-color); }
+        .header p { font-size: 0.8rem; color: #666; }
+
+        .warning-box { background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; border-radius: 8px; font-size: 0.78rem; margin-bottom: 15px; line-height: 1.3; }
+        
+        .section-title { font-size: 0.85rem; font-weight: bold; color: #444; margin-bottom: 8px; text-transform: uppercase; }
+        
+        .card-dev { background: white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; margin-top: 6px; transition: transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn:active { transform: scale(0.98); }
+        .btn-seed { background-color: #0288d1; color: white; }
+        .btn-license { background-color: #388e3c; color: white; }
+        .btn-clear { background-color: #d32f2f; color: white; }
+        .btn-back { background-color: #546e7a; color: white; margin-top: 15px; text-decoration: none; }
+
+        select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.85rem; margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Modulo Desarrollador & Demo</h1>
+            <p>Herramientas de testing y carga de datos para S.B.O. Control</p>
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Uso Exclusivo de Pruebas:</strong> Este módulo permite inyectar datos de demostración o simular licencias. Si ejecutas una limpieza de datos, se borrará la información almacenada en el dispositivo.
+        </div>
+
+        <!-- GENERADOR DE DATOS DE PRUEBA -->
+        <div class="section-title">📦 Generador de Contenido Demo</div>
+        <div class="card-dev">
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 8px;">Carga instantáneamente un catálogo ficticio con productos, stock y ventas para hacer capturas publicitarias.</p>
+            <button class="btn btn-seed" onclick="cargarDatosDemo()">✨ Cargar Datos Ficticios (Publicidad)</button>
+        </div>
+
+        <!-- SIMULADOR DE LICENCIAS -->
+        <div class="section-title">🛡️ Simulador de Licencias</div>
+        <div class="card-dev">
+            <select id="selLicenciaPrueba">
+                <option value="Licencia Ad-Probation (24 hs)">Licencia Prueba (24 hs)</option>
+                <option value="Licencia Comercial Mensual">Licencia Mensual</option>
+                <option value="Licencia Comercial Semestral">Licencia Semestral</option>
+                <option value="Licencia Comercial Anual">Licencia Anual</option>
+                <option value="Licencia Honorífica Aeternum">Licencia Honorífica</option>
+            </select>
+            <button class="btn btn-license" onclick="aplicarLicenciaPrueba()">🔄 Forzar Licencia Seleccionada</button>
+        </div>
+
+        <!-- LIMPIEZA DE DATOS -->
+        <div class="section-title" style="color: var(--danger-color);">🚨 Zona de Mantenimiento</div>
+        <div class="card-dev" style="border-color: #ffcdd2;">
+            <button class="btn btn-clear" onclick="limpiarTodo()">🗑️ Resetear Sistema (Hard Reset)</button>
+        </div>
+
+        <a href="configuracion.html" class="btn btn-back">⬅️ Volver al panel Configuración</a>
+    </div>
+
+    <script>
+        function cargarDatosDemo() {
+            const fechaHoy = new Date().toISOString().split('T')[0];
+
+            // 1. Stock Ficticio de Negocio
+            const stockDemo = [
+                { id: 1, nombre: "Café de Especialidad 250g", cantidad: 18, costo: 4500, precio: 8500 },
+                { id: 2, nombre: "Croissant de Almendras", cantidad: 24, costo: 1200, precio: 2800 },
+                { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 6, costo: 3500, precio: 7200 },
+                { id: 4, nombre: "Jugo Natural de Naranja 500ml", cantidad: 12, costo: 800, precio: 2000 },
+                { id: 5, nombre: "Sándwich Gouda y Jamón", cantidad: 10, costo: 2200, precio: 4900 }
+            ];
+
+            // 2. Ventas Ficticias de la Jornada
+            const ventasDemo = [
+                { id: 101, fecha: fechaHoy, cliente: "Consumidor Final", total: 11300, pago: "Efectivo" },
+                { id: 102, fecha: fechaHoy, cliente: "María González", total: 9800, pago: "Transferencia" },
+                { id: 103, fecha: fechaHoy, cliente: "Juan Pérez", total: 4900, pago: "Tarjeta Débito" },
+                { id: 104, fecha: fechaHoy, cliente: "Lucas Rodríguez", total: 15700, pago: "Efectivo" }
+            ];
+
+            localStorage.setItem('sbo_stock', JSON.stringify(stockDemo));
+            localStorage.setItem('sbo_ventas', JSON.stringify(ventasDemo));
+            localStorage.setItem('sbo_fechaSesion', fechaHoy);
+
+            alert('¡Datos ficticios cargados con éxito! Ya podés ir al Menú o a Ventas para hacer las capturas de pantalla.');
+        }
+
+        function aplicarLicenciaPrueba() {
+            const licenciaSeleccionada = document.getElementById('selLicenciaPrueba').value;
+            localStorage.setItem('sbo_licenciaElegida', licenciaSeleccionada);
+            localStorage.setItem('sbo_timestampActivacion', Date.now().toString());
+
+            alert(`Licencia forzada a: "${licenciaSeleccionada}". El temporizador se reinició desde este momento.`);
+        }
+
+        function limpiarTodo() {
+            if (confirm('¿Estás seguro de que querés borrar TODOS los datos de prueba del sistema?')) {
+                localStorage.clear();
+                alert('Sistema reseteado a cero.');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

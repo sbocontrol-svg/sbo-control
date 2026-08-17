@@ -54,21 +54,13 @@
             <a href="menu.html" class="btn-volver">⬅️ Volver</a>
         </div>
 
-        <!-- SECCIÓN 1: DATOS DEL TICKET Y NEGOCIO -->
+        <!-- SECCIÓN 1: DATOS DEL TICKET Y NEGOCIO (AHORA EN MODAL) -->
         <div class="section-card">
             <h3>🏷️ Datos del Ticket y Emprendimiento</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 4px;">Personalizá cómo aparecerá tu negocio en los comprobantes y en WhatsApp.</p>
-            
-            <label>Nombre del Emprendimiento:</label>
-            <input type="text" id="cfgNombre" placeholder="Ej: S.B.O.Control">
-
-            <label>Eslogan / Descripción:</label>
-            <input type="text" id="cfgEslogan" placeholder="Ej: Gestión Integral p/Emprendedores">
-
-            <label>Teléfono de Contacto (WhatsApp):</label>
-            <input type="text" id="cfgContacto" placeholder="Ej: 236-4xxxxxx">
-
-            <button class="btn-main" onclick="guardarConfigGeneral()">💾 Guardar Ajustes del Negocio</button>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Personalizá cómo aparecerá tu negocio en comprobantes y WhatsApp.</p>
+            <button class="btn-action" style="background: var(--primary-color); color: white; border: none;" onclick="abrirModalNegocio()">
+                ✏️ Ajustes Negocio
+            </button>
         </div>
 
         <!-- SECCIÓN 2: AJUSTES DEL SISTEMA -->
@@ -95,6 +87,43 @@
             <a href="manual.html" class="btn-action" style="background: #e1f5fe; border-color: #b3e5fc; color: #0277bd;">
                 📖 Abrir Manual de Usuario y Licencia
             </a>
+        </div>
+
+        <!-- SECCIÓN 5: MÓDULO DESARROLLADOR Y DEMO (PROTEGIDO) -->
+        <div class="section-card" style="margin-top: 10px; background: #fff8e1; border-color: #ffe082;">
+            <h3>🛠️ Área Técnica & Publicidad</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Herramientas avanzadas para pruebas, capturas publicitarias y licencias.</p>
+            
+            <button id="btnDevAccess" onclick="accederPanelDev()" class="btn-action" style="background: #f57f17; border-color: #fbc02d; color: white;">
+                🔒 Abrir Panel de Desarrollador
+            </button>
+            
+            <button id="btnDevReset" onclick="resetearClaveDev()" class="btn-action" style="background: #d32f2f; border-color: #b71c1c; color: white; margin-top: 6px;">
+                🔄 Cambiar Clave de Desarrollador
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL FLOTANTE DE DATOS DEL NEGOCIO -->
+    <div id="modalNegocio" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
+                <h3 style="color: var(--primary-color); margin: 0; font-size: 1.1rem;">🏷️ Datos del Negocio</h3>
+                <button onclick="cerrarModalNegocio()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
+            </div>
+
+            <div class="section-card" style="margin-bottom: 0;">
+                <label>Nombre del Emprendimiento:</label>
+                <input type="text" id="cfgNombre" placeholder="Ej: S.B.O.Control">
+
+                <label>Eslogan / Descripción:</label>
+                <input type="text" id="cfgEslogan" placeholder="Ej: Gestión Integral p/Emprendedores">
+
+                <label>Teléfono de Contacto (WhatsApp):</label>
+                <input type="text" id="cfgContacto" placeholder="Ej: 236-4xxxxxx">
+
+                <button class="btn-main" onclick="guardarConfigGeneral()">💾 Guardar Ajustes del Negocio</button>
+            </div>
         </div>
     </div>
 
@@ -151,6 +180,8 @@
     </div>
 
     <script>
+        const MAX_INTENTOS = 3;
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || '';
             document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || '';
@@ -162,9 +193,103 @@
             const savedSize = localStorage.getItem('sbo_config_tamanio') || '15px';
             document.documentElement.style.setProperty('--font-scale', savedSize);
             document.getElementById('selectTamanioLetra').value = savedSize;
+
+            verificarEstadoBloqueoDev();
         });
 
+        // --- ACCESO Y SEGURIDAD MÓDULO DEV ---
+        function verificarEstadoBloqueoDev() {
+            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || 0);
+            const btnAccess = document.getElementById('btnDevAccess');
+
+            if (intentos >= MAX_INTENTOS) {
+                btnAccess.disabled = true;
+                btnAccess.style.background = '#9e9e9e';
+                btnAccess.style.borderColor = '#757575';
+                btnAccess.innerText = '🚫 Módulo Bloqueado (Demasiados Intentos)';
+            } else {
+                btnAccess.disabled = false;
+                btnAccess.style.background = '#f57f17';
+                btnAccess.style.borderColor = '#fbc02d';
+                btnAccess.innerText = '🔒 Abrir Panel de Desarrollador';
+            }
+        }
+
+        function accederPanelDev() {
+            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || 0);
+
+            if (intentos >= MAX_INTENTOS) {
+                alert("🚫 El acceso está bloqueado por demasiados intentos fallidos. Usá la opción de cambiar clave acreditando tu clave previa.");
+                return;
+            }
+
+            const claveCorrecta = localStorage.getItem('sbo_dev_clave') || "21-07-16";
+            const intentosRestantes = MAX_INTENTOS - intentos;
+            const claveIngresada = prompt(`🔐 Ingrese la clave secreta de desarrollador (Intentos restantes: ${intentosRestantes}):`);
+
+            if (claveIngresada === null) return;
+
+            if (claveIngresada === claveCorrecta) {
+                localStorage.setItem('sbo_dev_intentos', 0);
+                window.location.href = 'dev_panel.html';
+            } else {
+                intentos++;
+                localStorage.setItem('sbo_dev_intentos', intentos);
+                
+                if (intentos >= MAX_INTENTOS) {
+                    alert("⚠️ Ha superado el límite de intentos. El módulo se ha bloqueado.");
+                } else {
+                    alert(`❌ Clave incorrecta. Te quedan ${MAX_INTENTOS - intentos} intento(s).`);
+                }
+                verificarEstadoBloqueoDev();
+            }
+        }
+
+        function resetearClaveDev() {
+            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || 0);
+            const claveActual = localStorage.getItem('sbo_dev_clave') || "21-07-16";
+
+            if (intentos >= MAX_INTENTOS) {
+                const confirmacion = prompt("🚨 SISTEMA BLOQUEADO. Para desbloquear ingrese su Clave Actual previa:");
+                if (confirmacion !== claveActual) {
+                    alert("❌ Validación fallida. No podés cambiar la clave sin acreditar tu identidad.");
+                    return;
+                }
+            } else {
+                const validacion = prompt("🔐 Ingrese su CLAVE ACTUAL para autorizar el cambio:");
+                if (validacion !== claveActual) {
+                    alert("❌ La clave actual es incorrecta. Cambio cancelado.");
+                    return;
+                }
+            }
+
+            const nuevaClave = prompt("✅ Autorizado. Ingrese la NUEVA clave (Ej formato: 21-07-16):");
+            
+            if (!nuevaClave) {
+                alert("⚠️ Operación cancelada.");
+                return;
+            }
+
+            if (nuevaClave.trim().length < 6) {
+                alert("❌ La contraseña es demasiado corta. Usá el formato correcto (ej: 21-07-16).");
+                return;
+            }
+
+            localStorage.setItem('sbo_dev_clave', nuevaClave.trim());
+            localStorage.setItem('sbo_dev_intentos', 0);
+            alert("🎉 ¡Clave modificada y módulo desbloqueado con éxito!");
+            verificarEstadoBloqueoDev();
+        }
+
         // --- CONTROL DE MODALES ---
+        function abrirModalNegocio() {
+            document.getElementById('modalNegocio').style.display = 'flex';
+        }
+
+        function cerrarModalNegocio() {
+            document.getElementById('modalNegocio').style.display = 'none';
+        }
+
         function abrirModalAjustes() {
             document.getElementById('modalAjustes').style.display = 'flex';
         }
@@ -192,6 +317,7 @@
             localStorage.setItem('sbo_config_contacto', contacto);
 
             alert('✅ ¡Ajustes del negocio guardados con éxito!');
+            cerrarModalNegocio();
         }
 
         function cambiarTema(colorHex, colorLight) {

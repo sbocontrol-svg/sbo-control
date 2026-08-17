@@ -251,7 +251,7 @@
                 document.getElementById('lblFechaMenu').innerText = `${partesFecha[2]} ${meses[parseInt(partesFecha[1]) - 1]} ${partesFecha[0]}`;
             }
 
-            // --- CONTROL DE VENCIMIENTO Y ALERTAS DE LICENCIA ---
+            // --- CONTROL DE LICENCIAS Y TIEMPOS ---
             const elemLicencia = document.querySelector('.licencia');
             const licenciaGuardada = localStorage.getItem('sbo_licenciaElegida') || 
                                      localStorage.getItem('sbo_licenciaNombre') || 
@@ -262,40 +262,36 @@
             let textoLicencia = licenciaGuardada.replace(/['"]+/g, '');
             const textoCompleto = textoLicencia.toLowerCase();
 
-            // 1. Clasificación estricta de licencias especiales
-            let esHonorifica = textoCompleto.includes('honorífica') || 
-                               textoCompleto.includes('honorifica') || 
-                               textoCompleto.includes('aeternum');
-            let esProbation = textoCompleto.includes('probation');
-
-            // 2. Calcular días transcurridos desde la activación
-            let fechaActivacion = localStorage.getItem('sbo_fechaActivacion');
-            if (!fechaActivacion) {
-                fechaActivacion = new Date().toISOString().split('T')[0];
-                localStorage.setItem('sbo_fechaActivacion', fechaActivacion);
+            // Guardar o recuperar timestamp exacto de la activación
+            let timestampActivacion = localStorage.getItem('sbo_timestampActivacion');
+            if (!timestampActivacion) {
+                timestampActivacion = Date.now().toString();
+                localStorage.setItem('sbo_timestampActivacion', timestampActivacion);
             }
 
-            const inicio = new Date(fechaActivacion);
-            const hoy = new Date();
-            inicio.setHours(0, 0, 0, 0);
-            hoy.setHours(0, 0, 0, 0);
+            const msTranscurridos = Date.now() - parseInt(timestampActivacion);
+            const horasPasadas = msTranscurridos / (1000 * 60 * 60);
+            const diasPasados = Math.floor(horasPasadas / 24);
 
-            const diferenciaTiempo = hoy - inicio;
-            const diasPasados = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
-            const DIAS_PRUEBA = 15;
+            const esHonorifica = textoCompleto.includes('honorífica') || textoCompleto.includes('honorifica') || textoCompleto.includes('aeternum');
+            const esProbation = textoCompleto.includes('probation');
+            const esVitalicia = textoCompleto.includes('vitalicia') || textoCompleto.includes('de por vida') || textoCompleto.includes('por vida');
 
-            // --- LÓGICA DE VISUALIZACIÓN ---
             if (esHonorifica) {
-                // Licencia Honorífica / Ilimitada
-                elemLicencia.innerHTML = `🛡️ Licencia Activa: "${textoLicencia}" (Sin Vencimiento)`;
+                // Licencia Honorífica ilimitada
+                elemLicencia.innerHTML = `🛡️ Licencia Honorífica: "${textoLicencia}" (Sin Vencimiento)`;
                 elemLicencia.style.backgroundColor = '#e8f5e9';
                 elemLicencia.style.color = '#2e7d32';
                 elemLicencia.style.borderColor = '#c8e6c9';
+
             } else if (esProbation) {
-                // Licencia Ad-Probation (24 Horas = 1 día)
-                const diasRestantesProbation = 1 - diasPasados;
-                if (diasRestantesProbation > 0) {
-                    elemLicencia.innerHTML = `⚠️ Licencia Ad-Probation (24 hs) - Activa por hoy`;
+                // Licencia Ad-Probation (24 Horas exactas)
+                const horasRestantes = 24 - horasPasadas;
+
+                if (horasRestantes > 0) {
+                    const hs = Math.floor(horasRestantes);
+                    const mins = Math.floor((horasRestantes - hs) * 60);
+                    elemLicencia.innerHTML = `⚠️ Licencia Ad-Probation (24 hs) - Restan ${hs}h ${mins}m`;
                     elemLicencia.style.backgroundColor = '#fff9c4';
                     elemLicencia.style.color = '#f57f17';
                     elemLicencia.style.borderColor = '#fff59d';
@@ -305,56 +301,75 @@
                     elemLicencia.style.color = '#c62828';
                     elemLicencia.style.borderColor = '#ffcdd2';
                     setTimeout(() => {
-                        alert('La licencia Ad-Probation de 24 horas ha finalizado. Comunícate con soporte para adquirir un plan.');
+                        alert('La licencia Ad-Probation de 24 horas ha finalizado.');
                         window.location.href = 'index.html';
-                    }, 1000);
-                }
-            } else if (diasPasados < DIAS_PRUEBA) {
-                // Período de Prueba Gratis inicial (Días 1 al 15)
-                const diasRestantesPrueba = DIAS_PRUEBA - diasPasados;
-                elemLicencia.innerHTML = `🎁 Período de Prueba - Te quedan ${diasRestantesPrueba} ${diasRestantesPrueba === 1 ? 'día' : 'días'}`;
-                elemLicencia.style.backgroundColor = '#e3f2fd';
-                elemLicencia.style.color = '#1565c0';
-                elemLicencia.style.borderColor = '#bbdefb';
-            } else {
-                // Licencias Comerciales (Mensual 30d, Semestral 180d, Vitalicia Anual 365d)
-                let diasLicenciaTotal = 30; // Base Mensual
-                if (textoCompleto.includes('anual') || textoCompleto.includes('365')) {
-                    diasLicenciaTotal = 365;
-                } else if (textoCompleto.includes('semestral') || textoCompleto.includes('180')) {
-                    diasLicenciaTotal = 180;
-                } else if (textoCompleto.includes('mensual') || textoCompleto.includes('30')) {
-                    diasLicenciaTotal = 30;
+                    }, 800);
                 }
 
-                const diasLicenciaPasados = diasPasados - DIAS_PRUEBA;
-                const diasRestantesLicencia = diasLicenciaTotal - diasLicenciaPasados;
+            } else if (esVitalicia) {
+                // Licencia Vitalicia proyectada a 10 Años (3650 Días)
+                const DIAS_VITALICIA = 3650;
+                const diasRestantesVitalicia = DIAS_VITALICIA - diasPasados;
 
-                if (diasRestantesLicencia > 5) {
-                    elemLicencia.innerHTML = `🛡️ Licencia Activa (${textoLicencia}) - Restan ${diasRestantesLicencia} días`;
+                if (diasRestantesVitalicia > 0) {
+                    elemLicencia.innerHTML = `🛡️ Licencia Vitalicia (10 Años) - Activa`;
                     elemLicencia.style.backgroundColor = '#e8f5e9';
                     elemLicencia.style.color = '#2e7d32';
                     elemLicencia.style.borderColor = '#c8e6c9';
-                } else if (diasRestantesLicencia > 2 && diasRestantesLicencia <= 5) {
-                    elemLicencia.innerHTML = `⚠️ Licencia (${textoLicencia}) - ¡Atención! Restan ${diasRestantesLicencia} días`;
-                    elemLicencia.style.backgroundColor = '#fff9c4';
-                    elemLicencia.style.color = '#f57f17';
-                    elemLicencia.style.borderColor = '#fff59d';
-                } else if (diasRestantesLicencia > 0 && diasRestantesLicencia <= 2) {
-                    elemLicencia.innerHTML = `⚠️ Licencia (${textoLicencia}) - ¡Alerta! Restan ${diasRestantesLicencia} días`;
-                    elemLicencia.style.backgroundColor = '#ffe0b2';
-                    elemLicencia.style.color = '#e65100';
-                    elemLicencia.style.borderColor = '#ffcc80';
                 } else {
-                    elemLicencia.innerHTML = `❌ Licencia Vencida (${textoLicencia})`;
+                    elemLicencia.innerHTML = `❌ Licencia Vitalicia Expirada`;
                     elemLicencia.style.backgroundColor = '#ffebee';
                     elemLicencia.style.color = '#c62828';
                     elemLicencia.style.borderColor = '#ffcdd2';
-                    
                     setTimeout(() => {
-                        alert('El tiempo de uso de tu licencia ha finalizado. Comunícate con soporte para renovarla.');
+                        alert('La licencia vitalicia ha cumplido su ciclo de 10 años.');
                         window.location.href = 'index.html';
-                    }, 1000);
+                    }, 800);
+                }
+
+            } else {
+                // Licencias Comerciales (15 Días Prueba Gratis + Duración del Plan)
+                const DIAS_PRUEBA = 15;
+
+                let diasContrato = 30; // Base Mensual
+                if (textoCompleto.includes('semestral') || textoCompleto.includes('180')) {
+                    diasContrato = 180;
+                } else if (textoCompleto.includes('anual') || textoCompleto.includes('365')) {
+                    diasContrato = 365;
+                }
+
+                if (diasPasados < DIAS_PRUEBA) {
+                    // Fase 1: Período de Prueba Gratis (Días 1 al 15)
+                    const diasRestantesPrueba = DIAS_PRUEBA - diasPasados;
+                    elemLicencia.innerHTML = `🎁 Prueba Gratis (${textoLicencia}) - Restan ${diasRestantesPrueba} ${diasRestantesPrueba === 1 ? 'día' : 'días'}`;
+                    elemLicencia.style.backgroundColor = '#e3f2fd';
+                    elemLicencia.style.color = '#1565c0';
+                    elemLicencia.style.borderColor = '#bbdefb';
+                } else {
+                    // Fase 2: Licencia Comercial en curso (Días del Plan)
+                    const diasPasadosPostPrueba = diasPasados - DIAS_PRUEBA;
+                    const diasRestantesPlan = diasContrato - diasPasadosPostPrueba;
+
+                    if (diasRestantesPlan > 5) {
+                        elemLicencia.innerHTML = `🛡️ Licencia Activa (${textoLicencia}) - Restan ${diasRestantesPlan} días`;
+                        elemLicencia.style.backgroundColor = '#e8f5e9';
+                        elemLicencia.style.color = '#2e7d32';
+                        elemLicencia.style.borderColor = '#c8e6c9';
+                    } else if (diasRestantesPlan > 0) {
+                        elemLicencia.innerHTML = `⚠️ Licencia (${textoLicencia}) - ¡Atención! Restan ${diasRestantesPlan} días`;
+                        elemLicencia.style.backgroundColor = '#fff9c4';
+                        elemLicencia.style.color = '#f57f17';
+                        elemLicencia.style.borderColor = '#fff59d';
+                    } else {
+                        elemLicencia.innerHTML = `❌ Licencia Vencida (${textoLicencia})`;
+                        elemLicencia.style.backgroundColor = '#ffebee';
+                        elemLicencia.style.color = '#c62828';
+                        elemLicencia.style.borderColor = '#ffcdd2';
+                        setTimeout(() => {
+                            alert('El tiempo de uso de tu licencia ha finalizado. Renovala con soporte.');
+                            window.location.href = 'index.html';
+                        }, 800);
+                    }
                 }
             }
 
