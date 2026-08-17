@@ -109,52 +109,55 @@
       { nombreLicencia: "Licencia Vitalicia Anual", duracion: "365 días" }
     ];
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('txtFechaSesion').value = new Date().toISOString().split('T')[0];
       
       const nombre = localStorage.getItem('sbo_nombre');
       if(nombre) document.getElementById('lblNombreCliente').textContent = nombre;
 
-      // Cargar licencias comerciales disponibles
+      let listaLicencias = [];
+
       try {
         const licenciasGuardadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas'));
+        if (Array.isArray(licenciasGuardadas) && licenciasGuardadas.length > 0) {
+          listaLicencias = licenciasGuardadas;
+        } else {
+          const res = await fetch('./licencias.json');
+          listaLicencias = await res.json();
+        }
+      } catch (e) {
+        listaLicencias = licenciasOficialesDefault;
+      }
+
+      listaLicencias = listaLicencias.filter(item => {
+        if (item.mostrar === false) return false;
+        const nombreLic = (item.nombreLicencia || item.nombre || item.licencia || '').toLowerCase();
+        const dur = (item.duracion || '').toLowerCase();
+        const es24hs = nombreLic.includes('24') || dur.includes('24') || nombreLic.includes('probation') || nombreLic.includes('honorífica');
+        return !es24hs;
+      });
+
+      if (listaLicencias.length === 0) listaLicencias = licenciasOficialesDefault;
+
+      const selectModal = document.getElementById('selectLicenciaModal');
+      selectModal.innerHTML = '<option value="">Seleccioná una licencia...</option>';
+      
+      listaLicencias.forEach((item) => {
+        const opt = document.createElement('option');
+        const nombreLic = item.nombreLicencia || item.nombre || item.licencia || 'Licencia Comercial';
+        const duracionLic = item.duracion ? ` (${item.duracion})` : '';
         
-        let listaLicencias = (Array.isArray(licenciasGuardadas) && licenciasGuardadas.length > 0)
-          ? licenciasGuardadas
-          : licenciasOficialesDefault;
+        opt.value = nombreLic;
+        opt.textContent = `${nombreLic}${duracionLic}`;
 
-        // FILTRO: Ocultar únicamente licencias de pruebas de 24 hs o internas
-        listaLicencias = listaLicencias.filter(item => {
-          const nombreLic = (item.nombreLicencia || item.nombre || item.licencia || '').toLowerCase();
-          const dur = (item.duracion || '').toLowerCase();
-          const es24hs = nombreLic.includes('24') || dur.includes('24') || nombreLic.includes('probation') || nombreLic.includes('honorífica');
-          return !es24hs;
-        });
+        const esVitalicia = nombreLic.toLowerCase().includes('vitalicia') || nombreLic.toLowerCase().includes('vida');
 
-        if (listaLicencias.length === 0) listaLicencias = licenciasOficialesDefault;
+        if (item.seleccionable === false || esVitalicia) {
+          opt.disabled = true;
+        }
 
-        const selectModal = document.getElementById('selectLicenciaModal');
-        selectModal.innerHTML = '<option value="">Seleccioná una licencia...</option>';
-        
-        listaLicencias.forEach((item, index) => {
-          const opt = document.createElement('option');
-          const nombreLic = item.nombreLicencia || item.nombre || item.licencia || 'Licencia Comercial';
-          const duracionLic = item.duracion ? ` (${item.duracion})` : '';
-          
-          opt.value = nombreLic;
-          opt.textContent = `${nombreLic}${duracionLic}`;
-
-          // Si es la última opción (o dice Vitalicia), se deja como Solo Lectura / Deshabilitada
-          const esUltima = index === (listaLicencias.length - 1);
-          const esVitalicia = nombreLic.toLowerCase().includes('vitalicia') || nombreLic.toLowerCase().includes('vida');
-
-          if (esUltima || esVitalicia) {
-            opt.disabled = true;
-          }
-
-          selectModal.appendChild(opt);
-        });
-      } catch (e) { console.error(e); }
+        selectModal.appendChild(opt);
+      });
     });
 
     function generarHuellaDispositivo() {
