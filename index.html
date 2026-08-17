@@ -19,7 +19,7 @@
     .global-help { position: absolute; top: 14px; right: 14px; z-index: 10; }
     .help-icon { background: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; list-style: none; }
     .help-icon::-webkit-details-marker { display: none; }
-    .help-content { position: absolute; right: 0; top: 30px; background: #1e293b; color: #f8fafc; padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; width: 250px; z-index: 20; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); text-align: left; }
+    .help-content { position: absolute; right: 0; top: 30px; background: #1e293b; color: #f8fafc; padding: 10px 12px; border-radius: 10px; font-size: 0.78rem; width: 270px; z-index: 20; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); text-align: left; line-height: 1.4; }
     .top-content { text-align: center; }
     .brand-logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; margin-bottom: 4px; border: 2px solid var(--primary-color); }
     h1 { font-size: 1.25rem; font-weight: 800; color: var(--primary-color); }
@@ -42,6 +42,7 @@
     .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #1e293b; background-color: #f8fafc; }
     .btn { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-save { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
+    .btn-import { background-color: #0284c7; color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 8px; font-weight: bold; cursor: pointer; }
     .extra-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.8rem; }
     .support-link { color: #0284c7; text-decoration: none; font-weight: 600; }
     .clear-btn { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
@@ -50,7 +51,16 @@
 <body>
 
   <div class="container">
-    <details class="global-help"><summary class="help-icon">?</summary><div class="help-content">Ayuda: Tocá "Registro" para completar tus datos y elegir tu licencia.</div></details>
+    <details class="global-help">
+      <summary class="help-icon">?</summary>
+      <div class="help-content">
+        <strong>💡 Ayuda SBO Control:</strong><br>
+        • <strong>Registro:</strong> Tocá "Registro" si sos nuevo para pedir tu licencia por WhatsApp.<br>
+        • <strong>Importar:</strong> Si tenés tu archivo .sbo, usalo para configurar el acceso al instante.<br>
+        • <strong>Ingresar:</strong> Tocá "Ingresar", poné tu clave y aprovechá a cambiarla por una más fácil si querés.
+      </div>
+    </details>
+    
     <div class="top-content">
       <img src="sbologo.png" alt="Logo SBO" class="brand-logo">
       <h1>S. B. O. Control</h1>
@@ -71,17 +81,11 @@
     <div class="marquee-container"><div class="marquee-text">👉 Tocá en registro para completar tus datos y elegir tu licencia. ¡Gracias! 👈</div></div>
     
     <hr class="divider">
-    <div class="login-section">
-      <div class="form-group">
-        <label for="txtClave" style="font-weight: 800; color: var(--primary-color); display: block; margin-bottom: 6px;">⏩ Ingresar al sistema:</label>
-        <input type="text" id="txtClave" class="form-control" style="text-transform: uppercase;" placeholder="Ingresá tu clave">
-      </div>
-      <div class="extra-actions">
-        <a id="linkSoporte" href="recuperaclave.html" class="support-link">💬 ¿Te olvidaste la licencia?</a>
-        <button type="button" class="clear-btn" onclick="limpiarDatos()">🔄 Limpiar datos</button>
-      </div>
-    </div>
-    <button class="btn" style="margin-top: 15px;" onclick="entrarAlSistema()">Comenzar</button>
+    
+    <button class="btn" style="margin-top: 5px;" onclick="abrirModalIngreso()">🔑 Ingresar al Sistema</button>
+
+    <input type="file" id="fileSboInput" accept=".sbo" style="display: none;" onchange="importarArchivoSbo(event)">
+    <button type="button" class="btn-import" onclick="document.getElementById('fileSboInput').click()">📥 Importar Archivo .sbo</button>
   </div>
 
   <div id="modalRegistro" class="modal-overlay">
@@ -95,14 +99,33 @@
       <div class="form-group"><label>Dirección:</label><input type="text" id="txtDireccion" class="form-control"></div>
       <div class="form-group"><label>WhatsApp:</label><input type="tel" id="txtWhatsapp" class="form-control"></div>
       <button class="btn-save" onclick="guardarRegistro()">Guardar Registro y Enviar</button>
+      <button type="button" class="clear-btn" style="margin-top: 10px; width: 100%; text-align: center;" onclick="cerrarModalRegistro()">Cancelar / Cerrar</button>
+    </div>
+  </div>
+
+  <div id="modalIngreso" class="modal-overlay">
+    <div class="modal-container">
+      <h3 style="margin-bottom: 12px; color: var(--primary-color);">🔐 Ingreso al Sistema:</h3>
+      <div class="form-group">
+        <label for="txtClave">Clave de Acceso:</label>
+        <input type="password" id="txtClave" class="form-control" autocomplete="current-password" style="text-transform: uppercase;" placeholder="Ingresá tu clave">
+      </div>
+      <div class="form-group" style="margin-top: 10px;">
+        <label for="txtNuevaClavePersonalizada">Opcional: Cambiar por clave más fácil:</label>
+        <input type="text" id="txtNuevaClavePersonalizada" class="form-control" style="text-transform: uppercase;" placeholder="Ej: JUAN123 (opcional)">
+      </div>
+      <div class="extra-actions" style="margin-top: 8px;">
+        <a id="linkSoporte" href="recuperaclave.html" class="support-link">💬 ¿Te olvidaste la licencia?</a>
+        <button type="button" class="clear-btn" onclick="limpiarDatos()">🔄 Limpiar datos</button>
+      </div>
+      <button class="btn-save" onclick="entrarAlSistema()">Comenzar Acceso</button>
+      <button type="button" class="clear-btn" style="margin-top: 10px; width: 100%; text-align: center;" onclick="cerrarModalIngreso()">Cancelar / Cerrar</button>
     </div>
   </div>
 
   <script>
-    // ⚙️ NÚMERO OFICIAL DE WHATSAPP SBO CONTROL
     const NUMERO_WHATSAPP_SBO = "5492364502082"; 
 
-    // 📋 Licencias comerciales visibles por defecto para los clientes
     const licenciasOficialesDefault = [
       { nombreLicencia: "Licencia Activa Mensual", duracion: "30 días" },
       { nombreLicencia: "Licencia Plena Semestral", duracion: "180 días" },
@@ -114,6 +137,11 @@
       
       const nombre = localStorage.getItem('sbo_nombre');
       if(nombre) document.getElementById('lblNombreCliente').textContent = nombre;
+
+      const claveGuardadaLocal = localStorage.getItem('sbo_claveSecreta') || localStorage.getItem('sbo_clavePersonalizada');
+      if (claveGuardadaLocal) {
+        document.getElementById('txtClave').value = claveGuardadaLocal;
+      }
 
       let listaLicencias = [];
 
@@ -181,6 +209,56 @@
       document.getElementById('modalRegistro').style.display = 'flex'; 
     }
 
+    function cerrarModalRegistro() {
+      document.getElementById('modalRegistro').style.display = 'none';
+    }
+
+    function abrirModalIngreso() {
+      document.getElementById('modalIngreso').style.display = 'flex';
+    }
+
+    function cerrarModalIngreso() {
+      document.getElementById('modalIngreso').style.display = 'none';
+    }
+
+    function importarArchivoSbo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const config = JSON.parse(e.target.result);
+          if (config.nombreCliente) localStorage.setItem('sbo_nombre', config.nombreCliente);
+          if (config.domicilio) localStorage.setItem('sbo_direccion', config.domicilio);
+          if (config.contacto) localStorage.setItem('sbo_whatsapp', config.contacto);
+          if (config.licencia) localStorage.setItem('sbo_licenciaElegida', config.licencia);
+          if (config.clave) {
+            localStorage.setItem('sbo_claveSecreta', config.clave);
+            document.getElementById('txtClave').value = config.clave;
+          }
+          if (config.hardware) localStorage.setItem('sbo_huellaHardware', config.hardware);
+
+          let clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
+          if (!clavesCreadas.some(c => c.clave === config.clave)) {
+            clavesCreadas.push({
+              id: config.id || Date.now(),
+              cliente: config.nombreCliente,
+              hardware: config.hardware,
+              licencia: config.licencia,
+              clave: config.clave
+            });
+            localStorage.setItem('sbo_db_claves_creadas', JSON.stringify(clavesCreadas));
+          }
+
+          alert('¡Licencia importada correctamente!');
+          location.reload();
+        } catch (err) {
+          alert('❌ El archivo seleccionado no es válido.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
     function guardarRegistro() {
       const licenciaSeleccionadaNombre = document.getElementById('selectLicenciaModal').value;
       if (!licenciaSeleccionadaNombre) return alert('¡Seleccioná una licencia antes de registrarte!');
@@ -207,14 +285,17 @@
 
     function entrarAlSistema() {
         const claveInput = document.getElementById('txtClave').value.trim().toUpperCase();
+        const nuevaClavePersonalizada = document.getElementById('txtNuevaClavePersonalizada').value.trim().toUpperCase();
+        
         if (!claveInput) return alert('¡Ingresá la clave!');
 
         const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
         const claveValida = clavesCreadas.find(c => c.clave.toUpperCase() === claveInput);
 
         const claveSecretaLocal = localStorage.getItem('sbo_claveSecreta');
+        const clavePersonalizadaLocal = localStorage.getItem('sbo_clavePersonalizada');
 
-        if (!claveValida && claveInput !== claveSecretaLocal) {
+        if (!claveValida && claveInput !== claveSecretaLocal && claveInput !== clavePersonalizadaLocal) {
             return alert('❌ Clave incorrecta. La clave ingresada no se encuentra registrada en el sistema.');
         }
 
@@ -224,6 +305,15 @@
             if(claveValida.cliente && claveValida.cliente !== "Sin nombre") {
                 localStorage.setItem('sbo_nombre', claveValida.cliente);
             }
+        }
+
+        if (nuevaClavePersonalizada) {
+            localStorage.setItem('sbo_clavePersonalizada', nuevaClavePersonalizada);
+            if (claveValida) {
+                claveValida.clave = nuevaClavePersonalizada;
+                localStorage.setItem('sbo_db_claves_creadas', JSON.stringify(clavesCreadas));
+            }
+            alert('¡Clave personalizada guardada con éxito! Ahora podés usarla para ingresar más fácil.');
         }
 
         if (!localStorage.getItem('sbo_huellaHardware')) {
