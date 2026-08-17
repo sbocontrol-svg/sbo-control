@@ -195,7 +195,13 @@
         hash = ((hash << 5) - hash) + rawData.charCodeAt(i);
         hash |= 0;
       }
-      return 'HW-' + Math.abs(hash).toString(36).toUpperCase();
+      let limpio = Math.abs(hash).toString(36).toUpperCase();
+      if (limpio.length >= 4) {
+        let mitad = Math.floor(limpio.length / 2);
+        let inicio = Math.max(0, mitad - 2);
+        limpio = limpio.substr(inicio, 4);
+      }
+      return 'HW-' + limpio;
     }
 
     function limpiarDatos() {
