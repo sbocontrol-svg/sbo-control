@@ -132,8 +132,13 @@
             </div>
           </div>
 
-          <label>Método de Pago:</label>
-          <select id="vPago">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <label style="margin: 0;">Método de Pago:</label>
+            <button type="button" id="btnQrRapido" onclick="abrirQrCobroRapido()" style="background: #e0f2fe; color: #0369a1; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              📱 Ver QR Cobro
+            </button>
+          </div>
+          <select id="vPago" onchange="chequearMetodoPagoSeleccionado()">
             <option value="Efectivo">💵 Efectivo</option>
             <option value="Transferencia">🏦 Transferencia Bancaria</option>
             <option value="Mercado Pago">📱 Mercado Pago</option>
@@ -270,14 +275,68 @@
       const lblFecha = document.getElementById('lblFechaTrabajoVentas');
       if (lblFecha) lblFecha.innerText = `Fecha de Trabajo: ${formatearFechaVentas(fechaSesionVentas)}`;
       
+      cargarConfiguracionBilleteras();
       cargarDesplegablesVentas();
       renderizarHistorialVentas();
+      chequearMetodoPagoSeleccionado();
     }
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', inicializarModuloVentas);
     } else {
       inicializarModuloVentas();
+    }
+
+    function cargarConfiguracionBilleteras() {
+      const selPago = document.getElementById('vPago');
+      if (!selPago) return;
+
+      // Intentar leer la configuración guardada general o de SBO
+      const configLocal = JSON.parse(localStorage.getItem('sbo_config')) || JSON.parse(localStorage.getItem('bma_config')) || {};
+      const billeteraPrincipal = configLocal.billeteraPrincipal || configLocal.mpBilletera || localStorage.getItem('sbo_billeteraPrincipal') || '';
+
+      // Opciones fijas base
+      let opcionesHtml = `
+        <option value="Efectivo">💵 Efectivo</option>
+        <option value="Transferencia">🏦 Transferencia Bancaria</option>
+        <option value="Mercado Pago">📱 Mercado Pago</option>
+        <option value="Cuenta D.N.I.">🟢 Cuenta D.N.I.</option>
+        <option value="Naranja X">🟠 Naranja X</option>
+        <option value="Otra">🔷 Otra</option>
+      `;
+
+      if (billeteraPrincipal) {
+        // Asegurarnos de que aparezca bien arriba o seleccionada si existe
+        opcionesHtml = `<option value="${billeteraPrincipal}" selected>⭐ ${billeteraPrincipal} (Principal)</option>` + opcionesHtml;
+      }
+
+      selPago.innerHTML = opcionesHtml;
+      if (billeteraPrincipal) {
+        selPago.value = billeteraPrincipal;
+      }
+    }
+
+    function chequearMetodoPagoSeleccionado() {
+      const selPago = document.getElementById('vPago');
+      const btnQr = document.getElementById('btnQrRapido');
+      if (!selPago || !btnQr) return;
+
+      const valor = selPago.value.toLowerCase();
+      // Si es efectivo u otra cosa no digital, podemos ocultar o atenuar el botón de QR rápido
+      if (valor.includes('efectivo') || valor.includes('otra')) {
+        btnQr.style.opacity = '0.5';
+      } else {
+        btnQr.style.opacity = '1';
+      }
+    }
+
+    function abrirQrCobroRapido() {
+      // Intenta abrir el módulo de cobro o modal de cobro si existe en la app principal
+      if (typeof abrirModalCobro === 'function') {
+        abrirModalCobro();
+      } else {
+        window.location.href = 'cobro.html';
+      }
     }
 
     function cambiarModoCliente() {

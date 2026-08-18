@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.B.O. - Cobro</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .monto { font-size: 2.5rem; font-weight: bold; color: #333; margin: 10px 0; }
+        .billetera-tag { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; }
+        .btn-pagar { display: block; background: #00796b; color: white; padding: 15px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 20px; }
+        .info-dato { background: #e8f5e9; padding: 10px; border-radius: 8px; margin-top: 15px; word-break: break-all; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2 id="tituloNegocio">Cobrar</h2>
+    <div id="tagBilletera" class="billetera-tag" style="background: #e0f2f1; color: #00796b;">Cargando...</div>
+    <div class="monto" id="displayMonto">$0.00</div>
+    
+    <div id="contenedorPago">
+        <!-- Acá se inyecta el botón o el dato -->
+    </div>
+    
+    <button onclick="window.history.back()" style="margin-top: 20px; border:none; background:none; color:gray;">Volver</button>
+</div>
+
+<script>
+    // Recuperar datos
+    const monto = localStorage.getItem('sbo_monto_actual') || '0';
+    const alias = localStorage.getItem('sbo_alias') || '';
+    const billetera = localStorage.getItem('sbo_billetera') || 'mp';
+    const nombreNegocio = localStorage.getItem('sbo_config_nombre') || 'Mi Emprendimiento';
+
+    document.getElementById('displayMonto').innerText = '$' + monto;
+    document.getElementById('tituloNegocio').innerText = nombreNegocio;
+
+    const tag = document.getElementById('tagBilletera');
+    const cont = document.getElementById('contenedorPago');
+
+    // Lógica multi-billetera
+    if (billetera === 'mp') {
+        tag.innerText = 'Mercado Pago';
+        cont.innerHTML = `<a href="https://link.mercadopago.com.ar/${alias}" class="btn-pagar">Pagar con Mercado Pago</a>`;
+    } else if (billetera === 'uala') {
+        tag.innerText = 'Ualá';
+        cont.innerHTML = `<a href="https://ualaria.com/${alias}" class="btn-pagar">Pagar con Ualá</a>`;
+    } else {
+        tag.innerText = (billetera === 'cuentadni' ? 'Cuenta DNI' : 'Transferencia / MODO');
+        cont.innerHTML = `
+            <p>Datos para transferir:</p>
+            <div class="info-dato"><strong>${alias}</strong></div>
+            <p style="font-size: 0.8rem; margin-top:10px;">Copiá el Alias/CBU y pegalo en tu app bancaria.</p>
+        `;
+    }
+</script>
+
+</body>
+</html>

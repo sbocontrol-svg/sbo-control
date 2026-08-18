@@ -122,6 +122,17 @@
                 <label>Teléfono de Contacto (WhatsApp):</label>
                 <input type="text" id="cfgContacto" placeholder="Ej: 236-4xxxxxx">
 
+                <label>Billetera Principal:</label>
+                <select id="cfgBilletera">
+                    <option value="mp">Mercado Pago</option>
+                    <option value="uala">Ualá</option>
+                    <option value="cuentadni">Cuenta DNI</option>
+                    <option value="modo">MODO / Banco</option>
+                </select>
+
+                <label>Alias / CBU / CVU de Cobro:</label>
+                <input type="text" id="cfgAlias" placeholder="Ej: mialias.mp o 00000031...">
+
                 <button class="btn-main" onclick="guardarConfigGeneral()">💾 Guardar Ajustes del Negocio</button>
             </div>
         </div>
@@ -186,6 +197,8 @@
             document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || '';
             document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || '';
             document.getElementById('cfgContacto').value = localStorage.getItem('sbo_config_contacto') || '';
+            document.getElementById('cfgAlias').value = localStorage.getItem('sbo_alias') || '';
+            document.getElementById('cfgBilletera').value = localStorage.getItem('sbo_billetera') || 'mp';
 
             const colorGuardado = localStorage.getItem('sbo_config_color') || '#00796b';
             marcarColorSeleccionado(colorGuardado);
@@ -309,12 +322,16 @@
             const nombre = document.getElementById('cfgNombre').value.trim();
             const eslogan = document.getElementById('cfgEslogan').value.trim();
             const contacto = document.getElementById('cfgContacto').value.trim();
+            const alias = document.getElementById('cfgAlias').value.trim();
+            const billetera = document.getElementById('cfgBilletera').value;
 
             if (!nombre) return alert('El nombre del emprendimiento no puede estar vacío.');
 
             localStorage.setItem('sbo_config_nombre', nombre);
             localStorage.setItem('sbo_config_eslogan', eslogan);
             localStorage.setItem('sbo_config_contacto', contacto);
+            localStorage.setItem('sbo_alias', alias);
+            localStorage.setItem('sbo_billetera', billetera);
 
             alert('✅ ¡Ajustes del negocio guardados con éxito!');
             cerrarModalNegocio();
