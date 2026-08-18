@@ -52,11 +52,6 @@
         .menu-card h3 { font-size: 0.9rem; font-weight: 700; color: #333; line-height: 1.2; }
         .menu-card p { font-size: 0.75rem; color: #666; line-height: 1.2; }
 
-        /* Full width bottom cards */
-        .full-card { background: white; border: 1px solid #bbdefb; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 12px; cursor: pointer; }
-        .full-card h3 { font-size: 0.95rem; font-weight: 700; color: #0d47a1; }
-        .full-card p { font-size: 0.75rem; color: #666; }
-
         /* Full width Exit Card */
         .full-card-salir { background: #ffebee; border: 1px solid #ffcdd2; border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 12px; transition: background 0.2s; }
         .full-card-salir:hover { background: #ffcdd2; }
@@ -166,6 +161,13 @@
                     <p>Balance de jornada</p>
                 </div>
             </a>
+            <a href="pedidos.html" class="menu-card">
+                <span class="emoji">📌</span>
+                <div>
+                    <h3>Pedidos</h3>
+                    <p>Encargos y señas</p>
+                </div>
+            </a>
             <a href="libro_diario.html" class="menu-card">
                 <span class="emoji">📖</span>
                 <div>
@@ -180,15 +182,14 @@
                     <p>KPIs y mes a mes</p>
                 </div>
             </a>
+            <a href="configuracion.html" class="menu-card" style="border-color: #b0bec5; background-color: #eceff1;">
+                <span class="emoji">⚙️</span>
+                <div>
+                    <h3 style="color: #37474f;">Configuración</h3>
+                    <p>Ajustes y backup</p>
+                </div>
+            </a>
         </div>
-
-        <a href="configuracion.html" class="full-card" style="border-color: #b0bec5; background-color: #eceff1;">
-            <span style="font-size: 1.6rem;">⚙️</span>
-            <div>
-                <h3 style="color: #37474f;">Configuración y Ajustes</h3>
-                <p>Datos del ticket, colores, backup y manual</p>
-            </div>
-        </a>
 
         <a href="index.html" class="full-card-salir">
             <span style="font-size: 1.6rem;">🚪</span>
@@ -233,7 +234,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Aplicar configuración de colores guardada
+            // Aplicar configuración de colores guardada con prefijo sbo_
             const customColor = localStorage.getItem('sbo_config_color');
             const customLight = localStorage.getItem('sbo_config_color_light');
             if (customColor) {
@@ -243,7 +244,7 @@
                 document.documentElement.style.setProperty('--primary-light', customLight);
             }
 
-            // Configuración de la fecha de sesión
+            // Configuración de la fecha de sesión con prefijo sbo_
             const fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
             const partesFecha = fechaSesion.split('-');
             if (partesFecha.length === 3) {
@@ -251,7 +252,7 @@
                 document.getElementById('lblFechaMenu').innerText = `${partesFecha[2]} ${meses[parseInt(partesFecha[1]) - 1]} ${partesFecha[0]}`;
             }
 
-            // --- CONTROL DE LICENCIAS Y TIEMPOS ---
+            // --- CONTROL DE LICENCIAS Y TIEMPOS (Prefijo sbo_) ---
             const elemLicencia = document.querySelector('.licencia');
             const licenciaGuardada = localStorage.getItem('sbo_licenciaElegida') || 
                                      localStorage.getItem('sbo_licenciaNombre') || 
@@ -262,7 +263,6 @@
             let textoLicencia = licenciaGuardada.replace(/['"]+/g, '');
             const textoCompleto = textoLicencia.toLowerCase();
 
-            // Guardar o recuperar timestamp exacto de la activación
             let timestampActivacion = localStorage.getItem('sbo_timestampActivacion');
             if (!timestampActivacion) {
                 timestampActivacion = Date.now().toString();
@@ -278,16 +278,12 @@
             const esVitalicia = textoCompleto.includes('vitalicia') || textoCompleto.includes('de por vida') || textoCompleto.includes('por vida');
 
             if (esHonorifica) {
-                // Licencia Honorífica ilimitada
                 elemLicencia.innerHTML = `🛡️ Licencia Honorífica: "${textoLicencia}" (Sin Vencimiento)`;
                 elemLicencia.style.backgroundColor = '#e8f5e9';
                 elemLicencia.style.color = '#2e7d32';
                 elemLicencia.style.borderColor = '#c8e6c9';
-
             } else if (esProbation) {
-                // Licencia Ad-Probation (24 Horas exactas)
                 const horasRestantes = 24 - horasPasadas;
-
                 if (horasRestantes > 0) {
                     const hs = Math.floor(horasRestantes);
                     const mins = Math.floor((horasRestantes - hs) * 60);
@@ -305,12 +301,9 @@
                         window.location.href = 'index.html';
                     }, 800);
                 }
-
             } else if (esVitalicia) {
-                // Licencia Vitalicia proyectada a 10 Años (3650 Días)
                 const DIAS_VITALICIA = 3650;
                 const diasRestantesVitalicia = DIAS_VITALICIA - diasPasados;
-
                 if (diasRestantesVitalicia > 0) {
                     elemLicencia.innerHTML = `🛡️ Licencia Vitalicia (10 Años) - Activa`;
                     elemLicencia.style.backgroundColor = '#e8f5e9';
@@ -326,12 +319,9 @@
                         window.location.href = 'index.html';
                     }, 800);
                 }
-
             } else {
-                // Licencias Comerciales (15 Días Prueba Gratis + Duración del Plan)
                 const DIAS_PRUEBA = 15;
-
-                let diasContrato = 30; // Base Mensual
+                let diasContrato = 30;
                 if (textoCompleto.includes('semestral') || textoCompleto.includes('180')) {
                     diasContrato = 180;
                 } else if (textoCompleto.includes('anual') || textoCompleto.includes('365')) {
@@ -339,14 +329,12 @@
                 }
 
                 if (diasPasados < DIAS_PRUEBA) {
-                    // Fase 1: Período de Prueba Gratis (Días 1 al 15)
                     const diasRestantesPrueba = DIAS_PRUEBA - diasPasados;
                     elemLicencia.innerHTML = `🎁 Prueba Gratis (${textoLicencia}) - Restan ${diasRestantesPrueba} ${diasRestantesPrueba === 1 ? 'día' : 'días'}`;
                     elemLicencia.style.backgroundColor = '#e3f2fd';
                     elemLicencia.style.color = '#1565c0';
                     elemLicencia.style.borderColor = '#bbdefb';
                 } else {
-                    // Fase 2: Licencia Comercial en curso (Días del Plan)
                     const diasPasadosPostPrueba = diasPasados - DIAS_PRUEBA;
                     const diasRestantesPlan = diasContrato - diasPasadosPostPrueba;
 
@@ -373,7 +361,7 @@
                 }
             }
 
-            // Cargar y procesar Ventas del día
+            // Lectura estricta de Ventas con clave sbo_ventas
             const ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
             const ventasJornada = ventas.filter(v => v.fecha === fechaSesion);
 
@@ -399,7 +387,7 @@
                 contenedorVentasModal.innerHTML = htmlVentas;
             }
 
-            // Cargar y procesar Stock disponible
+            // Lectura estricta de Stock con clave sbo_stock
             const stock = JSON.parse(localStorage.getItem('sbo_stock')) || [];
             let totalUnidadesStock = 0;
             let contenedorStockModal = document.getElementById('modalListaStockDetalle');

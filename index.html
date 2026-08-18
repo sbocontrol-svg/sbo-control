@@ -40,6 +40,12 @@
     .modal-container { background-color: #ffffff; color: #1e293b; width: 100%; max-width: 400px; padding: 16px; border-radius: 16px; font-weight: 600; }
     .form-group { margin-bottom: 6px; }
     .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #1e293b; background-color: #f8fafc; }
+    
+    /* Contenedor del input con el botón del ojito integrado */
+    .password-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+    .password-wrapper input { padding-right: 42px; width: 100%; }
+    .toggle-password { position: absolute; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #64748b; padding: 4px; display: flex; align-items: center; justify-content: center; }
+
     .btn { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-save { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
     .btn-import { background-color: #0284c7; color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 8px; font-weight: bold; cursor: pointer; }
@@ -57,7 +63,7 @@
         <strong>💡 Ayuda SBO Control:</strong><br>
         • <strong>Registro:</strong> Tocá "Registro" si sos nuevo para pedir tu licencia por WhatsApp.<br>
         • <strong>Importar:</strong> Si tenés tu archivo .sbo, usalo para configurar el acceso al instante.<br>
-        • <strong>Ingresar:</strong> Tocá "Ingresar", poné tu clave y aprovechá a cambiarla por una más fácil si querés.
+        • <strong>Ingresar:</strong> Tocá "Ingresar" y poné tu clave para entrar al sistema.
       </div>
     </details>
     
@@ -108,14 +114,13 @@
       <h3 style="margin-bottom: 12px; color: var(--primary-color);">🔐 Ingreso al Sistema:</h3>
       <div class="form-group">
         <label for="txtClave">Clave de Acceso:</label>
-        <input type="password" id="txtClave" class="form-control" autocomplete="current-password" style="text-transform: uppercase;" placeholder="Ingresá tu clave">
-      </div>
-      <div class="form-group" style="margin-top: 10px;">
-        <label for="txtNuevaClavePersonalizada">Opcional: Cambiar por clave más fácil:</label>
-        <input type="text" id="txtNuevaClavePersonalizada" class="form-control" style="text-transform: uppercase;" placeholder="Ej: JUAN123 (opcional)">
+        <div class="password-wrapper">
+          <input type="password" id="txtClave" name="password" class="form-control" autocomplete="off" style="text-transform: uppercase;" placeholder="Ingresá tu clave">
+          <button type="button" id="btnTogglePassword" class="toggle-password" onclick="alternarVisibilidadClave()" title="Ver u ocultar clave">👁️</button>
+        </div>
       </div>
       <div class="extra-actions" style="margin-top: 8px;">
-        <a id="linkSoporte" href="recuperaclave.html" class="support-link">💬 ¿Te olvidaste la licencia?</a>
+        <a id="linkSoporte" href="recuperaclave.html" class="support-link">💬 ¿Olvidaste la Clave?</a>
         <button type="button" class="clear-btn" onclick="limpiarDatos()">🔄 Limpiar datos</button>
       </div>
       <button class="btn-save" onclick="entrarAlSistema()">Comenzar Acceso</button>
@@ -187,6 +192,18 @@
         selectModal.appendChild(opt);
       });
     });
+
+    function alternarVisibilidadClave() {
+      const inputClave = document.getElementById('txtClave');
+      const btnOjo = document.getElementById('btnTogglePassword');
+      if (inputClave.type === 'password') {
+        inputClave.type = 'text';
+        btnOjo.textContent = '🙈';
+      } else {
+        inputClave.type = 'password';
+        btnOjo.textContent = '👁️';
+      }
+    }
 
     function generarHuellaDispositivo() {
       const rawData = `${navigator.userAgent}|${window.screen.width}x${window.screen.height}|${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
@@ -291,7 +308,6 @@
 
     function entrarAlSistema() {
         const claveInput = document.getElementById('txtClave').value.trim().toUpperCase();
-        const nuevaClavePersonalizada = document.getElementById('txtNuevaClavePersonalizada').value.trim().toUpperCase();
         
         if (!claveInput) return alert('¡Ingresá la clave!');
 
@@ -311,15 +327,6 @@
             if(claveValida.cliente && claveValida.cliente !== "Sin nombre") {
                 localStorage.setItem('sbo_nombre', claveValida.cliente);
             }
-        }
-
-        if (nuevaClavePersonalizada) {
-            localStorage.setItem('sbo_clavePersonalizada', nuevaClavePersonalizada);
-            if (claveValida) {
-                claveValida.clave = nuevaClavePersonalizada;
-                localStorage.setItem('sbo_db_claves_creadas', JSON.stringify(clavesCreadas));
-            }
-            alert('¡Clave personalizada guardada con éxito! Ahora podés usarla para ingresar más fácil.');
         }
 
         if (!localStorage.getItem('sbo_huellaHardware')) {

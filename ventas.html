@@ -208,8 +208,8 @@
   <div id="modalTicketVentas" class="ventas-modal-overlay">
     <div class="ventas-modal-container" style="background: #fffdfa; font-family: monospace;">
       <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 6px;">
-        <h3 id="tNombreEmpresa" style="margin:0; font-size:1.15rem; font-weight:800; color: #d9381e;">Infinito Corazón</h3>
-        <p id="tEsloganEmpresa" style="margin:2px 0 0; font-size:0.85rem; color:#4b5563;">by Bijou Macramé Artesanal</p>
+        <h3 id="tNombreEmpresa" style="margin:0; font-size:1.15rem; font-weight:800; color: #0f172a;">S. B. O. Control</h3>
+        <p id="tEsloganEmpresa" style="margin:2px 0 0; font-size:0.85rem; color:#4b5563;">Control y Gestión Comercial</p>
         <p style="margin:4px 0 0; font-size:0.72rem; font-weight:600;">📱 WhatsApp: 2364716004</p>
         <p style="margin:4px 0 0; font-size:0.7rem;">----------------------------------</p>
         <p id="tNumComprobante" style="margin:2px 0; font-weight:bold; font-size:0.78rem;">COMPROBANTE N° 0001</p>
@@ -247,7 +247,7 @@
     let clientesVentas = [];
     let ventasList = [];
     
-    let configVentas = { nombre: 'Infinito Corazón', eslogan: 'by Bijou Macramé Artesanal' };
+    let configVentas = { nombre: 'S. B. O. Control', eslogan: 'Control y Gestión Comercial' };
     
     function obtenerFechaLocal() {
       const d = new Date();
@@ -291,11 +291,9 @@
       const selPago = document.getElementById('vPago');
       if (!selPago) return;
 
-      // Intentar leer la configuración guardada general o de SBO
       const configLocal = JSON.parse(localStorage.getItem('sbo_config')) || JSON.parse(localStorage.getItem('bma_config')) || {};
       const billeteraPrincipal = configLocal.billeteraPrincipal || configLocal.mpBilletera || localStorage.getItem('sbo_billeteraPrincipal') || '';
 
-      // Opciones fijas base
       let opcionesHtml = `
         <option value="Efectivo">💵 Efectivo</option>
         <option value="Transferencia">🏦 Transferencia Bancaria</option>
@@ -306,7 +304,6 @@
       `;
 
       if (billeteraPrincipal) {
-        // Asegurarnos de que aparezca bien arriba o seleccionada si existe
         opcionesHtml = `<option value="${billeteraPrincipal}" selected>⭐ ${billeteraPrincipal} (Principal)</option>` + opcionesHtml;
       }
 
@@ -322,7 +319,6 @@
       if (!selPago || !btnQr) return;
 
       const valor = selPago.value.toLowerCase();
-      // Si es efectivo u otra cosa no digital, podemos ocultar o atenuar el botón de QR rápido
       if (valor.includes('efectivo') || valor.includes('otra')) {
         btnQr.style.opacity = '0.5';
       } else {
@@ -331,7 +327,6 @@
     }
 
     function abrirQrCobroRapido() {
-      // Intenta abrir el módulo de cobro o modal de cobro si existe en la app principal
       if (typeof abrirModalCobro === 'function') {
         abrirModalCobro();
       } else {

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#059669">
-    <title>Recuperar Clave - S.B.O. Control</title>
+    <title>Recuperación de Clave - S.B.O. Control</title>
     <style>
         :root { --primary-color: #059669; }
         body { 
@@ -18,7 +18,6 @@
             margin: 0; 
             box-sizing: border-box;
         }
-
         .modal-content { 
             background: #ffffff; 
             color: #1e293b;
@@ -30,78 +29,118 @@
             box-sizing: border-box;
             border: 1px solid #e2e8f0;
         }
-
-        .info-box {
-            background: #f8fafc; 
-            border: 1px dashed #cbd5e1;
-            border-radius: 12px; 
-            padding: 14px; 
-            margin: 14px 0;
-        }
-
+        .form-group { margin-bottom: 12px; text-align: left; }
         .btn-main { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
-        .btn-action { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 6px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; font-size: 14px; text-transform: uppercase; color: #1e293b; font-weight: bold; }
+        .btn-action { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; display: none; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 4px; box-sizing: border-box; background: #f8fafc; font-size: 14px; color: #1e293b; font-weight: bold; }
+        .result-box {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
     <div class="modal-content">
-        <h2 style="color: var(--primary-color); margin-top: 0; font-size: 1.25rem; font-weight: 800;">💳 Mi Licencia y Suscripción</h2>
+        <h2 style="color: var(--primary-color); margin-top: 0; font-size: 1.25rem; font-weight: 800; text-align: center;">🔑 Recuperación Automática</h2>
         
-        <div class="info-box">
-            <p style="margin: 0 0 6px 0; font-size: 0.9rem;"><strong>Cliente:</strong> <span id="lblCliente" style="color: var(--primary-color); font-weight: 700;">Sin nombre registrado</span></p>
-            <p style="margin: 0; font-size: 0.9rem;"><strong>Licencia:</strong> <span id="lblLicencia" style="color: var(--primary-color); font-weight: 700;">Sin licencia seleccionada</span></p>
+        <div class="form-group">
+            <label style="font-weight: 600; font-size: 0.9rem;">👤 Nombre y Apellido:</label>
+            <input type="text" id="txtRecupNombre" placeholder="Ingresá tu nombre completo...">
+        </div>
+
+        <div class="form-group">
+            <label style="font-weight: 600; font-size: 0.9rem;">📋 Licencia:</label>
+            <input type="text" id="txtRecupLicencia" placeholder="Ej: Licencia Activa Mensual...">
+        </div>
+
+        <button id="btnBuscar" class="btn-main" onclick="buscarClaveAutomatica()">🔍 Buscar mi Clave</button>
+        
+        <p style="margin: 14px 0 4px 0; font-size: 0.8rem; color: #94a3b8; font-weight: 600; text-align: left;">Estado / Clave</p>
+        
+        <div id="cajonResultado" class="result-box">
+            <span id="lblClaveGenerada" style="font-size: 0.95rem; color: #475569; font-weight: 700;">Esperando datos...</span>
         </div>
         
-        <label style="font-weight: 600; font-size: 0.9rem;">🔑 ¿Ingresar o activar clave?</label>
-        <input type="text" id="txtClaveRenovacion" placeholder="Ej: SBO-2026-AB12">
-        <button class="btn-main" onclick="activarNuevaLicencia()">✨ Activar Clave</button>
-        
-        <p style="text-align: center; margin-top: 18px; margin-bottom: 6px; color: #4b5563; font-size: 0.85rem; font-weight: 600;">¿Necesitás una clave o querés renovarla?</p>
-        <button class="btn-action" onclick="solicitarRenovacionWA()">💬 Contactar al Soporte</button>
+        <button id="btnSoporte" class="btn-action" onclick="solicitarRenovacionWA()">💬 Contactar al Soporte</button>
         <button onclick="window.history.back()" style="width: 100%; background: none; border: none; margin-top: 12px; cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.85rem;">⬅️ Volver al Inicio</button>
     </div>
 
     <script>
         const NUMERO_WHATSAPP_SBO = "5492364502082";
+        let intentosFallidos = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const cliente = localStorage.getItem('sbo_nombre') || 'Sin nombre registrado';
-            const licencia = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia_plan') || 'Sin licencia seleccionada';
+            const clienteGuardado = localStorage.getItem('sbo_nombre');
+            const licenciaGuardada = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia_plan');
             
-            document.getElementById('lblCliente').innerText = cliente;
-            document.getElementById('lblLicencia').innerText = licencia;
+            if (clienteGuardado) document.getElementById('txtRecupNombre').value = clienteGuardado;
+            if (licenciaGuardada) document.getElementById('txtRecupLicencia').value = licenciaGuardada;
         });
 
-        function activarNuevaLicencia() {
-            const claveInput = document.getElementById('txtClaveRenovacion').value.trim().toUpperCase();
-            if (!claveInput) return alert('¡Ingresá una clave!');
+        function buscarClaveAutomatica() {
+            const nombreIngresado = document.getElementById('txtRecupNombre').value.trim().toLowerCase();
+            const licenciaIngresada = document.getElementById('txtRecupLicencia').value.trim().toLowerCase();
+            const lblResultado = document.getElementById('lblClaveGenerada');
+            const cajon = document.getElementById('cajonResultado');
 
-            // Chequeamos si existe en las claves creadas por el admin o la guardamos directamente
-            const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
-            const claveValida = clavesCreadas.find(c => c.clave.toUpperCase() === claveInput);
-
-            if (claveValida) {
-                localStorage.setItem('sbo_claveSecreta', claveValida.clave);
-                localStorage.setItem('sbo_licenciaElegida', claveValida.licencia);
-                if(claveValida.cliente && claveValida.cliente !== "Sin nombre") {
-                    localStorage.setItem('sbo_nombre', claveValida.cliente);
-                }
-            } else {
-                // Si no está en la base local, la guardamos igual por si se la diste manual
-                localStorage.setItem('sbo_claveSecreta', claveInput);
+            if (!nombreIngresado || !licenciaIngresada) {
+                return alert('Por favor, completá tu nombre y la licencia.');
             }
 
-            alert('¡Clave activada con éxito!');
-            window.location.href = 'index.html';
+            const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
+            
+            const encontrada = clavesCreadas.find(c => {
+                const cCliente = (c.cliente || '').toLowerCase();
+                const cLicencia = (c.licencia || '').toLowerCase();
+                return cCliente.includes(nombreIngresado) && cLicencia.includes(licenciaIngresada);
+            });
+
+            if (encontrada) {
+                intentosFallidos = 0;
+                cajon.style.borderColor = "#10b981";
+                cajon.style.background = "#ecfdf5";
+                
+                lblResultado.style.color = "#065f46";
+                lblResultado.innerHTML = `✅ <strong>¡Licencia encontrada!</strong><br>Volvé al inicio y pegá esta clave:<br><span style="font-size: 1.1rem; letter-spacing: 1px; font-weight: 900;">${encontrada.clave}</span>`;
+
+                localStorage.setItem('sbo_claveSecreta', encontrada.clave);
+                if (encontrada.huella) {
+                    localStorage.setItem('sbo_huellaHardware', encontrada.huella);
+                }
+            } else {
+                intentosFallidos++;
+                cajon.style.borderColor = "#ef4444";
+                cajon.style.background = "#fef2f2";
+                lblResultado.style.color = "#991b1b";
+
+                if (intentosFallidos < 3) {
+                    lblResultado.innerText = `❌ No encontrada (Intento ${intentosFallidos}/3)`;
+                    alert(`No se encontró ninguna clave con esos datos. Te quedan ${3 - intentosFallidos} intento(s).`);
+                } else {
+                    lblResultado.innerText = `⚠️ Límite alcanzado. Contactá a soporte.`;
+                    document.getElementById('txtRecupNombre').disabled = true;
+                    document.getElementById('txtRecupLicencia').disabled = true;
+                    document.getElementById('btnBuscar').style.display = 'none';
+                    document.getElementById('btnSoporte').style.display = 'block';
+                    alert("Agotaste los 3 intentos de recuperación automática. Por favor, comunicate con soporte.");
+                }
+            }
         }
 
         function solicitarRenovacionWA() {
-            const clienteActual = localStorage.getItem('sbo_nombre') || 'Sin nombre';
-            const licenciaActual = localStorage.getItem('sbo_licenciaElegida') || 'Sin licencia';
+            const clienteActual = document.getElementById('txtRecupNombre').value.trim() || 'Sin nombre';
+            const licenciaActual = document.getElementById('txtRecupLicencia').value.trim() || 'Sin licencia';
             const huella = localStorage.getItem('sbo_huellaHardware') || 'HW-NO-REGISTRADO';
 
-            const msg = encodeURIComponent(`¡Hola! Necesito soporte o renovación de clave para SBO Control.\n\n👤 Cliente: ${clienteActual}\n📋 Licencia: ${licenciaActual}\n🔒 HW: ${huella}`);
+            const msg = encodeURIComponent(`¡Hola! Fallé 3 veces la recuperación automática en SBO Control y necesito asistencia.\n\n👤 Cliente: ${clienteActual}\n📋 Licencia: ${licenciaActual}\n🔒 HW: ${huella}`);
             
             window.open(`https://wa.me/${NUMERO_WHATSAPP_SBO}?text=${msg}`, '_blank');
         }

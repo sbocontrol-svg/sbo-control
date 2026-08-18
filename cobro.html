@@ -29,10 +29,10 @@
 
 <script>
     // Recuperar datos
-    const monto = localStorage.getItem('sbo_monto_actual') || '0';
-    const alias = localStorage.getItem('sbo_alias') || '';
-    const billetera = localStorage.getItem('sbo_billetera') || 'mp';
-    const nombreNegocio = localStorage.getItem('sbo_config_nombre') || 'Mi Emprendimiento';
+    const monto = localStorage.getItem('sbo_sbo_monto_actual') || localStorage.getItem('sbo_monto_actual') || '0';
+    const alias = localStorage.getItem('sbo_sbo_alias') || localStorage.getItem('sbo_alias') || '';
+    const billetera = localStorage.getItem('sbo_sbo_billetera') || localStorage.getItem('sbo_billetera') || 'mp';
+    const nombreNegocio = localStorage.getItem('sbo_sbo_config_nombre') || localStorage.getItem('sbo_config_nombre') || 'Mi Emprendimiento';
 
     document.getElementById('displayMonto').innerText = '$' + monto;
     document.getElementById('tituloNegocio').innerText = nombreNegocio;

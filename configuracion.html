@@ -9,7 +9,7 @@
             --primary-color: #00796b;
             --primary-light: #e0f2f1;
             --accent-color: #2e7d32;
-            --font-scale: 15px; /* Tamaño base dinámico en la raíz */
+            --font-scale: 15px;
         }
         html { font-size: var(--font-scale); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -34,7 +34,7 @@
         .btn-main { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: 700; font-size: 1rem; margin-top: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
         .btn-main:active { transform: scale(0.98); }
 
-        .btn-action { background: #f1f8e9; border: 1px solid #a5d6a7; color: #2e7d32; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; width: 100%; margin-top: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; text-align: center; }
+        .btn-action { background: #f1f8e9; border: 1px solid #a5d6a7; color: #2e7d32; padding: 10px; border-radius: 8px; font-weight: 700; width: 100%; margin-top: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; text-align: center; font-size: 0.95rem; }
         .btn-backup-restore { background: #e1f5fe; border: 1px solid #b3e5fc; color: #0277bd; }
         
         /* Estilos para los Modales Flotantes */
@@ -54,7 +54,7 @@
             <a href="menu.html" class="btn-volver">⬅️ Volver</a>
         </div>
 
-        <!-- SECCIÓN 1: DATOS DEL TICKET Y NEGOCIO (AHORA EN MODAL) -->
+        <!-- SECCIÓN 1: DATOS DEL TICKET Y NEGOCIO -->
         <div class="section-card">
             <h3>🏷️ Datos del Ticket y Emprendimiento</h3>
             <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Personalizá cómo aparecerá tu negocio en comprobantes y WhatsApp.</p>
@@ -72,12 +72,12 @@
             </button>
         </div>
 
-        <!-- SECCIÓN 3: ESTADO DE LICENCIA Y SUSCRIPCIÓN -->
+        <!-- SECCIÓN 3: ESTADO DE LICENCIA Y SUSCRIPCIÓN (COMPACTO) -->
         <div class="section-card" style="background: #f0fdf4; border-color: #bbf7d0;">
-            <h3>💳 Mi Licencia y Suscripción</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Consultá el estado de tu plan o ingresá un código de activación.</p>
-            <button class="btn-action" style="background: #2e7d32; color: white; border: none;" onclick="window.location.href='recuperaclave.html'">
-                🔑 Ver Estado / Activar Licencia
+            <h3>💳 Licencia y Suscripción</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Consultá tu plan, vencimiento o cambiá tu clave de acceso.</p>
+            <button class="btn-action" style="background: #047857; color: white; border: none;" onclick="abrirModalLicencia()">
+                 Ver Estado
             </button>
         </div>
 
@@ -101,6 +101,49 @@
             <button id="btnDevReset" onclick="resetearClaveDev()" class="btn-action" style="background: #d32f2f; border-color: #b71c1c; color: white; margin-top: 6px;">
                 🔄 Cambiar Clave de Desarrollador
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL FLOTANTE DE LICENCIA Y SUSCRIPCIÓN -->
+    <div id="modalLicencia" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
+                <h3 style="color: var(--primary-color); margin: 0; font-size: 1.1rem;">💳 Estado de Licencia y Suscripción</h3>
+                <button onclick="cerrarModalLicencia()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
+            </div>
+
+            <div class="section-card" style="background: #f0fdf4; border-color: #bbf7d0; margin-bottom: 10px;">
+                <div style="font-size: 0.88rem; color: #1e293b; line-height: 1.5;">
+                    <p><strong>Titular:</strong> <span id="lblCfgCliente" style="color: #047857;">-</span></p>
+                    <p><strong>Licencia:</strong> <span id="lblCfgLicencia" style="color: #047857;">-</span></p>
+                    <p><strong>Clave Activa:</strong> <span id="lblCfgClave" style="color: #047857; font-family: monospace;">-</span></p>
+                    <p><strong>Vencimiento:</strong> <span id="lblCfgVencimiento" style="color: #047857;">-</span></p>
+                    <p><strong>Tiempo Restante:</strong> <span id="lblCfgRestante" style="color: #047857; font-weight: 700;">-</span></p>
+                </div>
+            </div>
+
+            <button class="btn-action" style="background: #0284c7; color: white; border: none; margin-top: 4px;" onclick="abrirModalClaveDesdeLicencia()">
+                🔑 Cambiar Clave por una Propia
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL FLOTANTE DE CAMBIO DE CLAVE PROPIA -->
+    <div id="modalClave" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
+                <h3 style="color: var(--primary-color); margin: 0; font-size: 1.1rem;">🔑 Cambiar Clave Personalizada</h3>
+                <button onclick="cerrarModalClave()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
+            </div>
+
+            <div class="section-card" style="margin-bottom: 0;">
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">Si querés usar una clave más fácil y personal, podés ingresarla acá abajo:</p>
+                
+                <label>Nueva Clave Personalizada:</label>
+                <input type="text" id="txtNuevaClaveCustom" placeholder="Ej: MI-CLAVE-FACIL" style="text-transform: uppercase;">
+
+                <button class="btn-main" onclick="guardarClavePersonalizada()">💾 Guardar Clave Nueva</button>
+            </div>
         </div>
     </div>
 
@@ -146,7 +189,6 @@
                 <button onclick="cerrarModalAjustes()" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
             </div>
 
-            <!-- APARIENCIA Y VISUALIZACIÓN -->
             <div class="section-card" style="margin-bottom: 10px;">
                 <h3>🎨 Apariencia y Visualización</h3>
                 <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Elegí el color principal y el tamaño de letra:</p>
@@ -167,7 +209,6 @@
                 </select>
             </div>
 
-            <!-- COPIA DE SEGURIDAD -->
             <div class="section-card" style="margin-bottom: 10px;">
                 <h3>💾 Copias de Seguridad (Backup)</h3>
                 <p style="font-size: 0.85rem; color: #666; margin-bottom: 4px;">Exportá todos tus datos en un archivo o restauralos:</p>
@@ -179,7 +220,6 @@
                 </label>
             </div>
 
-            <!-- REINICIO DE FÁBRICA CON RESPALDO -->
             <div class="section-card" style="margin-bottom: 0; background: #fff5f5; border-color: #fecaca;">
                 <h3 style="color: #991b1b; font-size: 0.95rem;">🔄 Reinicio de Fábrica</h3>
                 <p style="font-size: 0.82rem; color: #666; margin-bottom: 6px;">Descarga un respaldo automático y limpia todo el sistema:</p>
@@ -194,25 +234,117 @@
         const MAX_INTENTOS = 3;
 
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || '';
-            document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || '';
-            document.getElementById('cfgContacto').value = localStorage.getItem('sbo_config_contacto') || '';
-            document.getElementById('cfgAlias').value = localStorage.getItem('sbo_alias') || '';
-            document.getElementById('cfgBilletera').value = localStorage.getItem('sbo_billetera') || 'mp';
+            document.getElementById('cfgNombre').value = localStorage.getItem('sbo_sbo_config_nombre') || localStorage.getItem('sbo_config_nombre') || '';
+            document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_sbo_config_eslogan') || localStorage.getItem('sbo_config_eslogan') || '';
+            document.getElementById('cfgContacto').value = localStorage.getItem('sbo_sbo_config_contacto') || localStorage.getItem('sbo_config_contacto') || '';
+            document.getElementById('cfgAlias').value = localStorage.getItem('sbo_sbo_alias') || localStorage.getItem('sbo_alias') || '';
+            document.getElementById('cfgBilletera').value = localStorage.getItem('sbo_sbo_billetera') || localStorage.getItem('sbo_billetera') || 'mp';
 
-            const colorGuardado = localStorage.getItem('sbo_config_color') || '#00796b';
+            cargarEstadoLicenciaConfig();
+
+            const colorGuardado = localStorage.getItem('sbo_sbo_config_color') || localStorage.getItem('sbo_config_color') || '#00796b';
             marcarColorSeleccionado(colorGuardado);
 
-            const savedSize = localStorage.getItem('sbo_config_tamanio') || '15px';
+            const savedSize = localStorage.getItem('sbo_sbo_config_tamanio') || localStorage.getItem('sbo_config_tamanio') || '15px';
             document.documentElement.style.setProperty('--font-scale', savedSize);
             document.getElementById('selectTamanioLetra').value = savedSize;
 
             verificarEstadoBloqueoDev();
         });
 
+        function cargarEstadoLicenciaConfig() {
+            const cliente = localStorage.getItem('sbo_nombre') || 'Sin nombre registrado';
+            const licencia = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia_plan') || 'Licencia Estándar';
+            const claveSecreta = localStorage.getItem('sbo_claveSecreta') || 'No configurada';
+
+            document.getElementById('lblCfgCliente').innerText = cliente;
+            document.getElementById('lblCfgLicencia').innerText = licencia;
+            document.getElementById('lblCfgClave').innerText = claveSecreta;
+
+            let fechaActivacionStr = localStorage.getItem('sbo_fechaActivacion');
+            if (!fechaActivacionStr) {
+                fechaActivacionStr = new Date().toISOString();
+                localStorage.setItem('sbo_fechaActivacion', fechaActivacionStr);
+            }
+
+            let fechaVenc = new Date(fechaActivacionStr);
+            fechaVenc.setDate(fechaVenc.getDate() + 30);
+
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+            document.getElementById('lblCfgVencimiento').innerText = fechaVenc.toLocaleDateString('es-AR', options);
+
+            const hoy = new Date();
+            const diferenciaMs = fechaVenc - hoy;
+            const diasRestantes = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
+
+            const lblRestante = document.getElementById('lblCfgRestante');
+            if (diasRestantes > 0) {
+                lblRestante.innerText = `${diasRestantes} día(s) restante(s)`;
+                lblRestante.style.color = '#047857';
+            } else {
+                lblRestante.innerText = '⚠️ Licencia Vencida';
+                lblRestante.style.color = '#dc2626';
+            }
+        }
+
+        // --- CONTROL MODAL LICENCIA ---
+        function abrirModalLicencia() {
+            cargarEstadoLicenciaConfig(); // Refresca por si cambió algo
+            document.getElementById('modalLicencia').style.display = 'flex';
+        }
+
+        function cerrarModalLicencia() {
+            document.getElementById('modalLicencia').style.display = 'none';
+        }
+
+        function abrirModalClaveDesdeLicencia() {
+            cerrarModalLicencia();
+            abrirModalClave();
+        }
+
+        // --- MODAL CAMBIO DE CLAVE PROPIA ---
+        function abrirModalClave() {
+            document.getElementById('modalClave').style.display = 'flex';
+        }
+
+        function cerrarModalClave() {
+            document.getElementById('modalClave').style.display = 'none';
+        }
+
+        function guardarClavePersonalizada() {
+            const nuevaClave = document.getElementById('txtNuevaClaveCustom').value.trim().toUpperCase();
+            if (!nuevaClave) return alert('¡Ingresá una clave válida!');
+
+            if (nuevaClave.length < 4) {
+                return alert('La clave es demasiado corta. Usá al menos 4 caracteres.');
+            }
+
+            localStorage.setItem('sbo_claveSecreta', nuevaClave);
+
+            const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
+            const licenciaActual = localStorage.getItem('sbo_licenciaElegida') || 'LAM';
+            const clienteActual = localStorage.getItem('sbo_nombre') || 'Cliente';
+            const huellaActual = localStorage.getItem('sbo_huellaHardware') || 'HW-CUSTOM';
+
+            if (!clavesCreadas.some(c => c.clave === nuevaClave)) {
+                clavesCreadas.push({
+                    clave: nuevaClave,
+                    licencia: licenciaActual,
+                    cliente: clienteActual,
+                    huella: huellaActual,
+                    fecha: new Date().toISOString()
+                });
+                localStorage.setItem('sbo_db_claves_creadas', JSON.stringify(clavesCreadas));
+            }
+
+            alert('🎉 ¡Clave personalizada guardada con éxito!');
+            cerrarModalClave();
+            cargarEstadoLicenciaConfig();
+        }
+
         // --- ACCESO Y SEGURIDAD MÓDULO DEV ---
         function verificarEstadoBloqueoDev() {
-            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || 0);
+            let intentos = parseInt(localStorage.getItem('sbo_sbo_dev_intentos') || localStorage.getItem('sbo_dev_intentos') || 0);
             const btnAccess = document.getElementById('btnDevAccess');
 
             if (intentos >= MAX_INTENTOS) {
@@ -229,25 +361,25 @@
         }
 
         function accederPanelDev() {
-            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || 0);
+            let intentos = parseInt(localStorage.getItem('sbo_sbo_dev_intentos') || localStorage.getItem('sbo_dev_intentos') || 0);
 
             if (intentos >= MAX_INTENTOS) {
                 alert("🚫 El acceso está bloqueado por demasiados intentos fallidos. Usá la opción de cambiar clave acreditando tu clave previa.");
                 return;
             }
 
-            const claveCorrecta = localStorage.getItem('sbo_dev_clave') || "21-07-16";
+            const claveCorrecta = localStorage.getItem('sbo_sbo_dev_clave') || localStorage.getItem('sbo_dev_clave') || "21-07-16";
             const intentosRestantes = MAX_INTENTOS - intentos;
             const claveIngresada = prompt(`🔐 Ingrese la clave secreta de desarrollador (Intentos restantes: ${intentosRestantes}):`);
 
             if (claveIngresada === null) return;
 
             if (claveIngresada === claveCorrecta) {
-                localStorage.setItem('sbo_dev_intentos', 0);
+                localStorage.setItem('sbo_sbo_dev_intentos', 0);
                 window.location.href = 'dev_panel.html';
             } else {
                 intentos++;
-                localStorage.setItem('sbo_dev_intentos', intentos);
+                localStorage.setItem('sbo_sbo_dev_intentos', intentos);
                 
                 if (intentos >= MAX_INTENTOS) {
                     alert("⚠️ Ha superado el límite de intentos. El módulo se ha bloqueado.");
@@ -259,8 +391,8 @@
         }
 
         function resetearClaveDev() {
-            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || 0);
-            const claveActual = localStorage.getItem('sbo_dev_clave') || "21-07-16";
+            let intentos = parseInt(localStorage.getItem('sbo_sbo_dev_intentos') || localStorage.getItem('sbo_dev_intentos') || 0);
+            const claveActual = localStorage.getItem('sbo_sbo_dev_clave') || localStorage.getItem('sbo_dev_clave') || "21-07-16";
 
             if (intentos >= MAX_INTENTOS) {
                 const confirmacion = prompt("🚨 SISTEMA BLOQUEADO. Para desbloquear ingrese su Clave Actual previa:");
@@ -288,8 +420,8 @@
                 return;
             }
 
-            localStorage.setItem('sbo_dev_clave', nuevaClave.trim());
-            localStorage.setItem('sbo_dev_intentos', 0);
+            localStorage.setItem('sbo_sbo_dev_clave', nuevaClave.trim());
+            localStorage.setItem('sbo_sbo_dev_intentos', 0);
             alert("🎉 ¡Clave modificada y módulo desbloqueado con éxito!");
             verificarEstadoBloqueoDev();
         }
@@ -313,7 +445,7 @@
 
         // --- CAMBIAR TAMAÑO GLOBAL ---
         function cambiarTamanioGlobal(tamanio) {
-            localStorage.setItem('sbo_config_tamanio', tamanio);
+            localStorage.setItem('sbo_sbo_config_tamanio', tamanio);
             document.documentElement.style.setProperty('--font-scale', tamanio);
         }
 
@@ -327,19 +459,19 @@
 
             if (!nombre) return alert('El nombre del emprendimiento no puede estar vacío.');
 
-            localStorage.setItem('sbo_config_nombre', nombre);
-            localStorage.setItem('sbo_config_eslogan', eslogan);
-            localStorage.setItem('sbo_config_contacto', contacto);
-            localStorage.setItem('sbo_alias', alias);
-            localStorage.setItem('sbo_billetera', billetera);
+            localStorage.setItem('sbo_sbo_config_nombre', nombre);
+            localStorage.setItem('sbo_sbo_config_eslogan', eslogan);
+            localStorage.setItem('sbo_sbo_config_contacto', contacto);
+            localStorage.setItem('sbo_sbo_alias', alias);
+            localStorage.setItem('sbo_sbo_billetera', billetera);
 
             alert('✅ ¡Ajustes del negocio guardados con éxito!');
             cerrarModalNegocio();
         }
 
         function cambiarTema(colorHex, colorLight) {
-            localStorage.setItem('sbo_config_color', colorHex);
-            localStorage.setItem('sbo_config_color_light', colorLight);
+            localStorage.setItem('sbo_sbo_config_color', colorHex);
+            localStorage.setItem('sbo_sbo_config_color_light', colorLight);
             marcarColorSeleccionado(colorHex);
             alert('🎨 ¡Tema actualizado!');
         }
@@ -398,7 +530,6 @@
             reader.readAsText(file);
         }
 
-        // --- REINICIO DE FÁBRICA CON RESPALDO ---
         function reiniciarSistemaDeFabrica() {
             if (!confirm('⚠️ ¡Atención! Esto va a descargar una copia de seguridad de tus datos y dejará el sistema como nuevo. ¿Querés continuar?')) {
                 return;

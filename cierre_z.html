@@ -120,9 +120,9 @@
 
   <script>
     let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
-    let ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
-    let stock = JSON.parse(localStorage.getItem('sbo_stock')) || [];
-    let cajaChica = JSON.parse(localStorage.getItem('sbo_cajachica')) || JSON.parse(localStorage.getItem('sbo_caja')) || [];
+    let ventas = JSON.parse(localStorage.getItem('sbo_sbo_ventas')) || JSON.parse(localStorage.getItem('sbo_ventas')) || [];
+    let stock = JSON.parse(localStorage.getItem('sbo_sbo_stock')) || JSON.parse(localStorage.getItem('sbo_stock')) || [];
+    let cajaChica = JSON.parse(localStorage.getItem('sbo_sbo_cajachica')) || JSON.parse(localStorage.getItem('sbo_cajachica')) || JSON.parse(localStorage.getItem('sbo_sbo_caja')) || JSON.parse(localStorage.getItem('sbo_caja')) || [];
 
     function formatearFecha(fechaStr) {
       if (!fechaStr) return '';
@@ -221,7 +221,7 @@
     }
 
     async function compartirCierreWhatsApp() {
-      const config = JSON.parse(localStorage.getItem('sbo_config')) || {};
+      const config = JSON.parse(localStorage.getItem('sbo_sbo_config')) || JSON.parse(localStorage.getItem('sbo_config')) || {};
       
       const paqueteCierre = {
         sbo_fechaSesion: fechaSesion,
@@ -271,11 +271,11 @@
       }
 
       const ventasRestantes = ventas.filter(v => v.fecha !== fechaSesion);
-      localStorage.setItem('sbo_ventas', JSON.stringify(ventasRestantes));
+      localStorage.setItem('sbo_sbo_ventas', JSON.stringify(ventasRestantes));
 
       const cajaRestante = cajaChica.filter(c => c.fecha !== fechaSesion);
-      localStorage.setItem('sbo_cajachica', JSON.stringify(cajaRestante));
-      localStorage.setItem('sbo_caja', JSON.stringify(cajaRestante));
+      localStorage.setItem('sbo_sbo_cajachica', JSON.stringify(cajaRestante));
+      localStorage.setItem('sbo_sbo_caja', JSON.stringify(cajaRestante));
 
       alert('✅ ¡Cierre Z realizado con éxito!\n\nLa jornada ha quedado en cero y lista para el próximo día de trabajo.');
       window.location.href = 'menu.html';

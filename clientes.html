@@ -139,7 +139,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const config = JSON.parse(localStorage.getItem('sbo_config')) || {};
+      const config = JSON.parse(localStorage.getItem('sbo_sbo_config')) || JSON.parse(localStorage.getItem('sbo_config')) || {};
       if(config.color) {
         document.documentElement.style.setProperty('--primary-color', config.color);
       }
@@ -152,8 +152,8 @@
     let editIndex = null;
 
     try {
-      const guardados = localStorage.getItem('sbo_clientes');
-      if (guardados) clientes = JSON.parse(guardados);
+      const guardados = JSON.parse(localStorage.getItem('sbo_sbo_clientes')) || JSON.parse(localStorage.getItem('sbo_clientes'));
+      if (guardados) clientes = guardados;
     } catch (e) {
       clientes = [];
     }
@@ -262,7 +262,7 @@
     }
 
     function guardarYActualizar() {
-      localStorage.setItem('sbo_clientes', JSON.stringify(clientes));
+      localStorage.setItem('sbo_sbo_clientes', JSON.stringify(clientes));
       actualizarPantalla();
     }
 

@@ -167,14 +167,14 @@
     let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
     document.getElementById('lblFechaTrabajo').innerText = `Fecha de Trabajo: ${fechaSesion}`;
 
-    let cambioInicialGuardado = localStorage.getItem(`sbo_cajachica_cambio_${fechaSesion}`);
+    let cambioInicialGuardado = localStorage.getItem(`sbo_sbo_cajachica_cambio_${fechaSesion}`);
     if (cambioInicialGuardado !== null) {
       document.getElementById('txtCambioInicial').value = cambioInicialGuardado;
     }
 
     let movimientos = [];
     try {
-      const guardados = localStorage.getItem(`sbo_cajachica_${fechaSesion}`);
+      const guardados = localStorage.getItem(`sbo_sbo_cajachica_${fechaSesion}`);
       if (guardados) movimientos = JSON.parse(guardados);
     } catch (e) {
       movimientos = [];
@@ -182,7 +182,7 @@
 
     function guardarCambioInicial() {
       const cambioVal = document.getElementById('txtCambioInicial').value;
-      localStorage.setItem(`sbo_cajachica_cambio_${fechaSesion}`, cambioVal);
+      localStorage.setItem(`sbo_sbo_cajachica_cambio_${fechaSesion}`, cambioVal);
       actualizarPantalla();
     }
 
@@ -257,7 +257,7 @@
     }
 
     function guardarYActualizar() {
-      localStorage.setItem(`sbo_cajachica_${fechaSesion}`, JSON.stringify(movimientos));
+      localStorage.setItem(`sbo_sbo_cajachica_${fechaSesion}`, JSON.stringify(movimientos));
       actualizarPantalla();
     }
 

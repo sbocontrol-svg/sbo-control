@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos y Encargos - S. B. O. Control</title>
+
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="theme-color" content="#2f4f2f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <style>
+    :root {
+      --primary-color: #2f4f2f;
+      --font-scale: 15px;
+    }
+    html { font-size: var(--font-scale); }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #1a2e1a; margin: 0; padding: 12px; color: #1f2937; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    
+    .container { width: 100%; max-width: 440px; }
+    .card { background: white; padding: 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+
+    .pedidos-container-box *, .pedidos-modal-overlay * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    .pedidos-container-box label, .pedidos-modal-container label { font-size: 11px; font-weight: 700; color: #475569; display: block; margin-top: 10px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .pedidos-container-box input, .pedidos-container-box select, .pedidos-container-box textarea,
+    .pedidos-modal-container input, .pedidos-modal-container select, .pedidos-modal-container textarea { 
+      width: 100%; 
+      padding: 8px 10px; 
+      margin-top: 4px; 
+      border: 1.5px solid #cbd5e1; 
+      border-radius: 10px; 
+      font-size: 13px; 
+      background: #f8fafc; 
+      color: #1e293b; 
+      outline: none; 
+    }
+    
+    .pedidos-modal-container textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .pedidos-container-box input:focus, .pedidos-container-box select:focus, .pedidos-container-box textarea:focus,
+    .pedidos-modal-container input:focus, .pedidos-modal-container select:focus, .pedidos-modal-container textarea:focus { border-color: #2f4f2f; background: #fff; }
+    
+    /* Botones principales en Azul */
+    .pedidos-btn-main { 
+      background: #2563eb; 
+      color: white; 
+      border: none; 
+      padding: 11px; 
+      width: 100%; 
+      border-radius: 10px; 
+      font-weight: 700; 
+      font-size: 0.92rem; 
+      margin-top: 14px; 
+      cursor: pointer; 
+      box-shadow: 0 4px 12px rgba(37,99,235,0.3); 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s ease;
+    }
+    .pedidos-btn-main:active { background: #1d4ed8; }
+
+    /* Botones secundarios en Gris Topo */
+    .pedidos-btn-secundario { 
+      background: #64748b; 
+      color: white; 
+      border: none; 
+      padding: 12px; 
+      width: 100%; 
+      border-radius: 10px; 
+      font-weight: bold; 
+      font-size: 0.95rem; 
+      margin-top: 10px; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 6px; 
+      text-decoration: none; 
+      box-shadow: 0 4px 12px rgba(100,116,139,0.3);
+      transition: background 0.2s ease;
+    }
+    .pedidos-btn-secundario:active { background: #475569; }
+    
+    .pedidos-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(47,79,47,0.7); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .pedidos-modal-overlay.active { display: flex; }
+    .pedidos-modal-container { background: white; width: 100%; max-width: 400px; border-radius: 18px; padding: 18px 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-height: 92vh; display: flex; flex-direction: column; overflow-y: auto; }
+
+    .pedido-card { background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 12px; border-radius: 12px; margin-bottom: 10px; position: relative; }
+    .pedido-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.88rem; color: #2f4f2f; }
+    .pedido-detalles { font-size: 0.8rem; color: #475569; margin: 6px 0; }
+    .badge-estado { padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+    
+    .st-pendiente { background: #fef3c7; color: #d97706; }
+    .st-proceso { background: #e0f2fe; color: #0369a1; }
+    .st-listo { background: #dcfce7; color: #15803d; }
+    .st-entregado { background: #f1f5f9; color: #64748b; }
+
+    .pedidos-acciones { display: flex; gap: 6px; margin-top: 8px; border-top: 1px dashed #cbd5e1; padding-top: 8px; }
+    
+    .pedidos-btn-action { 
+      flex: 1; 
+      padding: 7px 4px; 
+      border-radius: 8px; 
+      border: none; 
+      font-size: 0.75rem; 
+      font-weight: 700; 
+      cursor: pointer; 
+      text-align: center; 
+      background: #2f4f2f; 
+      color: #ffffff; 
+      box-shadow: 0 2px 6px rgba(47,79,47,0.2);
+      transition: background 0.2s ease;
+    }
+    .pedidos-btn-action:active { background: #1f351f; }
+
+    .item-pedido-row { display: flex; justify-content: space-between; align-items: center; background: #f1f5f9; padding: 6px 8px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <div class="pedidos-container-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 4px;">
+          <div style="display: flex; flex-direction: column; justify-content: space-between; height: 48px;">
+            <h3 style="font-size: 1.05rem; color: #2f4f2f; font-weight: 800; margin: 0; line-height: 1;">📌 Pedidos y Encargos</h3>
+            <div id="lblFechaTrabajoPedidos" style="font-size: 0.80rem; color: #64748b; font-weight: 700; line-height: 1;">Fecha: -</div>
+          </div>
+          
+          <button onclick="window.cerrarVentanaModalPedidosGen()" title="Volver al Menú" style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <img src="logosbo.jpg" alt="Logo SBO" style="width: 56px; height: 56px; object-fit: contain;">
+          </button>
+        </div>
+
+        <button class="pedidos-btn-main" style="margin-top: 4px;" onclick="window.abrirModalNuevoPedido()">
+          ➕ Nuevo Encargo / Pedido
+        </button>
+
+        <input type="text" id="buscarPedidoInput" placeholder="🔍 Buscar por cliente o detalle..." onkeyup="window.renderizarListaPedidos()" style="margin-top: 10px;">
+
+        <div id="listaPedidosContenedor" style="margin-top: 12px;"></div>
+
+        <button onclick="window.cerrarVentanaModalPedidosGen()" class="pedidos-btn-secundario">Volver al Menú</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVO / EDITAR PEDIDO -->
+  <div id="modalFormPedido" class="pedidos-modal-overlay">
+    <div class="pedidos-modal-container">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 8px;">
+        <h3 id="tituloModalPedido" style="margin: 0; font-size: 1.05rem; color: #2f4f2f; font-weight: 800;">📝 Registrar Pedido</h3>
+        <button onclick="window.cerrarModalFormPedido()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#64748b; font-weight:bold; padding: 2px 6px;">✕</button>
+      </div>
+
+      <input type="hidden" id="pIdEdit">
+
+      <label>Cliente:</label>
+      <select id="pClienteSelect" onchange="window.evaluarClienteSeleccionado()"></select>
+      
+      <div id="divNomOcasionalPed" style="display:none;">
+        <input type="text" id="pNombreOcasional" placeholder="Nombre del cliente" style="margin-top:6px;">
+        <input type="tel" id="pTelOcasional" placeholder="Teléfono (Ej: 2364123456)" style="margin-top:6px;">
+      </div>
+
+      <label>Seleccionar Producto del Stock:</label>
+      <div style="display: flex; gap: 6px; align-items: flex-end;">
+        <div style="flex: 2.2;">
+          <select id="pStockSelect"></select>
+        </div>
+        <div style="flex: 1;">
+          <input type="number" id="pCantInput" value="1" min="1" placeholder="Cant.">
+        </div>
+        <button type="button" onclick="window.agregarProductoAlPedido()" style="background: #2563eb; color: white; border: none; padding: 0 12px; border-radius: 10px; font-weight: bold; cursor: pointer; height: 37px; margin-top: 4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(37,99,235,0.3);">
+          ➕
+        </button>
+      </div>
+
+      <label>Detalle de Ítems / Encargos:</label>
+      <div id="pListaItemsContenedor" style="min-height: 38px; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 6px; background: #f8fafc; margin-top: 4px;">
+        <p style="color:#94a3b8; font-size:0.8rem; margin:0; text-align:center; padding: 4px 0;">No hay productos agregados.</p>
+      </div>
+
+      <label>Aclaración / Notas Adicionales:</label>
+      <textarea id="pNotasExtra" rows="2" placeholder="Ej: Medida especial, color específico..."></textarea>
+
+      <div style="display: flex; gap: 8px;">
+        <div style="flex: 1;">
+          <label>Monto Total ($):</label>
+          <input type="number" id="pTotal" placeholder="0" readonly style="background: #e2e8f0; font-weight: bold;">
+        </div>
+        <div style="flex: 1;">
+          <label>Seña ($):</label>
+          <input type="number" id="pSena" value="0" min="0" oninput="window.calcularSaldoPendiente()">
+        </div>
+      </div>
+
+      <div style="background:#f1f5f9; padding:8px 10px; border-radius:10px; margin-top:10px; font-size:0.85rem; text-align:right;">
+        <strong>Saldo Pendiente: </strong><span id="pSaldoTexto" style="color:#dc2626; font-weight:800;">$0</span>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <div style="flex: 1;">
+          <label>Fecha Entrega:</label>
+          <input type="date" id="pFechaEntrega">
+        </div>
+        <div style="flex: 1;">
+          <label>Estado:</label>
+          <select id="pEstado">
+            <option value="Pendiente">⏳ Pendiente</option>
+            <option value="En Proceso">🧵 En Proceso</option>
+            <option value="Listo">✅ Listo</option>
+            <option value="Entregado">📦 Entregado</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="pedidos-btn-main" style="margin-top:14px;" onclick="window.guardarPedido()">💾 Guardar Pedido</button>
+    </div>
+  </div>
+
+  <!-- MODAL TICKET WHATSAPP PEDIDO -->
+  <div id="modalTicketPedido" class="pedidos-modal-overlay">
+    <div class="pedidos-modal-container" style="background: #fffdfa; font-family: monospace; padding: 18px 14px;">
+      <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 8px; margin-bottom: 8px;">
+        <h3 id="ptNombreEmpresa" style="margin:0; font-size:1.1rem; font-weight:800; color: #2f4f2f;">S. B. O. Control</h3>
+        <p id="ptEsloganEmpresa" style="margin:2px 0 0; font-size:0.82rem; color:#4b5563;">Control y Gestión Comercial</p>
+        <p style="margin:4px 0 0; font-size:0.72rem; font-weight:600;">📱 WhatsApp: 2364716004</p>
+        <p style="margin:2px 0 0; font-size:0.7rem;">----------------------------------</p>
+        <p id="ptNumComprobante" style="margin:2px 0 0; font-weight:bold; font-size:0.78rem;">COMPROBANTE DE ENCARGO</p>
+      </div>
+
+      <div style="font-size:0.78rem; margin-bottom:8px; display:flex; flex-direction:column; gap:2px;">
+        <p style="margin:0;"><strong>Cliente:</strong> <span id="ptCliente">--</span></p>
+        <p style="margin:0;"><strong>Fecha Entrega:</strong> <span id="ptFechaEntrega">--</span></p>
+        <p style="margin:0;"><strong>Estado:</strong> <span id="ptEstado">--</span></p>
+      </div>
+
+      <p style="margin:4px 0 2px; font-size:0.75rem; border-bottom:1px dashed #000; padding-bottom:2px;">DETALLE DEL PEDIDO:</p>
+      <div id="ptDetalle" style="font-size:0.78rem; margin:4px 0 8px; white-space: pre-wrap; line-height: 1.2;"></div>
+
+      <div style="border-top: 2px dashed #000; padding-top: 6px; font-size: 0.82rem; display:flex; flex-direction:column; gap:2px;">
+        <div style="display:flex; justify-content:space-between;"><span>Total Pedido:</span><span id="ptTotal">$0</span></div>
+        <div style="display:flex; justify-content:space-between; color:#16a34a;"><span>Seña Abonada:</span><span id="ptSena">$0</span></div>
+        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#dc2626; border-top:1px solid #ccc; margin-top:3px; padding-top:3px;"><span>Saldo Restante:</span><span id="ptSaldo">$0</span></div>
+      </div>
+
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 6px;">
+        <button class="pedidos-btn-main" style="margin-top:0;" id="btnWaPedido">💬 Enviar Resumen por WhatsApp</button>
+        <button class="pedidos-btn-secundario" style="margin-top:0;" onclick="window.cerrarTicketPedido()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.cerrarVentanaModalPedidosGen = function() {
+      if (typeof cerrarModalDinamico === 'function') {
+        cerrarModalDinamico();
+      } else {
+        window.location.href = 'menu.html';
+      }
+    };
+
+    (function() {
+      function obtenerDatosSafe(clave, fallback = []) {
+        try {
+          const item = localStorage.getItem(clave);
+          return item ? JSON.parse(item) : fallback;
+        } catch (e) {
+          return fallback;
+        }
+      }
+
+      let clientesList = [];
+      let productosStock = [];
+      let pedidosList = [];
+      let itemsPedidoActual = [];
+      let configPedidos = { nombre: 'S. B. O. Control', eslogan: 'Control y Gestión Comercial' };
+
+      function obtenerFechaLocal() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+
+      function formatearFecha(f) {
+        if (!f) return 'Sin fecha';
+        const p = f.split('-');
+        return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : f;
+      }
+
+      function inicializarPedidos() {
+        clientesList = obtenerDatosSafe('sbo_clientes') || obtenerDatosSafe('bma_clientes') || [];
+        productosStock = obtenerDatosSafe('sbo_stock') || obtenerDatosSafe('bma_stock') || obtenerDatosSafe('stock') || [];
+        pedidosList = obtenerDatosSafe('sbo_pedidos') || obtenerDatosSafe('bma_pedidos') || [];
+
+        const lblFecha = document.getElementById('lblFechaTrabajoPedidos');
+        if (lblFecha) lblFecha.innerText = `Fecha: ${formatearFecha(obtenerFechaLocal())}`;
+
+        window.cargarClientesSelect();
+        window.cargarStockSelect();
+        window.renderizarListaPedidos();
+      }
+
+      window.cargarClientesSelect = function() {
+        const sel = document.getElementById('pClienteSelect');
+        if (!sel) return;
+        sel.innerHTML = '<option value="" disabled selected>👤 Seleccionar Cliente</option>';
+        sel.innerHTML += '<option value="OCASIONAL">➕ Cliente Ocasional / Nuevo</option>';
+        clientesList.forEach(c => {
+          const nom = c.nombre || c.cliente || c.AyN || '';
+          if (nom) sel.innerHTML += `<option value="${nom}">${nom}</option>`;
+        });
+      };
+
+      window.cargarStockSelect = function() {
+        const sel = document.getElementById('pStockSelect');
+        if (!sel) return;
+        sel.innerHTML = '<option value="" disabled selected>📦 Producto de Stock</option>';
+        productosStock.forEach(p => {
+          const nom = p.nombre || p.producto || p.descripcion || 'Producto';
+          const precio = parseFloat(p.precio) || parseFloat(p.precioVenta) || parseFloat(p.valor) || 0;
+          sel.innerHTML += `<option value="${nom}" data-precio="${precio}">${nom} ($${precio.toLocaleString('es-AR')})</option>`;
+        });
+      };
+
+      window.evaluarClienteSeleccionado = function() {
+        const val = document.getElementById('pClienteSelect').value;
+        const divOcasional = document.getElementById('divNomOcasionalPed');
+        divOcasional.style.display = (val === 'OCASIONAL') ? 'block' : 'none';
+      };
+
+      window.agregarProductoAlPedido = function() {
+        const sel = document.getElementById('pStockSelect');
+        if (!sel.value) return alert('Seleccioná un producto del stock.');
+
+        const option = sel.options[sel.selectedIndex];
+        const producto = sel.value;
+        const precio = parseFloat(option.getAttribute('data-precio')) || 0;
+        const cantidad = parseInt(document.getElementById('pCantInput').value) || 1;
+
+        itemsPedidoActual.push({ producto, precio, cantidad, subtotal: precio * cantidad });
+
+        sel.value = '';
+        document.getElementById('pCantInput').value = 1;
+
+        window.renderizarItemsPedidoActual();
+      };
+
+      window.eliminarItemPedido = function(index) {
+        itemsPedidoActual.splice(index, 1);
+        window.renderizarItemsPedidoActual();
+      };
+
+      window.renderizarItemsPedidoActual = function() {
+        const cont = document.getElementById('pListaItemsContenedor');
+        if (itemsPedidoActual.length === 0) {
+          cont.innerHTML = '<p style="color:#94a3b8; font-size:0.8rem; margin:0; text-align:center; padding: 4px 0;">No hay productos agregados.</p>';
+          document.getElementById('pTotal').value = 0;
+          window.calcularSaldoPendiente();
+          return;
+        }
+
+        let html = '';
+        let totalSuma = 0;
+
+        itemsPedidoActual.forEach((item, idx) => {
+          totalSuma += item.subtotal;
+          html += `
+            <div class="item-pedido-row">
+              <div>
+                <strong>${item.cantidad}x</strong> ${item.producto}
+                <div style="color:#64748b; font-size:0.75rem;">$${item.precio.toLocaleString('es-AR')} c/u -> $${item.subtotal.toLocaleString('es-AR')}</div>
+              </div>
+              <button type="button" onclick="window.eliminarItemPedido(${idx})" style="background:none; border:none; color:#ef4444; font-weight:bold; cursor:pointer;">🗑️</button>
+            </div>
+          `;
+        });
+
+        cont.innerHTML = html;
+        document.getElementById('pTotal').value = totalSuma;
+        window.calcularSaldoPendiente();
+      };
+
+      window.calcularSaldoPendiente = function() {
+        const total = parseFloat(document.getElementById('pTotal').value) || 0;
+        const sena = parseFloat(document.getElementById('pSena').value) || 0;
+        const saldo = Math.max(0, total - sena);
+        document.getElementById('pSaldoTexto').innerText = `$${saldo.toLocaleString('es-AR')}`;
+      };
+
+      window.abrirModalNuevoPedido = function() {
+        document.getElementById('pIdEdit').value = '';
+        document.getElementById('tituloModalPedido').innerText = '📝 Registrar Pedido';
+        document.getElementById('pClienteSelect').value = '';
+        document.getElementById('pNombreOcasional').value = '';
+        document.getElementById('pTelOcasional').value = '';
+        document.getElementById('pNotasExtra').value = '';
+        document.getElementById('pSena').value = 0;
+        document.getElementById('pFechaEntrega').value = '';
+        document.getElementById('pEstado').value = 'Pendiente';
+        
+        itemsPedidoActual = [];
+        window.renderizarItemsPedidoActual();
+        window.evaluarClienteSeleccionado();
+        
+        document.getElementById('modalFormPedido').classList.add('active');
+      };
+
+      window.cerrarModalFormPedido = function() {
+        document.getElementById('modalFormPedido').classList.remove('active');
+      };
+
+      window.guardarPedido = function() {
+        const selVal = document.getElementById('pClienteSelect').value;
+        if (!selVal) return alert('Seleccioná un cliente.');
+
+        let clienteNom = selVal;
+        let clienteTel = '';
+
+        if (selVal === 'OCASIONAL') {
+          clienteNom = document.getElementById('pNombreOcasional').value.trim();
+          clienteTel = document.getElementById('pTelOcasional').value.trim();
+          if (!clienteNom) return alert('Ingresá el nombre del cliente.');
+        } else {
+          const cObj = clientesList.find(c => (c.nombre || c.cliente || c.AyN) === selVal);
+          if (cObj) clienteTel = cObj.tel || cObj.telefono || '';
+        }
+
+        if (itemsPedidoActual.length === 0) return alert('Agregá al menos un producto al pedido.');
+
+        const notasExtra = document.getElementById('pNotasExtra').value.trim();
+        
+        let detalleTxt = itemsPedidoActual.map(i => `${i.cantidad}x ${i.producto} ($${i.subtotal.toLocaleString('es-AR')})`).join('\n');
+        if (notasExtra) detalleTxt += `\nNotas: ${notasExtra}`;
+
+        const total = parseFloat(document.getElementById('pTotal').value) || 0;
+        const sena = parseFloat(document.getElementById('pSena').value) || 0;
+        const fechaEntrega = document.getElementById('pFechaEntrega').value;
+        const estado = document.getElementById('pEstado').value;
+
+        if (total <= 0) return alert('El monto total debe ser mayor a 0.');
+
+        const idEdit = document.getElementById('pIdEdit').value;
+
+        if (idEdit) {
+          const idx = pedidosList.findIndex(p => p.id == idEdit);
+          if (idx !== -1) {
+            pedidosList[idx] = { 
+              ...pedidosList[idx], 
+              cliente: clienteNom, 
+              telefono: clienteTel, 
+              items: itemsPedidoActual,
+              notasExtra,
+              detalle: detalleTxt, 
+              total, 
+              sena, 
+              fechaEntrega, 
+              estado 
+            };
+          }
+        } else {
+          const nuevo = {
+            id: Date.now(),
+            numPedido: String(pedidosList.length + 1).padStart(4, '0'),
+            fechaRegistro: obtenerFechaLocal(),
+            cliente: clienteNom,
+            telefono: clienteTel,
+            items: itemsPedidoActual,
+            notasExtra,
+            detalle: detalleTxt,
+            total,
+            sena,
+            fechaEntrega,
+            estado
+          };
+          pedidosList.unshift(nuevo);
+        }
+
+        localStorage.setItem('sbo_pedidos', JSON.stringify(pedidosList));
+        window.cerrarModalFormPedido();
+        window.renderizarListaPedidos();
+      };
+
+      window.renderizarListaPedidos = function() {
+        const cont = document.getElementById('listaPedidosContenedor');
+        const filtro = document.getElementById('buscarPedidoInput').value.toLowerCase();
+        if (!cont) return;
+
+        const filtrados = pedidosList.filter(p => p.cliente.toLowerCase().includes(filtro) || p.detalle.toLowerCase().includes(filtro));
+
+        if (filtrados.length === 0) {
+          cont.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:15px;">No hay encargos registrados.</p>';
+          return;
+        }
+
+        let html = '';
+        filtrados.forEach(p => {
+          const saldo = Math.max(0, p.total - p.sena);
+          let badgeClass = 'st-pendiente';
+          if (p.estado === 'En Proceso') badgeClass = 'st-proceso';
+          if (p.estado === 'Listo') badgeClass = 'st-listo';
+          if (p.estado === 'Entregado') badgeClass = 'st-entregado';
+
+          html += `
+            <div class="pedido-card">
+              <div class="pedido-header">
+                <span>#${p.numPedido} - ${p.cliente}</span>
+                <span class="badge-estado ${badgeClass}">${p.estado}</span>
+              </div>
+              <div class="pedido-detalles">
+                📝 <strong>Detalle:</strong><br>${p.detalle.replace(/\n/g, '<br>')}<br>
+                📅 <strong>Entrega:</strong> ${formatearFecha(p.fechaEntrega)}<br>
+                💰 Total: $${p.total.toLocaleString('es-AR')} | Seña: $${p.sena.toLocaleString('es-AR')} | <strong style="color:#dc2626;">Resta: $${saldo.toLocaleString('es-AR')}</strong>
+              </div>
+              <div class="pedidos-acciones">
+                <button class="pedidos-btn-action" onclick="window.verTicketPedido(${p.id})">📲 WhatsApp</button>
+                <button class="pedidos-btn-action" onclick="window.editarPedido(${p.id})">✏️ Editar</button>
+                <button class="pedidos-btn-action" onclick="window.eliminarPedido(${p.id})">🗑️ Eliminar</button>
+              </div>
+            </div>
+          `;
+        });
+
+        cont.innerHTML = html;
+      };
+
+      window.editarPedido = function(id) {
+        const p = pedidosList.find(x => x.id === id);
+        if (!p) return;
+
+        document.getElementById('pIdEdit').value = p.id;
+        document.getElementById('tituloModalPedido').innerText = '✏️ Editar Pedido';
+        
+        const sel = document.getElementById('pClienteSelect');
+        sel.value = clientesList.some(c => (c.nombre || c.cliente || c.AyN) === p.cliente) ? p.cliente : 'OCASIONAL';
+        
+        window.evaluarClienteSeleccionado();
+        if (sel.value === 'OCASIONAL') {
+          document.getElementById('pNombreOcasional').value = p.cliente;
+          document.getElementById('pTelOcasional').value = p.telefono || '';
+        }
+
+        itemsPedidoActual = p.items ? [...p.items] : [];
+        window.renderizarItemsPedidoActual();
+
+        document.getElementById('pNotasExtra').value = p.notasExtra || '';
+        document.getElementById('pSena').value = p.sena;
+        document.getElementById('pFechaEntrega').value = p.fechaEntrega;
+        document.getElementById('pEstado').value = p.estado;
+
+        window.calcularSaldoPendiente();
+        document.getElementById('modalFormPedido').classList.add('active');
+      };
+
+      window.eliminarPedido = function(id) {
+        if (confirm('¿Borrar este pedido definitivamente?')) {
+          pedidosList = pedidosList.filter(x => x.id !== id);
+          localStorage.setItem('sbo_pedidos', JSON.stringify(pedidosList));
+          window.renderizarListaPedidos();
+        }
+      };
+
+      window.verTicketPedido = function(id) {
+        const p = pedidosList.find(x => x.id === id);
+        if (!p) return;
+
+        const saldo = Math.max(0, p.total - p.sena);
+
+        document.getElementById('ptNombreEmpresa').innerText = configPedidos.nombre;
+        document.getElementById('ptEsloganEmpresa').innerText = configPedidos.eslogan;
+        document.getElementById('ptCliente').innerText = p.cliente;
+        document.getElementById('ptFechaEntrega').innerText = formatearFecha(p.fechaEntrega);
+        document.getElementById('ptEstado').innerText = p.estado;
+        document.getElementById('ptDetalle').innerText = p.detalle;
+        document.getElementById('ptTotal').innerText = `$${p.total.toLocaleString('es-AR')}`;
+        document.getElementById('ptSena').innerText = `$${p.sena.toLocaleString('es-AR')}`;
+        document.getElementById('ptSaldo').innerText = `$${saldo.toLocaleString('es-AR')}`;
+
+        let msg = `*${configPedidos.nombre}*\n_${configPedidos.eslogan}_\n📌 *Estado de Pedido N° ${p.numPedido}*\n\n👤 *Cliente:* ${p.cliente}\n📅 *Fecha Estimada Entrega:* ${formatearFecha(p.fechaEntrega)}\n📍 *Estado Actual:* ${p.estado}\n\n📝 *Detalle:*\n${p.detalle}\n\n💰 *Total:* $${p.total.toLocaleString('es-AR')}\n✅ *Seña Abonada:* $${p.sena.toLocaleString('es-AR')}\n🔻 *Saldo Restante:* $${saldo.toLocaleString('es-AR')}\n\n¡Muchas gracias!`;
+
+        const telClean = (p.telefono || '').replace(/\D/g, '');
+        const url = telClean 
+          ? `https://wa.me/549${telClean}?text=${encodeURIComponent(msg)}`
+          : `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+
+        document.getElementById('btnWaPedido').onclick = () => window.open(url, '_blank');
+        document.getElementById('modalTicketPedido').classList.add('active');
+      };
+
+      window.cerrarTicketPedido = function() {
+        document.getElementById('modalTicketPedido').classList.remove('active');
+      };
+
+      inicializarPedidos();
+    })();
+  </script>
+</body>
+</html>
