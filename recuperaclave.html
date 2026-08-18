@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#059669">
     <title>Recuperar Clave - S.B.O. Control</title>
     <style>
-        /* Fondo oscuro igual a la Foto 1 */
+        :root { --primary-color: #059669; }
         body { 
             background-color: #0f172a; 
-            font-family: sans-serif; 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
@@ -18,49 +19,52 @@
             box-sizing: border-box;
         }
 
-        /* Tarjeta blanca flotante sobre el fondo oscuro */
         .modal-content { 
             background: #ffffff; 
+            color: #1e293b;
             width: 100%; 
             max-width: 440px; 
-            padding: 24px; 
-            border-radius: 20px; 
+            padding: 20px; 
+            border-radius: 16px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
             box-sizing: border-box;
+            border: 1px solid #e2e8f0;
         }
 
-        /* Caja de datos cliente/licencia */
         .info-box {
-            background: #f1f8f3; 
+            background: #f8fafc; 
+            border: 1px dashed #cbd5e1;
             border-radius: 12px; 
             padding: 14px; 
-            margin: 15px 0;
+            margin: 14px 0;
         }
 
-        .btn-main { background: #1e7e34; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
-        .btn-action { background: #0077c5; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        input { width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; margin-top: 8px; margin-bottom: 12px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
+        .btn-main { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .btn-action { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 6px; margin-bottom: 12px; box-sizing: border-box; background: #f8fafc; font-size: 14px; text-transform: uppercase; color: #1e293b; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="modal-content">
-        <h2 style="color: #1e7e34; margin-top: 0; font-size: 22px;">💳 Mi Licencia y Suscripción</h2>
+        <h2 style="color: var(--primary-color); margin-top: 0; font-size: 1.25rem; font-weight: 800;">💳 Mi Licencia y Suscripción</h2>
         
         <div class="info-box">
-            <p style="margin: 0 0 8px 0; font-size: 15px;"><strong>Cliente:</strong> <span id="lblCliente" style="color: #1e7e34;">Sin nombre registrado</span></p>
-            <p style="margin: 0; font-size: 15px;"><strong>Licencia:</strong> <span id="lblLicencia" style="color: #1e7e34;">Sin licencia seleccionada</span></p>
+            <p style="margin: 0 0 6px 0; font-size: 0.9rem;"><strong>Cliente:</strong> <span id="lblCliente" style="color: var(--primary-color); font-weight: 700;">Sin nombre registrado</span></p>
+            <p style="margin: 0; font-size: 0.9rem;"><strong>Licencia:</strong> <span id="lblLicencia" style="color: var(--primary-color); font-weight: 700;">Sin licencia seleccionada</span></p>
         </div>
         
-        <label style="font-weight: 500; font-size: 15px;">🔑 ¿Ingresar o renovar clave?</label>
+        <label style="font-weight: 600; font-size: 0.9rem;">🔑 ¿Ingresar o activar clave?</label>
         <input type="text" id="txtClaveRenovacion" placeholder="Ej: SBO-2026-AB12">
         <button class="btn-main" onclick="activarNuevaLicencia()">✨ Activar Clave</button>
         
-        <p style="text-align: center; margin-top: 20px; margin-bottom: 8px; color: #333;">¿Querés cambiar la clave?</p>
+        <p style="text-align: center; margin-top: 18px; margin-bottom: 6px; color: #4b5563; font-size: 0.85rem; font-weight: 600;">¿Necesitás una clave o querés renovarla?</p>
         <button class="btn-action" onclick="solicitarRenovacionWA()">💬 Contactar al Soporte</button>
-        <button onclick="window.history.back()" style="width: 100%; background: none; border: none; margin-top: 12px; cursor: pointer; font-weight: bold; color: #555; font-size: 14px;">⬅️ Volver</button>
+        <button onclick="window.history.back()" style="width: 100%; background: none; border: none; margin-top: 12px; cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.85rem;">⬅️ Volver al Inicio</button>
     </div>
 
     <script>
+        const NUMERO_WHATSAPP_SBO = "5492364502082";
+
         document.addEventListener('DOMContentLoaded', () => {
             const cliente = localStorage.getItem('sbo_nombre') || 'Sin nombre registrado';
             const licencia = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia_plan') || 'Sin licencia seleccionada';
@@ -70,17 +74,36 @@
         });
 
         function activarNuevaLicencia() {
-            const clave = document.getElementById('txtClaveRenovacion').value.trim().toUpperCase();
-            if (!clave) return alert('Ingresá una clave');
-            localStorage.setItem('sbo_licencia_clave_activa', clave);
-            alert('¡Clave activada!');
-            location.reload();
+            const claveInput = document.getElementById('txtClaveRenovacion').value.trim().toUpperCase();
+            if (!claveInput) return alert('¡Ingresá una clave!');
+
+            // Chequeamos si existe en las claves creadas por el admin o la guardamos directamente
+            const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
+            const claveValida = clavesCreadas.find(c => c.clave.toUpperCase() === claveInput);
+
+            if (claveValida) {
+                localStorage.setItem('sbo_claveSecreta', claveValida.clave);
+                localStorage.setItem('sbo_licenciaElegida', claveValida.licencia);
+                if(claveValida.cliente && claveValida.cliente !== "Sin nombre") {
+                    localStorage.setItem('sbo_nombre', claveValida.cliente);
+                }
+            } else {
+                // Si no está en la base local, la guardamos igual por si se la diste manual
+                localStorage.setItem('sbo_claveSecreta', claveInput);
+            }
+
+            alert('¡Clave activada con éxito!');
+            window.location.href = 'index.html';
         }
 
         function solicitarRenovacionWA() {
             const clienteActual = localStorage.getItem('sbo_nombre') || 'Sin nombre';
             const licenciaActual = localStorage.getItem('sbo_licenciaElegida') || 'Sin licencia';
-            window.open(`https://wa.me/5492364502082?text=Hola, quiero renovar mi clave. Mi nombre es: ${clienteActual} y mi licencia es: ${licenciaActual}`, '_blank');
+            const huella = localStorage.getItem('sbo_huellaHardware') || 'HW-NO-REGISTRADO';
+
+            const msg = encodeURIComponent(`¡Hola! Necesito soporte o renovación de clave para SBO Control.\n\n👤 Cliente: ${clienteActual}\n📋 Licencia: ${licenciaActual}\n🔒 HW: ${huella}`);
+            
+            window.open(`https://wa.me/${NUMERO_WHATSAPP_SBO}?text=${msg}`, '_blank');
         }
     </script>
 </body>
