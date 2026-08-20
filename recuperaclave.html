@@ -30,17 +30,17 @@
             border: 1px solid #e2e8f0;
         }
         .form-group { margin-bottom: 12px; text-align: left; }
-        .btn-main { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
-        .btn-action { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; display: none; }
+        .btn-main { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 11px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 8px; font-size: 14px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box; }
         input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 4px; box-sizing: border-box; background: #f8fafc; font-size: 14px; color: #1e293b; font-weight: bold; }
         .result-box {
             background: #f8fafc;
-            border: 2px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 12px;
-            margin-top: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-top: 10px;
             text-align: center;
-            min-height: 50px;
+            min-height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -63,14 +63,15 @@
 
         <button id="btnBuscar" class="btn-main" onclick="buscarClaveAutomatica()">🔍 Buscar mi Clave</button>
         
-        <p style="margin: 14px 0 4px 0; font-size: 0.8rem; color: #94a3b8; font-weight: 600; text-align: left;">Estado / Clave</p>
+        <p style="margin: 12px 0 2px 0; font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-align: left;">Estado / Clave</p>
         
         <div id="cajonResultado" class="result-box">
-            <span id="lblClaveGenerada" style="font-size: 0.95rem; color: #475569; font-weight: 700;">Esperando datos...</span>
+            <span id="lblClaveGenerada" style="font-size: 0.85rem; color: #475569; font-weight: 600;">Esperando datos...</span>
         </div>
         
-        <button id="btnSoporte" class="btn-action" onclick="solicitarRenovacionWA()">💬 Contactar al Soporte</button>
-        <button onclick="window.history.back()" style="width: 100%; background: none; border: none; margin-top: 12px; cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.85rem;">⬅️ Volver al Inicio</button>
+        <a id="linkWhatsappDirecto" href="#" class="btn-whatsapp" target="_blank">💬 Soporte / Contacto WhatsApp</a>
+        
+        <button onclick="window.location.href='index.html?abrirIngreso=true'" style="width: 100%; background: none; border: none; margin-top: 12px; cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.85rem;">⬅️ Volver al Inicio</button>
     </div>
 
     <script>
@@ -83,11 +84,44 @@
             
             if (clienteGuardado) document.getElementById('txtRecupNombre').value = clienteGuardado;
             if (licenciaGuardada) document.getElementById('txtRecupLicencia').value = licenciaGuardada;
+
+            actualizarEnlaceWhatsApp();
         });
 
+        function actualizarEnlaceWhatsApp() {
+            const clienteActual = document.getElementById('txtRecupNombre').value.trim() || 'Sin nombre';
+            const licenciaActual = document.getElementById('txtRecupLicencia').value.trim() || 'Sin licencia';
+            const huella = localStorage.getItem('sbo_huellaHardware') || 'HW-NO-REGISTRADO';
+
+            const msg = encodeURIComponent(`¡Hola! Necesito asistencia con SBO Control.\n\n👤 Cliente: ${clienteActual}\n📋 Licencia: ${licenciaActual}\n🔒 HW: ${huella}`);
+            document.getElementById('linkWhatsappDirecto').href = `https://wa.me/${NUMERO_WHATSAPP_SBO}?text=${msg}`;
+        }
+
+        document.getElementById('txtRecupNombre').addEventListener('input', actualizarEnlaceWhatsApp);
+        document.getElementById('txtRecupLicencia').addEventListener('input', actualizarEnlaceWhatsApp);
+
+        function obtenerAcronimo(texto) {
+            if (!texto) return "SBO";
+            return texto.trim().split(/\s+/)
+                .map(palabra => palabra[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 4);
+        }
+
+        function obtenerHWCortoActual() {
+            let huella = localStorage.getItem('sbo_huellaHardware');
+            if (!huella) {
+                huella = "HW-" + Math.random().toString(36).substring(2, 6).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
+                localStorage.setItem('sbo_huellaHardware', huella);
+            }
+            const partes = huella.split('-');
+            return partes[1] ? partes[1].substring(0, 4).toUpperCase() : "T5SR";
+        }
+
         function buscarClaveAutomatica() {
-            const nombreIngresado = document.getElementById('txtRecupNombre').value.trim().toLowerCase();
-            const licenciaIngresada = document.getElementById('txtRecupLicencia').value.trim().toLowerCase();
+            const nombreIngresado = document.getElementById('txtRecupNombre').value.trim();
+            const licenciaIngresada = document.getElementById('txtRecupLicencia').value.trim();
             const lblResultado = document.getElementById('lblClaveGenerada');
             const cajon = document.getElementById('cajonResultado');
 
@@ -95,26 +129,37 @@
                 return alert('Por favor, completá tu nombre y la licencia.');
             }
 
+            let claveEncontrada = null;
             const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
             
             const encontrada = clavesCreadas.find(c => {
                 const cCliente = (c.cliente || '').toLowerCase();
                 const cLicencia = (c.licencia || '').toLowerCase();
-                return cCliente.includes(nombreIngresado) && cLicencia.includes(licenciaIngresada);
+                return cCliente.includes(nombreIngresado.toLowerCase()) && cLicencia.includes(licenciaIngresada.toLowerCase());
             });
 
             if (encontrada) {
+                claveEncontrada = encontrada.clave;
+                if (encontrada.huella) {
+                    localStorage.setItem('sbo_huellaHardware', encontrada.huella);
+                }
+            } else {
+                const acroLicencia = obtenerAcronimo(licenciaIngresada);
+                const hwCorto = obtenerHWCortoActual();
+                const acroCliente = obtenerAcronimo(nombreIngresado);
+
+                claveEncontrada = `${acroLicencia}-${hwCorto}-${acroCliente}`;
+            }
+
+            if (claveEncontrada) {
                 intentosFallidos = 0;
                 cajon.style.borderColor = "#10b981";
                 cajon.style.background = "#ecfdf5";
                 
                 lblResultado.style.color = "#065f46";
-                lblResultado.innerHTML = `✅ <strong>¡Licencia encontrada!</strong><br>Volvé al inicio y pegá esta clave:<br><span style="font-size: 1.1rem; letter-spacing: 1px; font-weight: 900;">${encontrada.clave}</span>`;
+                lblResultado.innerHTML = `✅ <strong>¡Clave recuperada!</strong> Volvé al inicio y pegá: <span style="font-weight: 900; color: #047857;">${claveEncontrada}</span>`;
 
-                localStorage.setItem('sbo_claveSecreta', encontrada.clave);
-                if (encontrada.huella) {
-                    localStorage.setItem('sbo_huellaHardware', encontrada.huella);
-                }
+                localStorage.setItem('sbo_claveSecreta', claveEncontrada);
             } else {
                 intentosFallidos++;
                 cajon.style.borderColor = "#ef4444";
@@ -122,27 +167,16 @@
                 lblResultado.style.color = "#991b1b";
 
                 if (intentosFallidos < 3) {
-                    lblResultado.innerText = `❌ No encontrada (Intento ${intentosFallidos}/3)`;
-                    alert(`No se encontró ninguna clave con esos datos. Te quedan ${3 - intentosFallidos} intento(s).`);
+                    lblResultado.innerText = `❌ Error al procesar (Intento ${intentosFallidos}/3)`;
+                    alert(`Verificá los datos ingresados. Te quedan ${3 - intentosFallidos} intento(s).`);
                 } else {
                     lblResultado.innerText = `⚠️ Límite alcanzado. Contactá a soporte.`;
                     document.getElementById('txtRecupNombre').disabled = true;
                     document.getElementById('txtRecupLicencia').disabled = true;
                     document.getElementById('btnBuscar').style.display = 'none';
-                    document.getElementById('btnSoporte').style.display = 'block';
-                    alert("Agotaste los 3 intentos de recuperación automática. Por favor, comunicate con soporte.");
+                    alert("Agotaste los intentos. Por favor, comunicate con soporte.");
                 }
             }
-        }
-
-        function solicitarRenovacionWA() {
-            const clienteActual = document.getElementById('txtRecupNombre').value.trim() || 'Sin nombre';
-            const licenciaActual = document.getElementById('txtRecupLicencia').value.trim() || 'Sin licencia';
-            const huella = localStorage.getItem('sbo_huellaHardware') || 'HW-NO-REGISTRADO';
-
-            const msg = encodeURIComponent(`¡Hola! Fallé 3 veces la recuperación automática en SBO Control y necesito asistencia.\n\n👤 Cliente: ${clienteActual}\n📋 Licencia: ${licenciaActual}\n🔒 HW: ${huella}`);
-            
-            window.open(`https://wa.me/${NUMERO_WHATSAPP_SBO}?text=${msg}`, '_blank');
         }
     </script>
 </body>

@@ -50,7 +50,7 @@
     .btn-save { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
     .btn-import { background-color: #0284c7; color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 8px; font-weight: bold; cursor: pointer; }
     .extra-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.8rem; }
-    .support-link { color: #0284c7; text-decoration: none; font-weight: 600; }
+    .support-link { color: #0284c7; text-decoration: none; font-weight: 600; cursor: pointer; }
     .clear-btn { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
   </style>
 </head>
@@ -120,7 +120,7 @@
         </div>
       </div>
       <div class="extra-actions" style="margin-top: 8px;">
-        <a id="linkSoporte" href="recuperaclave.html" class="support-link">💬 ¿Olvidaste la Clave?</a>
+        <a id="linkSoporte" href="#" onclick="asitenciaOlvidoClave(event)" class="support-link">💬 ¿Olvidaste la Clave?</a>
         <button type="button" class="clear-btn" onclick="limpiarDatos()">🔄 Limpiar datos</button>
       </div>
       <button class="btn-save" onclick="entrarAlSistema()">Comenzar Acceso</button>
@@ -140,6 +140,12 @@
     document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('txtFechaSesion').value = new Date().toISOString().split('T')[0];
       
+      // Abre el modal de ingreso automáticamente si volvemos de la recuperación
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('abrirIngreso') === 'true') {
+        abrirModalIngreso();
+      }
+
       const nombre = localStorage.getItem('sbo_nombre');
       if(nombre) document.getElementById('lblNombreCliente').textContent = nombre;
 
@@ -219,6 +225,22 @@
         limpio = limpio.substr(inicio, 4);
       }
       return 'HW-' + limpio;
+    }
+
+    function asitenciaOlvidoClave(event) {
+      event.preventDefault();
+      
+      const tieneRespaldo = confirm(
+        "💡 ¿Tenés a mano tu archivo de respaldo (.sbo)?\n\n" +
+        "• SI LO TENÉS: Tocá 'Aceptar' y usá el botón azul 'Importar Archivo .sbo' en la pantalla principal para recuperar todo al instante.\n\n" +
+        "• SI NO LO TENÉS: Tocá 'Cancelar' para ir a la Recuperación Automática y generarla con tus datos."
+      );
+
+      if (tieneRespaldo) {
+        cerrarModalIngreso();
+      } else {
+        window.location.href = 'recuperaclave.html';
+      }
     }
 
     function limpiarDatos() {
