@@ -49,6 +49,8 @@
     .btn { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-save { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
     .btn-import { background-color: #0284c7; color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 8px; font-weight: bold; cursor: pointer; }
+    .btn-cargar-json { background-color: #374151; color: white; border: none; padding: 0 10px; border-radius: 8px; font-weight: bold; font-size: 11px; white-space: nowrap; cursor: pointer; }
+    .btn-cargar-json:hover { background-color: #1f2937; }
     .extra-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.8rem; }
     .support-link { color: #0284c7; text-decoration: none; font-weight: 600; cursor: pointer; }
     .clear-btn { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
@@ -62,7 +64,7 @@
       <div class="help-content">
         <strong>💡 Ayuda SBO Control:</strong><br>
         • <strong>Registro:</strong> Tocá "Registro" si sos nuevo para pedir tu licencia por WhatsApp.<br>
-        • <strong>Importar:</strong> Si tenés tu archivo .sbo, usalo para configurar el acceso al instante.<br>
+        • <strong>Importar:</strong> Si tenés tu archivo .sbo o .json, usalo para configurar el acceso al instante.<br>
         • <strong>Ingresar:</strong> Tocá "Ingresar" y poné tu clave para entrar al sistema.
       </div>
     </details>
@@ -90,8 +92,8 @@
     
     <button class="btn" style="margin-top: 5px;" onclick="abrirModalIngreso()">🔑 Ingresar al Sistema</button>
 
-    <input type="file" id="fileSboInput" accept=".sbo" style="display: none;" onchange="importarArchivoSbo(event)">
-    <button type="button" class="btn-import" onclick="document.getElementById('fileSboInput').click()">📥 Importar Archivo .sbo</button>
+    <input type="file" id="fileSboInput" accept=".sbo,.json" style="display: none;" onchange="importarArchivoSbo(event)">
+    <button type="button" class="btn-import" onclick="document.getElementById('fileSboInput').click()">📥 Importar Archivo (.sbo / .json)</button>
   </div>
 
   <div id="modalRegistro" class="modal-overlay">
@@ -99,7 +101,11 @@
       <h3 style="margin-bottom: 12px; color: var(--primary-color);">👥 Registro de Cliente:</h3>
       <div class="form-group">
         <label for="selectLicenciaModal">Seleccioná tu Licencia:</label>
-        <select id="selectLicenciaModal" class="form-control"><option value="">Cargando...</option></select>
+        <div style="display: flex; gap: 6px;">
+          <select id="selectLicenciaModal" class="form-control"><option value="">Cargando...</option></select>
+          <input type="file" id="inputImportarLicenciaModal" accept=".json,.sbo" style="display: none;" onchange="cargarLicenciaDesdeArchivoIndex(event)">
+          <button type="button" class="btn-cargar-json" onclick="document.getElementById('inputImportarLicenciaModal').click()">📂 Cargar JSON</button>
+        </div>
       </div>
       <div class="form-group"><label>Nombre y Apellido:</label><input type="text" id="txtNombre" class="form-control"></div>
       <div class="form-group"><label>Dirección:</label><input type="text" id="txtDireccion" class="form-control"></div>
@@ -131,16 +137,9 @@
   <script>
     const NUMERO_WHATSAPP_SBO = "5492364502082"; 
 
-    const licenciasOficialesDefault = [
-      { nombreLicencia: "Licencia Activa Mensual", duracion: "30 días" },
-      { nombreLicencia: "Licencia Plena Semestral", duracion: "180 días" },
-      { nombreLicencia: "Licencia Vitalicia Anual", duracion: "365 días" }
-    ];
-
-    document.addEventListener('DOMContentLoaded', async () => {
+    document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('txtFechaSesion').value = new Date().toISOString().split('T')[0];
       
-      // Abre el modal de ingreso automáticamente si volvemos de la recuperación
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('abrirIngreso') === 'true') {
         abrirModalIngreso();
@@ -154,50 +153,79 @@
         document.getElementById('txtClave').value = claveGuardadaLocal;
       }
 
-      let listaLicencias = [];
+      renderizarSelectLicencias();
+    });
 
-      try {
-        const licenciasGuardadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas'));
-        if (Array.isArray(licenciasGuardadas) && licenciasGuardadas.length > 0) {
-          listaLicencias = licenciasGuardadas;
-        } else {
-          const res = await fetch('./licencias.json');
-          listaLicencias = await res.json();
-        }
-      } catch (e) {
-        listaLicencias = licenciasOficialesDefault;
+    function renderizarSelectLicencias() {
+      const selectModal = document.getElementById('selectLicenciaModal');
+      const licenciasGuardadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+
+      const licenciasValidas = licenciasGuardadas.filter(item => item && (item.nombreLicencia || item.nombre || item.licencia));
+
+      if (licenciasValidas.length === 0) {
+        selectModal.innerHTML = '<option value="">No hay licencias disponibles (Usá 📂 Cargar JSON)</option>';
+        return;
       }
 
-      listaLicencias = listaLicencias.filter(item => {
-        if (item.mostrar === false) return false;
-        const nombreLic = (item.nombreLicencia || item.nombre || item.licencia || '').toLowerCase();
-        const dur = (item.duracion || '').toLowerCase();
-        const es24hs = nombreLic.includes('24') || dur.includes('24') || nombreLic.includes('probation') || nombreLic.includes('honorífica');
-        return !es24hs;
-      });
-
-      if (listaLicencias.length === 0) listaLicencias = licenciasOficialesDefault;
-
-      const selectModal = document.getElementById('selectLicenciaModal');
-      selectModal.innerHTML = '<option value="">Seleccioná una licencia...</option>';
-      
-      listaLicencias.forEach((item) => {
-        const opt = document.createElement('option');
+      let html = '<option value="">Seleccioná una licencia...</option>';
+      licenciasValidas.forEach((item) => {
         const nombreLic = item.nombreLicencia || item.nombre || item.licencia || 'Licencia Comercial';
         const duracionLic = item.duracion ? ` (${item.duracion})` : '';
-        
-        opt.value = nombreLic;
-        opt.textContent = `${nombreLic}${duracionLic}`;
-
-        const esVitalicia = nombreLic.toLowerCase().includes('vitalicia') || nombreLic.toLowerCase().includes('vida');
-
-        if (item.seleccionable === false || esVitalicia) {
-          opt.disabled = true;
-        }
-
-        selectModal.appendChild(opt);
+        html += `<option value="${nombreLic}">${nombreLic}${duracionLic}</option>`;
       });
-    });
+      selectModal.innerHTML = html;
+    }
+
+    function cargarLicenciaDesdeArchivoIndex(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          let licenciasLocales = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+          let nuevasAgregadas = 0;
+          let nombreSeleccionado = "";
+
+          const procesar = (item) => {
+            if (!item) return;
+            const nombreL = item.nombreLicencia || item.nombre || item.licencia;
+            if (!nombreL) return;
+
+            const existe = licenciasLocales.some(l => (l.nombreLicencia || l.nombre || l.licencia) === nombreL);
+            if (!existe) {
+              licenciasLocales.push(item);
+              nuevasAgregadas++;
+            }
+            nombreSeleccionado = nombreL;
+          };
+
+          if (Array.isArray(data)) {
+            data.forEach(item => procesar(item));
+          } else if (typeof data === 'object') {
+            procesar(data);
+          }
+
+          if (nuevasAgregadas > 0 || nombreSeleccionado) {
+            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(licenciasLocales));
+            renderizarSelectLicencias();
+            
+            if (nombreSeleccionado) {
+              document.getElementById('selectLicenciaModal').value = nombreSeleccionado;
+            }
+            
+            alert('¡Licencia cargada con éxito desde el archivo JSON!');
+          } else {
+            alert('El archivo JSON no contiene licencias nuevas o ya existía en la lista.');
+          }
+        } catch (err) {
+          alert('Error al leer el archivo JSON de licencia.');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
 
     function alternarVisibilidadClave() {
       const inputClave = document.getElementById('txtClave');
@@ -231,8 +259,8 @@
       event.preventDefault();
       
       const tieneRespaldo = confirm(
-        "💡 ¿Tenés a mano tu archivo de respaldo (.sbo)?\n\n" +
-        "• SI LO TENÉS: Tocá 'Aceptar' y usá el botón azul 'Importar Archivo .sbo' en la pantalla principal para recuperar todo al instante.\n\n" +
+        "💡 ¿Tenés a mano tu archivo de respaldo (.sbo o .json)?\n\n" +
+        "• SI LO TENÉS: Tocá 'Aceptar' y usá el botón azul 'Importar Archivo' en la pantalla principal para recuperar todo al instante.\n\n" +
         "• SI NO LO TENÉS: Tocá 'Cancelar' para ir a la Recuperación Automática y generarla con tus datos."
       );
 
@@ -273,6 +301,14 @@
       reader.onload = function(e) {
         try {
           const config = JSON.parse(e.target.result);
+
+          if (Array.isArray(config)) {
+            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(config));
+            renderizarSelectLicencias();
+            alert('¡Lista de licencias importada correctamente!');
+            return;
+          }
+
           if (config.nombreCliente) localStorage.setItem('sbo_nombre', config.nombreCliente);
           if (config.domicilio) localStorage.setItem('sbo_direccion', config.domicilio);
           if (config.contacto) localStorage.setItem('sbo_whatsapp', config.contacto);
@@ -284,12 +320,12 @@
           if (config.hardware) localStorage.setItem('sbo_huellaHardware', config.hardware);
 
           let clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
-          if (!clavesCreadas.some(c => c.clave === config.clave)) {
+          if (config.clave && !clavesCreadas.some(c => c.clave === config.clave)) {
             clavesCreadas.push({
               id: config.id || Date.now(),
-              cliente: config.nombreCliente,
-              hardware: config.hardware,
-              licencia: config.licencia,
+              cliente: config.nombreCliente || 'Cliente',
+              hardware: config.hardware || 'HWGEN',
+              licencia: config.licencia || 'Licencia',
               clave: config.clave
             });
             localStorage.setItem('sbo_db_claves_creadas', JSON.stringify(clavesCreadas));
@@ -302,6 +338,7 @@
         }
       };
       reader.readAsText(file);
+      event.target.value = '';
     }
 
     function guardarRegistro() {
