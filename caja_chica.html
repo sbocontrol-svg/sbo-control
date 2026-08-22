@@ -102,7 +102,7 @@
 
       <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
         <label style="margin-top: 0; color: #166534;">Cambio Inicial / Fondo de Caja ($):</label>
-        <input type="number" id="txtCambioInicial" placeholder="0.00" step="0.01" oninput="guardarCambioInicial()" style="background: white;">
+        <input type="number" id="txtCambioInicial" placeholder="0.00" step="0.01" inputmode="decimal" oninput="guardarCambioInicial()" style="background: white;">
       </div>
 
       <div class="resumen-grid">
@@ -132,7 +132,7 @@
       <input type="text" id="txtConcepto" placeholder="Ej: Venta menor, Compra de hielo...">
 
       <label>Monto ($):</label>
-      <input type="number" id="txtMonto" placeholder="0.00" step="0.01">
+      <input type="number" id="txtMonto" placeholder="0.00" step="0.01" inputmode="decimal">
 
       <button class="btn-accion" onclick="agregarMovimiento()">➕ Registrar Movimiento</button>
       <button class="btn-registros" id="btnAbrirModal">📋 Mostrar Registros</button>
@@ -167,14 +167,14 @@
     let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
     document.getElementById('lblFechaTrabajo').innerText = `Fecha de Trabajo: ${fechaSesion}`;
 
-    let cambioInicialGuardado = localStorage.getItem(`sbo_sbo_cajachica_cambio_${fechaSesion}`);
+    let cambioInicialGuardado = localStorage.getItem(`sbo_cajachica_cambio_${fechaSesion}`);
     if (cambioInicialGuardado !== null) {
       document.getElementById('txtCambioInicial').value = cambioInicialGuardado;
     }
 
     let movimientos = [];
     try {
-      const guardados = localStorage.getItem(`sbo_sbo_cajachica_${fechaSesion}`);
+      const guardados = localStorage.getItem(`sbo_cajachica_${fechaSesion}`);
       if (guardados) movimientos = JSON.parse(guardados);
     } catch (e) {
       movimientos = [];
@@ -182,7 +182,7 @@
 
     function guardarCambioInicial() {
       const cambioVal = document.getElementById('txtCambioInicial').value;
-      localStorage.setItem(`sbo_sbo_cajachica_cambio_${fechaSesion}`, cambioVal);
+      localStorage.setItem(`sbo_cajachica_cambio_${fechaSesion}`, cambioVal);
       actualizarPantalla();
     }
 
@@ -215,7 +215,7 @@
           item.innerHTML = `
             <div class="mov-info">
               <span class="mov-concepto">${m.concepto}</span>
-              <span class="mov-tipo">${m.tipo.toUpperCase()}</span>
+              <span class="mov-tipo">${m.tipo.toUpperCase()} ${m.hora ? `• ${m.hora}` : ''}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <span class="mov-monto ${m.tipo}">${m.tipo === 'ingreso' ? '+' : '-'}$${Number(m.monto).toFixed(2)}</span>
@@ -242,7 +242,9 @@
       if (!concepto) return alert('Por favor, ingresá un concepto.');
       if (isNaN(monto) || monto <= 0) return alert('Por favor, ingresá un monto válido mayor a cero.');
 
-      movimientos.push({ tipo, concepto, monto });
+      const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      movimientos.push({ tipo, concepto, monto, hora: horaActual });
       guardarYActualizar();
 
       document.getElementById('txtConcepto').value = '';
@@ -257,7 +259,7 @@
     }
 
     function guardarYActualizar() {
-      localStorage.setItem(`sbo_sbo_cajachica_${fechaSesion}`, JSON.stringify(movimientos));
+      localStorage.setItem(`sbo_cajachica_${fechaSesion}`, JSON.stringify(movimientos));
       actualizarPantalla();
     }
 

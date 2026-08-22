@@ -17,8 +17,8 @@
       --font-scale: 15px;
     }
     html { font-size: var(--font-scale); }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #0f172a; margin: 0; padding: 10px; color: #1f2937; display: flex; justify-content: center; min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background: #0f172a; padding: 10px; color: #1f2937; display: flex; justify-content: center; min-height: 100vh; }
     
     .container { width: 100%; max-width: 480px; }
     .card { background: white; padding: 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 12px; }
@@ -34,19 +34,19 @@
     .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
     .kpi-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 6px; text-align: center; }
     .kpi-title { font-size: 0.7rem; text-transform: uppercase; font-weight: bold; color: #64748b; margin-bottom: 4px; }
-    .kpi-value { font-size: 1.05rem; font-weight: 800; color: #0f172a; }
+    .kpi-value { font-size: 0.98rem; font-weight: 800; color: #0f172a; word-break: break-word; }
     .val-ventas { color: var(--primary-color); }
     .val-gastos { color: #dc2626; }
     .val-neto { color: #2563eb; }
 
     /* DESGLOSE DE PAGOS */
     .pagos-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-    .pago-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 4px 0; border-bottom: 1px dashed #cbd5e1; }
+    .pago-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 6px 0; border-bottom: 1px dashed #cbd5e1; align-items: center; }
     .pago-row:last-child { border-bottom: none; }
 
     /* TOP PRODUCTOS */
-    .top-prod-item { display: flex; justify-content: space-between; align-items: center; background: #fffdf5; border: 1px solid #fef08a; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem; flex-shrink: 0; }
-    .top-prod-rank { background: #f59e0b; color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-right: 8px; }
+    .top-prod-item { display: flex; justify-content: space-between; align-items: center; background: #fffdf5; border: 1px solid #fef08a; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 0.88rem; flex-shrink: 0; }
+    .top-prod-rank { background: #f59e0b; color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; margin-right: 8px; flex-shrink: 0; }
 
     /* BOTONES DE ACCIÓN */
     .btn-print { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; margin-top: 8px; box-shadow: 0 3px 8px rgba(2,132,199,0.2); }
@@ -58,43 +58,32 @@
     .btn-top { background: #d97706; box-shadow: 0 3px 8px rgba(217,119,6,0.2); }
 
     /* MODAL ESTILOS CON SCROLL INTERNO FIJO */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; backdrop-filter: blur(2px); }
     .modal-overlay.active { display: flex; }
     
-    .modal-container { background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; }
+    .modal-container { background: white; width: 100%; max-width: 420px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; }
     
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; flex-shrink: 0; }
-    .modal-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin: 0; }
+    .modal-header h3 { font-size: 1.05rem; color: var(--primary-color); font-weight: 700; margin: 0; }
     .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     
     .lista-dias-modal { 
       margin-top: 6px; 
       margin-bottom: 10px;
-      max-height: 280px; 
+      max-height: 320px; 
       overflow-y: auto; 
       display: flex; 
       flex-direction: column; 
       gap: 6px; 
-      padding-right: 6px;
+      padding-right: 4px;
       flex-shrink: 1;
     }
 
-    .lista-dias-modal::-webkit-scrollbar {
-      width: 6px;
-    }
-    .lista-dias-modal::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 4px;
-    }
-    .lista-dias-modal::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    .lista-dias-modal::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
+    .lista-dias-modal::-webkit-scrollbar { width: 5px; }
+    .lista-dias-modal::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    .lista-dias-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-    .dia-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; flex-shrink: 0; }
+    .dia-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.88rem; flex-shrink: 0; }
     .dia-fecha { font-weight: bold; color: #1e293b; }
     .dia-monto { font-weight: bold; color: var(--primary-color); }
 
@@ -152,7 +141,7 @@
           <strong id="lblMesEfectivo">$0</strong>
         </div>
         <div class="pago-row">
-          <span>🏦 MP / Transf.:</span>
+          <span>🏦 MP / Digital:</span>
           <strong id="lblMesMP">$0</strong>
         </div>
         <div class="pago-row">
@@ -168,7 +157,7 @@
   </div>
 
   <!-- Modal Resumen Día por Día -->
-  <div class="modal-overlay" id="modal-dias">
+  <div class="modal-overlay" id="modal-dias" onclick="cerrarAlTocarFondo(event, 'modal-dias')">
     <div class="modal-container">
       <div class="modal-header">
         <h3>📅 Resumen Día por Día</h3>
@@ -176,7 +165,7 @@
       </div>
 
       <div id="listaDiasMes" class="lista-dias-modal">
-        <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 12px;">Sin actividad registrada en este mes.</div>
+        <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 16px;">Sin actividad registrada en este mes.</div>
       </div>
 
       <button class="btn-cerrar-gris" id="btnCerrarModalDiasGris">Cerrar</button>
@@ -184,7 +173,7 @@
   </div>
 
   <!-- Modal Productos Más Vendidos -->
-  <div class="modal-overlay" id="modal-top">
+  <div class="modal-overlay" id="modal-top" onclick="cerrarAlTocarFondo(event, 'modal-top')">
     <div class="modal-container">
       <div class="modal-header">
         <h3>🏆 Productos Más Vendidos</h3>
@@ -192,7 +181,7 @@
       </div>
 
       <div id="listaTopProductos" class="lista-dias-modal">
-        <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 12px;">No hay registros de productos vendidos en este mes.</div>
+        <div style="text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 16px;">No hay registros de productos vendidos en este mes.</div>
       </div>
 
       <button class="btn-cerrar-gris" id="btnCerrarModalTopGris">Cerrar</button>
@@ -203,23 +192,34 @@
     let mesActual = new Date().toISOString().slice(0, 7);
 
     document.addEventListener('DOMContentLoaded', () => {
-      const config = JSON.parse(localStorage.getItem('sbo_config')) || {};
-      if(config.color) {
-        document.documentElement.style.setProperty('--primary-color', config.color);
-      }
+      // Cargar Tema y Tamaño de letra desde localStorage
+      const colorGuardado = localStorage.getItem('sbo_config_color') || localStorage.getItem('sbo_sbo_config_color') || '#059669';
+      const fontGuardado = localStorage.getItem('sbo_config_tamanio') || localStorage.getItem('sbo_sbo_config_tamanio') || '15px';
+      
+      document.documentElement.style.setProperty('--primary-color', colorGuardado);
+      document.documentElement.style.setProperty('--font-scale', fontGuardado);
 
       document.getElementById('selectMes').value = mesActual;
       cargarMensual(mesActual);
     });
 
+    function formatPesos(monto) {
+      return '$' + Number(monto || 0).toLocaleString('es-AR');
+    }
+
     function cargarMensual(mesElegido) {
       if(!mesElegido) return;
       mesActual = mesElegido;
 
-      const ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
+      // Obtener Ventas
+      const ventasRaw = localStorage.getItem('sbo_ventas') || localStorage.getItem('sbo_sbo_ventas') || '[]';
+      const ventas = JSON.parse(ventasRaw);
       const ventasMes = ventas.filter(v => v.fecha && v.fecha.startsWith(mesActual));
 
+      // Obtener Movimientos de Caja / Egresos
       let movsMes = [];
+
+      // 1. Recorrer claves individuales sbo_cajachica_YYYY-MM-DD
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('sbo_cajachica_' + mesActual)) {
@@ -234,30 +234,61 @@
         }
       }
 
-      const totalVentas = ventasMes.reduce((sum, v) => sum + (v.total || 0), 0);
+      // 2. Recorrer arreglo general sbo_caja_movimientos
+      const movsGral = JSON.parse(localStorage.getItem('sbo_caja_movimientos')) || [];
+      movsGral.forEach(m => {
+        if (m.fecha && m.fecha.startsWith(mesActual) && m.tipo === 'egreso') {
+          movsMes.push(m);
+        }
+      });
+
+      // Totales
+      const totalVentas = ventasMes.reduce((sum, v) => sum + Number(v.total || 0), 0);
       const totalGastos = movsMes.reduce((sum, m) => sum + Number(m.monto || 0), 0);
       const gananciaNeta = totalVentas - totalGastos;
 
-      const efectivo = ventasMes.filter(v => v.pago === 'Efectivo').reduce((sum, v) => sum + v.total, 0);
-      const mpTransf = ventasMes.filter(v => v.pago && (v.pago.includes('Mercado') || v.pago.includes('Transf'))).reduce((sum, v) => sum + v.total, 0);
-      const tarjetas = ventasMes.filter(v => v.pago && (v.pago.includes('Tarjeta') || v.pago.includes('Débito') || v.pago.includes('Crédito'))).reduce((sum, v) => sum + v.total, 0);
+      // Desglose por Medio de Pago
+      let efectivo = 0;
+      let mpTransf = 0;
+      let tarjetas = 0;
 
-      document.getElementById('lblMesVentas').innerText = `$${totalVentas.toLocaleString('es-AR')}`;
-      document.getElementById('lblMesGastos').innerText = `$${totalGastos.toLocaleString('es-AR')}`;
-      document.getElementById('lblMesNeto').innerText = `$${gananciaNeta.toLocaleString('es-AR')}`;
+      ventasMes.forEach(v => {
+        const monto = Number(v.total || 0);
+        const pago = (v.pago || '').toLowerCase();
 
-      document.getElementById('lblMesEfectivo').innerText = `$${efectivo.toLocaleString('es-AR')}`;
-      document.getElementById('lblMesMP').innerText = `$${mpTransf.toLocaleString('es-AR')}`;
-      document.getElementById('lblMesTarjetas').innerText = `$${tarjetas.toLocaleString('es-AR')}`;
+        if (pago.includes('efectivo')) {
+          efectivo += monto;
+        } else if (pago.includes('mercado') || pago.includes('transf') || pago.includes('mp') || pago.includes('uala') || pago.includes('cuenta dni') || pago.includes('modo')) {
+          mpTransf += monto;
+        } else if (pago.includes('tarj') || pago.includes('débito') || pago.includes('debito') || pago.includes('crédito') || pago.includes('credito')) {
+          tarjetas += monto;
+        } else {
+          mpTransf += monto;
+        }
+      });
 
+      // Render KPIs
+      document.getElementById('lblMesVentas').innerText = formatPesos(totalVentas);
+      document.getElementById('lblMesGastos').innerText = formatPesos(totalGastos);
+      document.getElementById('lblMesNeto').innerText = formatPesos(gananciaNeta);
+
+      document.getElementById('lblMesEfectivo').innerText = formatPesos(efectivo);
+      document.getElementById('lblMesMP').innerText = formatPesos(mpTransf);
+      document.getElementById('lblMesTarjetas').innerText = formatPesos(tarjetas);
+
+      // Ranking de Productos
       const conteoProds = {};
       ventasMes.forEach(v => {
         (v.items || []).forEach(item => {
-          if (!conteoProds[item.nombre]) {
-            conteoProds[item.nombre] = { cant: 0, recaudado: 0 };
+          const nombre = item.nombre || 'Producto General';
+          const cant = Number(item.cant || 1);
+          const recaudado = Number(item.subtotal || (item.precio * cant) || 0);
+
+          if (!conteoProds[nombre]) {
+            conteoProds[nombre] = { cant: 0, recaudado: 0 };
           }
-          conteoProds[item.nombre].cant += item.cant || 0;
-          conteoProds[item.nombre].recaudado += item.subtotal || 0;
+          conteoProds[nombre].cant += cant;
+          conteoProds[nombre].recaudado += recaudado;
         });
       });
 
@@ -269,30 +300,33 @@
       ranking.forEach((p, idx) => {
         htmlTop += `
           <div class="top-prod-item">
-            <div>
+            <div style="display:flex; align-items:center; flex:1; overflow:hidden; padding-right:8px;">
               <span class="top-prod-rank">${idx + 1}</span>
-              <strong>${p.nombre}</strong>
+              <strong style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.nombre}</strong>
             </div>
-            <div style="text-align:right;">
+            <div style="text-align:right; flex-shrink:0;">
               <span style="font-weight:bold; color:var(--primary-color);">${p.cant} u.</span>
-              <div style="font-size:0.8rem; color:#64748b;">$${p.recaudado.toLocaleString('es-AR')}</div>
+              <div style="font-size:0.8rem; color:#64748b;">${formatPesos(p.recaudado)}</div>
             </div>
           </div>
         `;
       });
 
       if (ranking.length === 0) {
-        htmlTop = '<p style="text-align:center; color:#9ca3af; font-size: 0.85rem; padding: 12px;">No hay registros de productos vendidos en este mes.</p>';
+        htmlTop = '<p style="text-align:center; color:#9ca3af; font-size: 0.85rem; padding: 16px;">No hay registros de productos vendidos en este mes.</p>';
       }
       document.getElementById('listaTopProductos').innerHTML = htmlTop;
 
+      // Resumen Día por Día
       const diasMap = {};
       ventasMes.forEach(v => {
+        if (!v.fecha) return;
         if (!diasMap[v.fecha]) diasMap[v.fecha] = { ventas: 0, gastos: 0 };
-        diasMap[v.fecha].ventas += v.total || 0;
+        diasMap[v.fecha].ventas += Number(v.total || 0);
       });
 
       movsMes.forEach(m => {
+        if (!m.fecha) return;
         if (!diasMap[m.fecha]) diasMap[m.fecha] = { ventas: 0, gastos: 0 };
         diasMap[m.fecha].gastos += Number(m.monto || 0);
       });
@@ -313,31 +347,36 @@
               <span class="dia-fecha">📅 ${dd}/${mm}/${yyyy}</span>
             </div>
             <div style="text-align:right;">
-              <span class="dia-monto">+$${d.ventas.toLocaleString('es-AR')}</span>
-              ${d.gastos > 0 ? `<div style="font-size:0.75rem; color:#dc2626;">Gastos: -$${d.gastos.toLocaleString('es-AR')}</div>` : ''}
+              <span class="dia-monto">+${formatPesos(d.ventas)}</span>
+              ${d.gastos > 0 ? `<div style="font-size:0.75rem; color:#dc2626;">Gastos: -${formatPesos(d.gastos)}</div>` : ''}
             </div>
           </div>
         `;
       });
 
       if (diasOrdenados.length === 0) {
-        htmlDias = '<p style="text-align:center; color:#9ca3af; font-size: 0.85rem; padding: 12px;">Sin actividad registrada en este mes.</p>';
+        htmlDias = '<p style="text-align:center; color:#9ca3af; font-size: 0.85rem; padding: 16px;">Sin actividad registrada en este mes.</p>';
       }
       document.getElementById('listaDiasMes').innerHTML = htmlDias;
     }
 
     // Control de Modales
     const modalDias = document.getElementById('modal-dias');
+    const modalTop = document.getElementById('modal-top');
+
     document.getElementById('btnAbrirModalDias').addEventListener('click', () => modalDias.classList.add('active'));
     document.getElementById('btnCerrarModalDiasX').addEventListener('click', () => modalDias.classList.remove('active'));
     document.getElementById('btnCerrarModalDiasGris').addEventListener('click', () => modalDias.classList.remove('active'));
-    modalDias.addEventListener('click', (e) => { if (e.target === modalDias) modalDias.classList.remove('active'); });
 
-    const modalTop = document.getElementById('modal-top');
     document.getElementById('btnAbrirModalTop').addEventListener('click', () => modalTop.classList.add('active'));
     document.getElementById('btnCerrarModalTopX').addEventListener('click', () => modalTop.classList.remove('active'));
     document.getElementById('btnCerrarModalTopGris').addEventListener('click', () => modalTop.classList.remove('active'));
-    modalTop.addEventListener('click', (e) => { if (e.target === modalTop) modalTop.classList.remove('active'); });
+
+    function cerrarAlTocarFondo(event, modalId) {
+      if (event.target.id === modalId) {
+        document.getElementById(modalId).classList.remove('active');
+      }
+    }
   </script>
 </body>
 </html>

@@ -1,59 +1,126 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.B.O. - Cobro</title>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .monto { font-size: 2.5rem; font-weight: bold; color: #333; margin: 10px 0; }
-        .billetera-tag { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-bottom: 15px; }
-        .btn-pagar { display: block; background: #00796b; color: white; padding: 15px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 20px; }
-        .info-dato { background: #e8f5e9; padding: 10px; border-radius: 8px; margin-top: 15px; word-break: break-all; font-family: monospace; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S.B.O. - Cobro</title>
+
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="theme-color" content="#059669">
+
+  <style>
+    :root {
+      --primary-color: #059669;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; margin: 0; padding: 15px; color: #1f2937; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+    .card { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+    
+    .negocio-titulo { font-size: 1.1rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 10px 0; }
+    
+    .billetera-tag { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; margin-bottom: 12px; }
+    
+    .monto { font-size: 2.5rem; font-weight: 800; color: #0f172a; margin: 5px 0 15px 0; letter-spacing: -1px; }
+
+    .info-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; margin-top: 10px; }
+    .qr-contenedor { background: white; display: inline-block; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin: 8px 0; }
+    .qr-img { width: 180px; height: 180px; display: block; border-radius: 6px; }
+
+    .info-dato { background: #e2e8f0; color: #0f172a; padding: 10px; border-radius: 8px; margin: 8px 0; word-break: break-all; font-family: monospace; font-size: 1.05rem; font-weight: bold; }
+    
+    .btn-copiar { background: #0284c7; color: white; border: none; padding: 10px 14px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 6px rgba(2,132,199,0.2); }
+    .btn-copiar:active { transform: scale(0.97); }
+
+    .btn-volver { margin-top: 15px; border: none; background: none; color: #94a3b8; font-weight: 600; font-size: 0.95rem; cursor: pointer; padding: 8px 16px; border-radius: 8px; }
+    .btn-volver:active { color: #64748b; }
+  </style>
 </head>
 <body>
 
 <div class="card">
-    <h2 id="tituloNegocio">Cobrar</h2>
-    <div id="tagBilletera" class="billetera-tag" style="background: #e0f2f1; color: #00796b;">Cargando...</div>
-    <div class="monto" id="displayMonto">$0.00</div>
+    <h3 id="tituloNegocio" class="negocio-titulo">Cobrar</h3>
+    <div id="tagBilletera" class="billetera-tag">Cargando...</div>
+    <div class="monto" id="displayMonto">$0,00</div>
     
     <div id="contenedorPago">
-        <!-- Acá se inyecta el botón o el dato -->
+        <!-- Contenido dinámico con QR -->
     </div>
     
-    <button onclick="window.history.back()" style="margin-top: 20px; border:none; background:none; color:gray;">Volver</button>
+    <button class="btn-volver" onclick="window.history.back()">← Volver atrás</button>
 </div>
 
 <script>
-    // Recuperar datos
-    const monto = localStorage.getItem('sbo_sbo_monto_actual') || localStorage.getItem('sbo_monto_actual') || '0';
-    const alias = localStorage.getItem('sbo_sbo_alias') || localStorage.getItem('sbo_alias') || '';
-    const billetera = localStorage.getItem('sbo_sbo_billetera') || localStorage.getItem('sbo_billetera') || 'mp';
-    const nombreNegocio = localStorage.getItem('sbo_sbo_config_nombre') || localStorage.getItem('sbo_config_nombre') || 'Mi Emprendimiento';
+    // Recuperar datos con compatibilidad de keys
+    const rawMonto = localStorage.getItem('sbo_monto_actual') || localStorage.getItem('sbo_sbo_monto_actual') || '0';
+    const alias = localStorage.getItem('sbo_alias') || localStorage.getItem('sbo_sbo_alias') || '';
+    const billetera = localStorage.getItem('sbo_billetera') || localStorage.getItem('sbo_sbo_billetera') || 'mp';
+    const nombreNegocio = localStorage.getItem('sbo_config_nombre') || localStorage.getItem('sbo_sbo_config_nombre') || 'Mi Emprendimiento';
 
-    document.getElementById('displayMonto').innerText = '$' + monto;
+    // Formatear monto
+    const montoNum = parseFloat(rawMonto) || 0;
+    document.getElementById('displayMonto').innerText = '$' + montoNum.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     document.getElementById('tituloNegocio').innerText = nombreNegocio;
 
     const tag = document.getElementById('tagBilletera');
     const cont = document.getElementById('contenedorPago');
 
-    // Lógica multi-billetera
+    // Definir datos del QR según la billetera
+    let qrData = '';
+    let nombreBilletera = 'Mercado Pago';
+    let bgTag = '#e0f2fe';
+    let colorTag = '#0284c7';
+
     if (billetera === 'mp') {
-        tag.innerText = 'Mercado Pago';
-        cont.innerHTML = `<a href="https://link.mercadopago.com.ar/${alias}" class="btn-pagar">Pagar con Mercado Pago</a>`;
+        nombreBilletera = 'Mercado Pago';
+        qrData = alias ? `https://link.mercadopago.com.ar/${alias}` : 'Sin Alias';
+        bgTag = '#e0f2fe';
+        colorTag = '#0284c7';
     } else if (billetera === 'uala') {
-        tag.innerText = 'Ualá';
-        cont.innerHTML = `<a href="https://ualaria.com/${alias}" class="btn-pagar">Pagar con Ualá</a>`;
+        nombreBilletera = 'Ualá';
+        qrData = alias ? `https://ualaria.com/${alias}` : 'Sin Alias';
+        bgTag = '#ffe4e6';
+        colorTag = '#e11d48';
     } else {
-        tag.innerText = (billetera === 'cuentadni' ? 'Cuenta DNI' : 'Transferencia / MODO');
-        cont.innerHTML = `
-            <p>Datos para transferir:</p>
-            <div class="info-dato"><strong>${alias}</strong></div>
-            <p style="font-size: 0.8rem; margin-top:10px;">Copiá el Alias/CBU y pegalo en tu app bancaria.</p>
-        `;
+        nombreBilletera = (billetera === 'cuentadni' ? 'Cuenta DNI' : 'Transferencia / MODO');
+        qrData = alias;
+        bgTag = billetera === 'cuentadni' ? '#dcfce7' : '#f1f5f9';
+        colorTag = billetera === 'cuentadni' ? '#15803d' : '#475569';
+    }
+
+    tag.innerText = nombreBilletera;
+    tag.style.background = bgTag;
+    tag.style.color = colorTag;
+
+    // Generar URL de la API de QR
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrData)}`;
+
+    cont.innerHTML = `
+        <div class="info-box">
+            <span style="font-size:0.8rem; color:#64748b; font-weight:bold; display:block; margin-bottom:4px;">ESCANEÁ CON TU CELU:</span>
+            <div class="qr-contenedor">
+                <img src="${qrApiUrl}" alt="QR de Pago" class="qr-img">
+            </div>
+            <div style="font-size:0.8rem; color:#64748b; font-weight:bold; margin-top:8px;">ALIAS / CBU:</div>
+            <div class="info-dato" id="lblAlias">${alias || 'Sin Alias Configurado'}</div>
+            <button class="btn-copiar" id="btnCopiar" onclick="copiarAlias()">📋 Copiar Alias</button>
+        </div>
+    `;
+
+    function copiarAlias() {
+        if (!alias) return;
+        navigator.clipboard.writeText(alias).then(() => {
+            const btn = document.getElementById('btnCopiar');
+            if (btn) {
+                btn.innerText = '✅ ¡Copiado!';
+                btn.style.background = '#059669';
+                setTimeout(() => {
+                    btn.innerText = '📋 Copiar Alias';
+                    btn.style.background = '#0284c7';
+                }, 2000);
+            }
+        });
     }
 </script>
 

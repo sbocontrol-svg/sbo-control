@@ -71,6 +71,15 @@
       0% { transform: translate(0, 0); }
       100% { transform: translate(-100%, 0); }
     }
+
+    /* Modal Custom de Avisos/Alerts y Confirms */
+    .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 12px; }
+    .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+    .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .custom-modal-msg { font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
+    .custom-modal-actions { display: flex; gap: 8px; justify-content: center; }
+    .btn-modal-ok { background-color: #0f172a; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+    .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
   </style>
 </head>
 <body>
@@ -138,14 +147,7 @@
               📱 Ver QR Cobro
             </button>
           </div>
-          <select id="vPago" onchange="chequearMetodoPagoSeleccionado()">
-            <option value="Efectivo">💵 Efectivo</option>
-            <option value="Transferencia">🏦 Transferencia Bancaria</option>
-            <option value="Mercado Pago">📱 Mercado Pago</option>
-            <option value="Cuenta D.N.I.">🟢 Cuenta D.N.I.</option>
-            <option value="Naranja X">🟠 Naranja X</option>
-            <option value="Otra">🔷 Otra</option>
-          </select>
+          <select id="vPago" onchange="chequearMetodoPagoSeleccionado()"></select>
 
           <button class="ventas-btn-add" onclick="agregarAlCarritoVentas()">🛒 Agregar al Carrito</button>
         </div>
@@ -234,7 +236,61 @@
     </div>
   </div>
 
+  <!-- Modal Custom de Avisos/Alerts y Confirms -->
+  <div id="customModal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div id="customModalTitle" class="custom-modal-title">S. B. O. Control</div>
+      <div id="customModalMsg" class="custom-modal-msg"></div>
+      <div class="custom-modal-actions">
+        <button id="btnCustomCancel" class="btn-modal-cancel" onclick="cancelarConfirm()">Cancelar</button>
+        <button id="btnCustomOk" class="btn-modal-ok" onclick="ejecutarAccionOk()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let accionOkCallback = null;
+    let accionCancelCallback = null;
+
+    function mostrarAviso(mensaje, titulo = "S. B. O. Control", callback = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'none';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callback;
+      accionCancelCallback = null;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function mostrarConfirmacion(mensaje, titulo = "S. B. O. Control", callbackOk = null, callbackCancel = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'inline-block';
+      document.getElementById('btnCustomCancel').textContent = 'Cancelar';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callbackOk;
+      accionCancelCallback = callbackCancel;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function ejecutarAccionOk() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionOkCallback) {
+        const cb = accionOkCallback;
+        accionOkCallback = null;
+        cb();
+      }
+    }
+
+    function cancelarConfirm() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionCancelCallback) {
+        const cb = accionCancelCallback;
+        accionCancelCallback = null;
+        cb();
+      }
+    }
+
     function cerrarVentanaModalVentasGen() {
       if (typeof cerrarModalDinamico === 'function') {
         cerrarModalDinamico();
@@ -272,6 +328,11 @@
       clientesVentas = JSON.parse(localStorage.getItem('sbo_clientes')) || JSON.parse(localStorage.getItem('bma_clientes')) || JSON.parse(localStorage.getItem('clientes')) || [];
       ventasList = JSON.parse(localStorage.getItem('sbo_ventas')) || JSON.parse(localStorage.getItem('bma_ventas')) || JSON.parse(localStorage.getItem('ventas')) || [];
 
+      // Cargar Nombre y Eslogan dinámicos desde Configuración
+      const cfgLocal = JSON.parse(localStorage.getItem('sbo_config')) || JSON.parse(localStorage.getItem('bma_config')) || {};
+      if (cfgLocal.nombreEmpresa || cfgLocal.nombre) configVentas.nombre = cfgLocal.nombreEmpresa || cfgLocal.nombre;
+      if (cfgLocal.eslogan) configVentas.eslogan = cfgLocal.eslogan;
+
       const lblFecha = document.getElementById('lblFechaTrabajoVentas');
       if (lblFecha) lblFecha.innerText = `Fecha de Trabajo: ${formatearFechaVentas(fechaSesionVentas)}`;
       
@@ -294,18 +355,24 @@
       const configLocal = JSON.parse(localStorage.getItem('sbo_config')) || JSON.parse(localStorage.getItem('bma_config')) || {};
       const billeteraPrincipal = configLocal.billeteraPrincipal || configLocal.mpBilletera || localStorage.getItem('sbo_billeteraPrincipal') || '';
 
-      let opcionesHtml = `
-        <option value="Efectivo">💵 Efectivo</option>
-        <option value="Transferencia">🏦 Transferencia Bancaria</option>
-        <option value="Mercado Pago">📱 Mercado Pago</option>
-        <option value="Cuenta D.N.I.">🟢 Cuenta D.N.I.</option>
-        <option value="Naranja X">🟠 Naranja X</option>
-        <option value="Otra">🔷 Otra</option>
-      `;
+      let opciones = [
+        { val: "Efectivo", label: "💵 Efectivo" },
+        { val: "Transferencia", label: "🏦 Transferencia Bancaria" },
+        { val: "Mercado Pago", label: "📱 Mercado Pago" },
+        { val: "Cuenta D.N.I.", label: "🟢 Cuenta D.N.I." },
+        { val: "Naranja X", label: "🟠 Naranja X" },
+        { val: "Otra", label: "🔷 Otra" }
+      ];
 
+      let opcionesHtml = "";
       if (billeteraPrincipal) {
-        opcionesHtml = `<option value="${billeteraPrincipal}" selected>⭐ ${billeteraPrincipal} (Principal)</option>` + opcionesHtml;
+        opcionesHtml += `<option value="${billeteraPrincipal}" selected>⭐ ${billeteraPrincipal} (Principal)</option>`;
+        opciones = opciones.filter(o => o.val.toLowerCase() !== billeteraPrincipal.toLowerCase());
       }
+
+      opciones.forEach(o => {
+        opcionesHtml += `<option value="${o.val}">${o.label}</option>`;
+      });
 
       selPago.innerHTML = opcionesHtml;
       if (billeteraPrincipal) {
@@ -400,17 +467,23 @@
       const cant = parseInt(document.getElementById('vCant').value) || 0;
       const precio = parseFloat(document.getElementById('vPrecioUnit').value) || 0;
 
-      if (pId === "") return alert('Seleccioná un producto.');
-      if (cant <= 0) return alert('Ingresá una cantidad válida.');
+      if (pId === "") { mostrarAviso('Seleccioná un producto.'); return; }
+      if (cant <= 0) { mostrarAviso('Ingresá una cantidad válida.'); return; }
 
       const prod = buscarProductoVentasPorId(pId);
-      if (!prod) return alert('No se encontró el producto seleccionado.');
+      if (!prod) { mostrarAviso('No se encontró el producto seleccionado.'); return; }
 
       const stockActual = prod.cantidad !== undefined ? prod.cantidad : (prod.stock !== undefined ? prod.stock : 0);
       const nombreProd = prod.producto || prod.nombre || prod.descripcion || 'Producto';
       
-      if (cant > stockActual) {
-        return alert(`⚠️ Stock insuficiente. Solo quedan ${stockActual} unidades.`);
+      // Control acumulado del stock ya agregado al carrito
+      const cantEnCarrito = carritoVentas
+        .filter(item => item.productoId == pId)
+        .reduce((sum, item) => sum + item.cant, 0);
+
+      if ((cant + cantEnCarrito) > stockActual) {
+        mostrarAviso(`⚠️ Stock insuficiente. Hay ${stockActual} u. disponibles y ya tenés ${cantEnCarrito} u. en el carrito.`);
+        return;
       }
 
       carritoVentas.push({
@@ -502,7 +575,7 @@
     }
 
     function confirmarVentaActual() {
-      if (carritoVentas.length === 0) return alert('El carrito está vacío.');
+      if (carritoVentas.length === 0) { mostrarAviso('El carrito está vacío.'); return; }
 
       const modoCliente = document.querySelector('input[name="tipoCliente"]:checked').value;
       let clienteNombre = "";
@@ -510,13 +583,13 @@
 
       if (modoCliente === 'registrado') {
         clienteNombre = document.getElementById('vCliente').value;
-        if (!clienteNombre) return alert('Por favor, seleccioná un cliente de la lista.');
+        if (!clienteNombre) { mostrarAviso('Por favor, seleccioná un cliente de la lista.'); return; }
         const cliObj = clientesVentas.find(c => (c.nombre || c.cliente || c.AyN) === clienteNombre);
         if (cliObj) clienteTelefono = cliObj.tel || cliObj.telefono || '';
       } else {
         clienteNombre = document.getElementById('vNombreOcasional').value.trim();
         clienteTelefono = document.getElementById('vTelefonoOcasional').value.trim();
-        if (!clienteNombre) return alert('Por favor, ingresá el nombre del cliente ocasional.');
+        if (!clienteNombre) { mostrarAviso('Por favor, ingresá el nombre del cliente ocasional.'); return; }
       }
 
       const pago = document.getElementById('vPago').value;
@@ -678,9 +751,15 @@
         const cliObj = clientesVentas.find(c => (c.nombre || c.cliente || c.AyN) === v.cliente);
         telCliente = cliObj ? (cliObj.tel || cliObj.telefono || '') : '';
       }
-      const telWa = telCliente.replace(/\D/g,'');
+      
+      // Limpieza de teléfono argentina para WhatsApp
+      let telWa = telCliente.replace(/\D/g, '');
+      if (telWa.startsWith('0')) telWa = telWa.substring(1);
+      if (telWa.startsWith('15')) telWa = telWa.substring(2);
+      if (telWa.length > 0 && !telWa.startsWith('549')) telWa = '549' + telWa;
+
       const urlWa = telWa 
-        ? `https://wa.me/549${telWa}?text=${encodeURIComponent(textoWa)}` 
+        ? `https://wa.me/${telWa}?text=${encodeURIComponent(textoWa)}` 
         : `https://api.whatsapp.com/send?text=${encodeURIComponent(textoWa)}`;
 
       const btnWa = document.getElementById('btnWaTicket');
@@ -696,7 +775,7 @@
     }
 
     function anularVentaActual(idVenta) {
-      if (confirm('¿Anular esta venta? El stock será devuelto.')) {
+      mostrarConfirmacion('¿Anular esta venta? El stock será devuelto.', 'S. B. O. Control', () => {
         const idx = ventasList.findIndex(v => v.id === idVenta);
         if (idx !== -1) {
           const ventaAnulada = ventasList[idx];
@@ -712,11 +791,11 @@
           ventasList.splice(idx, 1);
           localStorage.setItem('sbo_ventas', JSON.stringify(ventasList));
 
-          alert('✅ Venta anulada y stock devuelto.');
+          mostrarAviso('✅ Venta anulada y stock devuelto.');
           cargarDesplegablesVentas();
           renderizarHistorialVentas();
         }
-      }
+      });
     }
   </script>
 </body>

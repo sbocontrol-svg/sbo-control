@@ -68,6 +68,15 @@
     .btn-editar-item { background: none; border: none; color: #0284c7; font-size: 1rem; cursor: pointer; padding: 4px; }
     .btn-borrar-item { background: none; border: none; color: #ef4444; font-size: 1rem; cursor: pointer; padding: 4px; }
 
+    /* MODAL CUSTOM PARA AVISOS Y CONFIRMS */
+    .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 12px; }
+    .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+    .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .custom-modal-msg { font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
+    .custom-modal-actions { display: flex; gap: 8px; justify-content: center; }
+    .btn-modal-ok { background-color: #059669; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+    .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -137,23 +146,95 @@
     </div>
   </div>
 
+  <!-- Modal Custom de Avisos/Alerts y Confirms -->
+  <div id="customModal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div id="customModalTitle" class="custom-modal-title">S. B. O. Control</div>
+      <div id="customModalMsg" class="custom-modal-msg"></div>
+      <div class="custom-modal-actions">
+        <button id="btnCustomCancel" class="btn-modal-cancel" onclick="cancelarConfirm()">Cancelar</button>
+        <button id="btnCustomOk" class="btn-modal-ok" onclick="ejecutarAccionOk()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const config = JSON.parse(localStorage.getItem('sbo_sbo_config')) || JSON.parse(localStorage.getItem('sbo_config')) || {};
+      const config = JSON.parse(localStorage.getItem('sbo_config')) || JSON.parse(localStorage.getItem('sbo_sbo_config')) || {};
       if(config.color) {
         document.documentElement.style.setProperty('--primary-color', config.color);
       }
     });
 
-    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
-    document.getElementById('lblFechaTrabajo').innerText = `Fecha de Trabajo: ${fechaSesion}`;
+    // --- Modal Custom ---
+    let accionOkCallback = null;
+    let accionCancelCallback = null;
+
+    function mostrarAviso(mensaje, titulo = "Registro de Clientes", callback = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'none';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callback;
+      accionCancelCallback = null;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function mostrarConfirmacion(mensaje, titulo = "Registro de Clientes", callbackOk = null, callbackCancel = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'inline-block';
+      document.getElementById('btnCustomCancel').textContent = 'Cancelar';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callbackOk;
+      accionCancelCallback = callbackCancel;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function ejecutarAccionOk() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionOkCallback) { const cb = accionOkCallback; accionOkCallback = null; cb(); }
+    }
+
+    function cancelarConfirm() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionCancelCallback) { const cb = accionCancelCallback; accionCancelCallback = null; cb(); }
+    }
+
+    // --- Manejo de Fecha Local ---
+    function obtenerFechaLocal() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatearFecha(fechaStr) {
+      if (!fechaStr) return '';
+      const partes = fechaStr.split('-');
+      if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      return fechaStr;
+    }
+
+    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || localStorage.getItem('bma_fechaSesion') || obtenerFechaLocal();
+    document.getElementById('lblFechaTrabajo').innerText = `Fecha de Trabajo: ${formatearFecha(fechaSesion)}`;
 
     let clientes = [];
     let editIndex = null;
 
     try {
-      const guardados = JSON.parse(localStorage.getItem('sbo_sbo_clientes')) || JSON.parse(localStorage.getItem('sbo_clientes'));
-      if (guardados) clientes = guardados;
+      const guardados = JSON.parse(localStorage.getItem('sbo_clientes')) || 
+                        JSON.parse(localStorage.getItem('sbo_sbo_clientes')) || 
+                        JSON.parse(localStorage.getItem('bma_clientes')) || 
+                        JSON.parse(localStorage.getItem('clientes'));
+      if (guardados && Array.isArray(guardados)) {
+        // Garantizamos ID único e invisible para clientes legados
+        clientes = guardados.map((item, idx) => ({
+          id: item.id || (Date.now() + idx),
+          ...item
+        }));
+      }
     } catch (e) {
       clientes = [];
     }
@@ -200,28 +281,40 @@
       const localidad = document.getElementById('txtLocalidad').value.trim();
       const email = document.getElementById('txtEmail').value.trim();
 
-      if (!nombre) return alert('Por favor, ingresá el nombre del cliente.');
+      if (!nombre) { mostrarAviso('Por favor, ingresá el nombre del cliente.'); return; }
 
       if (editIndex !== null) {
-        clientes[editIndex] = { nombre, telefono, localidad, email };
+        clientes[editIndex] = { 
+          ...clientes[editIndex],
+          nombre, 
+          telefono, 
+          localidad, 
+          email 
+        };
         cancelarEdicion();
+        guardarYActualizar();
+        mostrarAviso('¡Cliente actualizado con éxito!');
       } else {
-        clientes.push({ nombre, telefono, localidad, email });
-        document.getElementById('txtNombre').value = '';
-        document.getElementById('txtTelefono').value = '';
-        document.getElementById('txtLocalidad').value = '';
-        document.getElementById('txtEmail').value = '';
+        clientes.push({ 
+          id: Date.now(), 
+          nombre, 
+          telefono, 
+          localidad, 
+          email, 
+          fecha: fechaSesion 
+        });
+        limpiarFormulario();
+        guardarYActualizar();
+        mostrarAviso('¡Cliente registrado con éxito!');
       }
-
-      guardarYActualizar();
     }
 
     function cargarEdicion(index) {
       const c = clientes[index];
       document.getElementById('txtNombre').value = c.nombre;
-      document.getElementById('txtTelefono').value = c.telefono;
-      document.getElementById('txtLocalidad').value = c.localidad;
-      document.getElementById('txtEmail').value = c.email;
+      document.getElementById('txtTelefono').value = c.telefono || '';
+      document.getElementById('txtLocalidad').value = c.localidad || '';
+      document.getElementById('txtEmail').value = c.email || '';
 
       editIndex = index;
       document.getElementById('lblTituloForm').innerText = '✏️ Editar Cliente';
@@ -230,17 +323,13 @@
       btnAccion.style.background = '#0284c7';
       document.getElementById('btnCancelarEdicion').style.display = 'block';
 
-      // Cerrar modal al editar para volver al formulario principal
       modalClientes.classList.remove('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function cancelarEdicion() {
       editIndex = null;
-      document.getElementById('txtNombre').value = '';
-      document.getElementById('txtTelefono').value = '';
-      document.getElementById('txtLocalidad').value = '';
-      document.getElementById('txtEmail').value = '';
+      limpiarFormulario();
 
       document.getElementById('lblTituloForm').innerText = '👥 Registrar Cliente';
       const btnAccion = document.getElementById('btnAccion');
@@ -249,8 +338,15 @@
       document.getElementById('btnCancelarEdicion').style.display = 'none';
     }
 
+    function limpiarFormulario() {
+      document.getElementById('txtNombre').value = '';
+      document.getElementById('txtTelefono').value = '';
+      document.getElementById('txtLocalidad').value = '';
+      document.getElementById('txtEmail').value = '';
+    }
+
     function eliminarCliente(index) {
-      if (confirm('¿Querés eliminar este cliente?')) {
+      mostrarConfirmacion('¿Querés eliminar este cliente del registro?', 'Eliminar Cliente', () => {
         if (editIndex === index) {
           cancelarEdicion();
         } else if (editIndex !== null && editIndex > index) {
@@ -258,11 +354,12 @@
         }
         clientes.splice(index, 1);
         guardarYActualizar();
-      }
+        mostrarAviso('Cliente eliminado.');
+      });
     }
 
     function guardarYActualizar() {
-      localStorage.setItem('sbo_sbo_clientes', JSON.stringify(clientes));
+      localStorage.setItem('sbo_clientes', JSON.stringify(clientes));
       actualizarPantalla();
     }
 

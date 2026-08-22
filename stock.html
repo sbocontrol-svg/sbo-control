@@ -48,7 +48,7 @@
     .btn-calc-link { background: #0284c7; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
     .btn-calc-link:active { transform: scale(0.96); }
 
-    /* MODAL INVENTARIO ESTILOS CON SCROLL INTERNO FIJO */
+    /* MODAL INVENTARIO ESTILOS */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
     .modal-overlay.active { display: flex; }
     
@@ -58,18 +58,7 @@
     .modal-header h3 { font-size: 0.9rem; color: var(--primary-color); font-weight: 700; margin: 0; }
     .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     
-    .lista-stock-modal { 
-      margin-top: 4px; 
-      margin-bottom: 8px;
-      max-height: 260px; 
-      overflow-y: auto; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 6px; 
-      padding-right: 6px;
-      flex-shrink: 1;
-    }
-
+    .lista-stock-modal { margin-top: 4px; margin-bottom: 8px; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 6px; flex-shrink: 1; }
     .lista-stock-modal::-webkit-scrollbar { width: 6px; }
     .lista-stock-modal::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
     .lista-stock-modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -93,10 +82,16 @@
     .calc-card { background: white; padding: 14px; border-radius: 14px; max-width: 360px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
     .calc-row { display: flex; gap: 6px; margin-top: 5px; align-items: center; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    /* MODAL CUSTOM PARA AVISOS/ALERTAS */
+    .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 12px; }
+    .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+    .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .custom-modal-msg { font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
+    .custom-modal-actions { display: flex; gap: 8px; justify-content: center; }
+    .btn-modal-ok { background-color: #059669; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+    .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     @media print {
       body { background: white; padding: 0; color: black; display: block; }
@@ -109,7 +104,6 @@
 <body>
 
   <div class="container">
-    <!-- FORMULARIO DE CARGA PRINCIPAL -->
     <div class="card no-print">
       <div class="header-flex">
         <div>
@@ -145,11 +139,9 @@
         <h3>📋 Inventario Actual</h3>
         <button class="modal-close-btn" id="btnCerrarModalStockX">✕</button>
       </div>
-
       <div id="listaStock" class="lista-stock-modal">
         <div style="text-align: center; color: #94a3b8; font-size: 0.75rem; padding: 12px;">No hay productos en stock.</div>
       </div>
-
       <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar Inventario</button>
       <button class="btn-cerrar-gris" id="btnCerrarModalStockGris">Cerrar</button>
     </div>
@@ -162,7 +154,6 @@
       <p style="font-size: 0.75rem; color: #64748b; margin: 0 0 10px;">Insumos, valor hora y tiempo de elaboración.</p>
 
       <label style="font-weight: bold; color: #334155; font-size: 0.72rem;">Materia Prima e Insumos:</label>
-      
       <div class="calc-row">
         <input type="text" id="mat1_desc" placeholder="Material 1" style="flex: 2; margin-top:0;">
         <input type="number" id="mat1_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
@@ -211,26 +202,80 @@
     </div>
   </div>
 
+  <!-- Modal Custom de Avisos/Alerts y Confirms -->
+  <div id="customModal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div id="customModalTitle" class="custom-modal-title">S. B. O. Control</div>
+      <div id="customModalMsg" class="custom-modal-msg"></div>
+      <div class="custom-modal-actions">
+        <button id="btnCustomCancel" class="btn-modal-cancel" onclick="cancelarConfirm()">Cancelar</button>
+        <button id="btnCustomOk" class="btn-modal-ok" onclick="ejecutarAccionOk()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
+    // --- Lógica del Modal Custom ---
+    let accionOkCallback = null;
+    let accionCancelCallback = null;
+
+    function mostrarAviso(mensaje, titulo = "Control de Stock", callback = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'none';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callback;
+      accionCancelCallback = null;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function mostrarConfirmacion(mensaje, titulo = "Control de Stock", callbackOk = null, callbackCancel = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'inline-block';
+      document.getElementById('btnCustomCancel').textContent = 'Cancelar';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callbackOk;
+      accionCancelCallback = callbackCancel;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function ejecutarAccionOk() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionOkCallback) { const cb = accionOkCallback; accionOkCallback = null; cb(); }
+    }
+
+    function cancelarConfirm() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionCancelCallback) { const cb = accionCancelCallback; accionCancelCallback = null; cb(); }
+    }
+
+    // --- Lógica de Fecha (Evita bugs UTC en Argentina) ---
+    function obtenerFechaLocal() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || localStorage.getItem('bma_fechaSesion') || obtenerFechaLocal();
 
     function formatearFecha(fechaStr) {
       if (!fechaStr) return '';
       const partes = fechaStr.split('-');
-      if (partes.length === 3) {
-        return `${partes[2]}/${partes[1]}/${partes[0]}`;
-      }
+      if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
       return fechaStr;
     }
 
-    const fechaFormateada = formatearFecha(fechaSesion);
-    document.getElementById('lblFechaTrabajo').innerText = `Fecha: ${fechaFormateada}`;
+    document.getElementById('lblFechaTrabajo').innerText = `Fecha: ${formatearFecha(fechaSesion)}`;
 
+    // --- Lógica Principal de Stock ---
     let inventario = [];
     let editandoIndex = null;
 
     try {
-      const guardados = localStorage.getItem('sbo_stock');
+      const guardados = localStorage.getItem('sbo_stock') || localStorage.getItem('bma_stock') || localStorage.getItem('stock');
       if (guardados) inventario = JSON.parse(guardados);
     } catch (e) {
       inventario = [];
@@ -269,19 +314,27 @@
       const cantidad = parseInt(document.getElementById('txtCantidad').value);
       const precio = parseFloat(document.getElementById('txtPrecio').value) || 0;
 
-      if (!producto) return alert('Por favor, ingresá el nombre del producto.');
-      if (isNaN(cantidad) || cantidad <= 0) return alert('Por favor, ingresá una cantidad válida.');
+      if (!producto) { mostrarAviso('Por favor, ingresá el nombre del producto.'); return; }
+      if (isNaN(cantidad) || cantidad <= 0) { mostrarAviso('Por favor, ingresá una cantidad válida.'); return; }
 
       if (editandoIndex !== null) {
-        inventario[editandoIndex] = { ...inventario[editandoIndex], producto, cantidad, precio, fecha: inventario[editandoIndex].fecha || fechaSesion };
-        alert('¡Producto actualizado con éxito!');
+        inventario[editandoIndex] = { 
+          ...inventario[editandoIndex], 
+          producto, 
+          cantidad, 
+          precio, 
+          fecha: inventario[editandoIndex].fecha || fechaSesion 
+        };
         cancelarEdicion();
+        guardarYActualizar();
+        mostrarAviso('¡Producto actualizado con éxito!');
       } else {
-        inventario.push({ producto, cantidad, precio, fecha: fechaSesion });
+        // Le mandamos un ID por si ventas.html necesita anclarlo
+        inventario.push({ id: Date.now(), producto, cantidad, precio, fecha: fechaSesion });
         limpiarFormulario();
+        guardarYActualizar();
+        mostrarAviso('¡Producto agregado al stock con éxito!');
       }
-
-      guardarYActualizar();
     }
 
     function cargarParaEditar(index) {
@@ -314,7 +367,7 @@
     }
 
     function eliminarProducto(index) {
-      if (confirm('¿Querés eliminar este producto del stock?')) {
+      mostrarConfirmacion('¿Estás seguro de que querés eliminar este producto del stock?', 'Borrar Producto', () => {
         if (editandoIndex === index) {
           cancelarEdicion();
         } else if (editandoIndex !== null && editandoIndex > index) {
@@ -322,7 +375,8 @@
         }
         inventario.splice(index, 1);
         guardarYActualizar();
-      }
+        mostrarAviso('Producto eliminado.');
+      });
     }
 
     function guardarYActualizar() {
@@ -395,6 +449,7 @@
     document.getElementById('btnCerrarModalStockGris').addEventListener('click', () => modalStock.classList.remove('active'));
     modalStock.addEventListener('click', (e) => { if (e.target === modalStock) modalStock.classList.remove('active'); });
 
+    // Inicializar todo
     actualizarPantalla();
   </script>
 </body>

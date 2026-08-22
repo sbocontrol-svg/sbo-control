@@ -61,7 +61,7 @@
             <input type="text" id="txtRecupLicencia" placeholder="Ej: Licencia Activa Mensual...">
         </div>
 
-        <button id="btnBuscar" class="btn-main" onclick="buscarClaveAutomatica()">🔍 Buscar mi Clave</button>
+        <button id="btnBuscar" class="btn-main" onclick="buscarClaveAutomatica()">🔍 Generar / Recuperar Clave</button>
         
         <p style="margin: 12px 0 2px 0; font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-align: left;">Estado / Clave</p>
         
@@ -76,7 +76,6 @@
 
     <script>
         const NUMERO_WHATSAPP_SBO = "5492364502082";
-        let intentosFallidos = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
             const clienteGuardado = localStorage.getItem('sbo_nombre');
@@ -151,32 +150,14 @@
                 claveEncontrada = `${acroLicencia}-${hwCorto}-${acroCliente}`;
             }
 
-            if (claveEncontrada) {
-                intentosFallidos = 0;
-                cajon.style.borderColor = "#10b981";
-                cajon.style.background = "#ecfdf5";
-                
-                lblResultado.style.color = "#065f46";
-                lblResultado.innerHTML = `✅ <strong>¡Clave recuperada!</strong> Volvé al inicio y pegá: <span style="font-weight: 900; color: #047857;">${claveEncontrada}</span>`;
+            // Muestra resultado y guarda en memoria
+            cajon.style.borderColor = "#10b981";
+            cajon.style.background = "#ecfdf5";
+            
+            lblResultado.style.color = "#065f46";
+            lblResultado.innerHTML = `✅ <strong>¡Clave lista!</strong> Volvé e ingresá: <span style="font-weight: 900; color: #047857;">${claveEncontrada}</span>`;
 
-                localStorage.setItem('sbo_claveSecreta', claveEncontrada);
-            } else {
-                intentosFallidos++;
-                cajon.style.borderColor = "#ef4444";
-                cajon.style.background = "#fef2f2";
-                lblResultado.style.color = "#991b1b";
-
-                if (intentosFallidos < 3) {
-                    lblResultado.innerText = `❌ Error al procesar (Intento ${intentosFallidos}/3)`;
-                    alert(`Verificá los datos ingresados. Te quedan ${3 - intentosFallidos} intento(s).`);
-                } else {
-                    lblResultado.innerText = `⚠️ Límite alcanzado. Contactá a soporte.`;
-                    document.getElementById('txtRecupNombre').disabled = true;
-                    document.getElementById('txtRecupLicencia').disabled = true;
-                    document.getElementById('btnBuscar').style.display = 'none';
-                    alert("Agotaste los intentos. Por favor, comunicate con soporte.");
-                }
-            }
+            localStorage.setItem('sbo_claveSecreta', claveEncontrada);
         }
     </script>
 </body>

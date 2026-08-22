@@ -4,9 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cierre Z - S. B. O. Control</title>
+  
+  <link rel="icon" type="image/jpeg" href="logosbo.jpg">
+  <link rel="apple-touch-icon" href="logosbo.jpg">
+  <meta name="theme-color" content="#059669">
+
   <style>
     :root {
-      --primary-color: #000000;
+      --primary-color: #059669;
       --font-scale: 14px; /* Bajamos un punto la base para ajustar el alto */
     }
     html { font-size: var(--font-scale); }
@@ -33,6 +38,15 @@
     .btn-main { background: #0284c7; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 6px; cursor: pointer; box-shadow: 0 2px 6px rgba(2,132,199,0.2); }
     .btn-confirmar { background: #b91c1c; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 6px; cursor: pointer; box-shadow: 0 2px 6px rgba(185,28,28,0.2); transition: all 0.2s;}
     .btn-confirmar:active { transform: scale(0.98); background: #991b1b; }
+
+    /* MODAL CUSTOM PARA AVISOS Y CONFIRMS */
+    .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 12px; }
+    .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+    .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .custom-modal-msg { font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
+    .custom-modal-actions { display: flex; gap: 8px; justify-content: center; }
+    .btn-modal-ok { background-color: #059669; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+    .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
 
     @media print {
       body { background: white; padding: 0; color: black; display: block; }
@@ -118,11 +132,62 @@
     </div>
   </div>
 
+  <!-- Modal Custom de Avisos/Alerts y Confirms -->
+  <div id="customModal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div id="customModalTitle" class="custom-modal-title">S. B. O. Control</div>
+      <div id="customModalMsg" class="custom-modal-msg"></div>
+      <div class="custom-modal-actions">
+        <button id="btnCustomCancel" class="btn-modal-cancel" onclick="cancelarConfirm()">Cancelar</button>
+        <button id="btnCustomOk" class="btn-modal-ok" onclick="ejecutarAccionOk()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
-    let ventas = JSON.parse(localStorage.getItem('sbo_sbo_ventas')) || JSON.parse(localStorage.getItem('sbo_ventas')) || [];
-    let stock = JSON.parse(localStorage.getItem('sbo_sbo_stock')) || JSON.parse(localStorage.getItem('sbo_stock')) || [];
-    let cajaChica = JSON.parse(localStorage.getItem('sbo_sbo_cajachica')) || JSON.parse(localStorage.getItem('sbo_cajachica')) || JSON.parse(localStorage.getItem('sbo_sbo_caja')) || JSON.parse(localStorage.getItem('sbo_caja')) || [];
+    // --- Modal Custom ---
+    let accionOkCallback = null;
+    let accionCancelCallback = null;
+
+    function mostrarAviso(mensaje, titulo = "Cierre Z", callback = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'none';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callback;
+      accionCancelCallback = null;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function mostrarConfirmacion(mensaje, titulo = "Cierre Z", callbackOk = null, callbackCancel = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'inline-block';
+      document.getElementById('btnCustomCancel').textContent = 'Cancelar';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callbackOk;
+      accionCancelCallback = callbackCancel;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function ejecutarAccionOk() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionOkCallback) { const cb = accionOkCallback; accionOkCallback = null; cb(); }
+    }
+
+    function cancelarConfirm() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionCancelCallback) { const cb = accionCancelCallback; accionCancelCallback = null; cb(); }
+    }
+
+    // --- Manejo de Fechas ---
+    function obtenerFechaLocal() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
 
     function formatearFecha(fechaStr) {
       if (!fechaStr) return '';
@@ -131,7 +196,20 @@
       return fechaStr;
     }
 
+    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || localStorage.getItem('bma_fechaSesion') || obtenerFechaLocal();
+    let ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || JSON.parse(localStorage.getItem('sbo_sbo_ventas')) || JSON.parse(localStorage.getItem('bma_ventas')) || [];
+    let stock = JSON.parse(localStorage.getItem('sbo_stock')) || JSON.parse(localStorage.getItem('sbo_sbo_stock')) || JSON.parse(localStorage.getItem('bma_stock')) || [];
+    let cajaChica = JSON.parse(localStorage.getItem('sbo_cajachica')) || JSON.parse(localStorage.getItem('sbo_sbo_cajachica')) || JSON.parse(localStorage.getItem('sbo_caja')) || JSON.parse(localStorage.getItem('sbo_sbo_caja')) || [];
+
     document.addEventListener('DOMContentLoaded', () => {
+      const config = JSON.parse(localStorage.getItem('sbo_config')) || JSON.parse(localStorage.getItem('sbo_sbo_config')) || {};
+      if (config.color) {
+        document.documentElement.style.setProperty('--primary-color', config.color);
+      }
+      if (config.nombreEmpresa) {
+        document.getElementById('lblNombreEmpresa').innerText = config.nombreEmpresa;
+      }
+
       document.getElementById('lblFechaCierre').innerText = `Fecha: ${formatearFecha(fechaSesion)}`;
       calcularReportes();
     });
@@ -144,11 +222,12 @@
       let porMetodo = {};
 
       ventasDia.forEach(v => {
-        totalVentasDia += v.total || 0;
-        if (v.pago && v.pago.toLowerCase().includes('efectivo')) {
-          efectivoVentas += v.total || 0;
+        totalVentasDia += (v.total || 0);
+        const pagoStr = (v.pago || 'Efectivo').toLowerCase();
+        if (pagoStr.includes('efectivo')) {
+          efectivoVentas += (v.total || 0);
         }
-        porMetodo[v.pago] = (porMetodo[v.pago] || 0) + (v.total || 0);
+        porMetodo[v.pago || 'Otro'] = (porMetodo[v.pago || 'Otro'] || 0) + (v.total || 0);
       });
 
       let htmlVentas = '';
@@ -197,7 +276,7 @@
         if (v.fecha) {
           const [aV, mV] = v.fecha.split('-');
           if (aV === anioSesion && mV === mesSesion) {
-            totalMes += v.total || 0;
+            totalMes += (v.total || 0);
           }
         }
       });
@@ -220,9 +299,7 @@
       document.getElementById('lblValorStock').innerText = `$${valorStock.toLocaleString('es-AR')}`;
     }
 
-    async function compartirCierreWhatsApp() {
-      const config = JSON.parse(localStorage.getItem('sbo_sbo_config')) || JSON.parse(localStorage.getItem('sbo_config')) || {};
-      
+    async function procesarCompartirWhatsApp(config) {
       const paqueteCierre = {
         sbo_fechaSesion: fechaSesion,
         sbo_config: config,
@@ -230,12 +307,6 @@
         sbo_cajachica: cajaChica.filter(c => c.fecha === fechaSesion),
         sbo_stock: stock
       };
-
-      if (paqueteCierre.sbo_ventas.length === 0 && paqueteCierre.sbo_cajachica.length === 0) {
-        if (!confirm("⚠️ No hay ventas ni movimientos en esta fecha. ¿Querés compartir el archivo igual?")) {
-          return;
-        }
-      }
 
       const nombrePuesto = (config.nombreEmpresa || 'Puesto').replace(/\s+/g, '_');
       const nombreArchivo = `Cierre_${nombrePuesto}_${fechaSesion}.json`;
@@ -261,24 +332,41 @@
         document.body.appendChild(linkDescarga);
         linkDescarga.click();
         linkDescarga.remove();
-        alert(`✅ Archivo descargado: ${nombreArchivo}\nPodés adjuntarlo manualmente en WhatsApp.`);
+        mostrarAviso(`✅ Archivo descargado: ${nombreArchivo}\nPodés adjuntarlo manualmente en WhatsApp.`);
+      }
+    }
+
+    function compartirCierreWhatsApp() {
+      const config = JSON.parse(localStorage.getItem('sbo_config')) || JSON.parse(localStorage.getItem('sbo_sbo_config')) || {};
+      const ventasHoy = ventas.filter(v => v.fecha === fechaSesion);
+      const cajaHoy = cajaChica.filter(c => c.fecha === fechaSesion);
+
+      if (ventasHoy.length === 0 && cajaHoy.length === 0) {
+        mostrarConfirmacion("⚠️ No hay ventas ni movimientos en esta fecha. ¿Querés compartir el archivo igual?", "Compartir Cierre", () => {
+          procesarCompartirWhatsApp(config);
+        });
+      } else {
+        procesarCompartirWhatsApp(config);
       }
     }
 
     function ejecutarCierreZ() {
-      if (!confirm('⚠️ ¿Estás seguro de realizar el Cierre Z?\n\nEsta acción eliminará los registros de ventas y movimientos de caja chica correspondientes a la fecha actual para dejar la jornada en cero. El stock y el historial mensual se mantienen intactos.')) {
-        return;
-      }
+      mostrarConfirmacion(
+        '⚠️ ¿Estás seguro de realizar el Cierre Z?\n\nEsta acción eliminará los registros de ventas y movimientos de caja chica correspondientes a la fecha actual para dejar la jornada en cero. El stock y el historial mensual se mantienen intactos.',
+        'Confirmar Cierre Z',
+        () => {
+          const ventasRestantes = ventas.filter(v => v.fecha !== fechaSesion);
+          localStorage.setItem('sbo_ventas', JSON.stringify(ventasRestantes));
 
-      const ventasRestantes = ventas.filter(v => v.fecha !== fechaSesion);
-      localStorage.setItem('sbo_sbo_ventas', JSON.stringify(ventasRestantes));
+          const cajaRestante = cajaChica.filter(c => c.fecha !== fechaSesion);
+          localStorage.setItem('sbo_cajachica', JSON.stringify(cajaRestante));
+          localStorage.setItem('sbo_caja', JSON.stringify(cajaRestante));
 
-      const cajaRestante = cajaChica.filter(c => c.fecha !== fechaSesion);
-      localStorage.setItem('sbo_sbo_cajachica', JSON.stringify(cajaRestante));
-      localStorage.setItem('sbo_sbo_caja', JSON.stringify(cajaRestante));
-
-      alert('✅ ¡Cierre Z realizado con éxito!\n\nLa jornada ha quedado en cero y lista para el próximo día de trabajo.');
-      window.location.href = 'menu.html';
+          mostrarAviso('✅ ¡Cierre Z realizado con éxito!\n\nLa jornada ha quedado en cero y lista para el próximo día de trabajo.', 'Cierre Z Completado', () => {
+            window.location.href = 'menu.html';
+          });
+        }
+      );
     }
   </script>
 </body>

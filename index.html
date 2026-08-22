@@ -41,7 +41,6 @@
     .form-group { margin-bottom: 6px; }
     .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #1e293b; background-color: #f8fafc; }
     
-    /* Contenedor del input con el botón del ojito integrado */
     .password-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
     .password-wrapper input { padding-right: 42px; width: 100%; }
     .toggle-password { position: absolute; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #64748b; padding: 4px; display: flex; align-items: center; justify-content: center; }
@@ -54,6 +53,15 @@
     .extra-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.8rem; }
     .support-link { color: #0284c7; text-decoration: none; font-weight: 600; cursor: pointer; }
     .clear-btn { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+
+    /* Modal de avisos custom (reemplazo de alert/confirm) */
+    .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 200; padding: 12px; }
+    .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+    .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #059669; margin-bottom: 8px; }
+    .custom-modal-msg { font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
+    .custom-modal-actions { display: flex; gap: 8px; justify-content: center; }
+    .btn-modal-ok { background-color: #059669; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+    .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
   </style>
 </head>
 <body>
@@ -83,6 +91,7 @@
     <div class="client-display-section">
       <div class="client-box-label">¡BIENVENIDO!</div>
       <div id="lblNombreCliente" class="client-box-name">nombre-cliente</div>
+      <div id="lblEstadoLicencia" style="font-size: 0.78rem; font-weight: 700; margin: 2px 0 6px 0;"></div>
       <button type="button" class="btn-subtle-modify" onclick="abrirModalRegistro()">⚙️ Registro</button>
     </div>
     
@@ -96,6 +105,7 @@
     <button type="button" class="btn-import" onclick="document.getElementById('fileSboInput').click()">📥 Importar Archivo (.sbo / .json)</button>
   </div>
 
+  <!-- Modal Registro -->
   <div id="modalRegistro" class="modal-overlay">
     <div class="modal-container">
       <h3 style="margin-bottom: 12px; color: var(--primary-color);">👥 Registro de Cliente:</h3>
@@ -115,6 +125,7 @@
     </div>
   </div>
 
+  <!-- Modal Ingreso -->
   <div id="modalIngreso" class="modal-overlay">
     <div class="modal-container">
       <h3 style="margin-bottom: 12px; color: var(--primary-color);">🔐 Ingreso al Sistema:</h3>
@@ -134,8 +145,62 @@
     </div>
   </div>
 
+  <!-- Modal Custom de Avisos/Alerts -->
+  <div id="customModal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div id="customModalTitle" class="custom-modal-title">S. B. O. Control</div>
+      <div id="customModalMsg" class="custom-modal-msg"></div>
+      <div class="custom-modal-actions">
+        <button id="btnCustomCancel" class="btn-modal-cancel" onclick="cancelarConfirm()">Cancelar</button>
+        <button id="btnCustomOk" class="btn-modal-ok" onclick="ejecutarAccionOk()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const NUMERO_WHATSAPP_SBO = "5492364502082"; 
+
+    let accionOkCallback = null;
+    let accionCancelCallback = null;
+    let intentosFallidos = 0; // Control de 3 intentos fallidos
+
+    function mostrarAviso(mensaje, titulo = "S. B. O. Control", callback = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'none';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callback;
+      accionCancelCallback = null;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function mostrarConfirm(mensaje, titulo = "S. B. O. Control", onAceptar = null, onCancelar = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'inline-block';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = onAceptar;
+      accionCancelCallback = onCancelar;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function ejecutarAccionOk() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionOkCallback) {
+        const cb = accionOkCallback;
+        accionOkCallback = null;
+        cb();
+      }
+    }
+
+    function cancelarConfirm() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionCancelCallback) {
+        const cb = accionCancelCallback;
+        accionCancelCallback = null;
+        cb();
+      }
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('txtFechaSesion').value = new Date().toISOString().split('T')[0];
@@ -148,6 +213,8 @@
       const nombre = localStorage.getItem('sbo_nombre');
       if(nombre) document.getElementById('lblNombreCliente').textContent = nombre;
 
+      actualizarEstadoLicenciaUI();
+
       const claveGuardadaLocal = localStorage.getItem('sbo_claveSecreta') || localStorage.getItem('sbo_clavePersonalizada');
       if (claveGuardadaLocal) {
         document.getElementById('txtClave').value = claveGuardadaLocal;
@@ -155,6 +222,37 @@
 
       renderizarSelectLicencias();
     });
+
+    function actualizarEstadoLicenciaUI() {
+      const lblEstado = document.getElementById('lblEstadoLicencia');
+      const fechaFinStr = localStorage.getItem('sbo_fechaFin');
+      if (!lblEstado) return;
+
+      if (!fechaFinStr) {
+        lblEstado.textContent = "⚪ Licencia No Registrada";
+        lblEstado.style.color = "#64748b";
+        return;
+      }
+
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      const partesFin = fechaFinStr.split('-');
+      const fechaFin = new Date(partesFin[0], partesFin[1] - 1, parseInt(partesFin[2], 10));
+
+      const diffTiempo = fechaFin.getTime() - hoy.getTime();
+      const diffDias = Math.ceil(diffTiempo / (1000 * 3600 * 24));
+
+      if (diffDias < 0) {
+        lblEstado.textContent = `🔴 Licencia Vencida (${partesFin[2]}/${partesFin[1]}/${partesFin[0]})`;
+        lblEstado.style.color = "#dc2626";
+      } else if (diffDias <= 7) {
+        lblEstado.textContent = `🟡 Vence en ${diffDias} día(s) (${partesFin[2]}/${partesFin[1]}/${partesFin[0]})`;
+        lblEstado.style.color = "#d97706";
+      } else {
+        lblEstado.textContent = `🟢 Licencia Activa (Hasta ${partesFin[2]}/${partesFin[1]}/${partesFin[0]})`;
+        lblEstado.style.color = "#059669";
+      }
+    }
 
     function renderizarSelectLicencias() {
       const selectModal = document.getElementById('selectLicenciaModal');
@@ -215,12 +313,12 @@
               document.getElementById('selectLicenciaModal').value = nombreSeleccionado;
             }
             
-            alert('¡Licencia cargada con éxito desde el archivo JSON!');
+            mostrarAviso('¡Licencia cargada con éxito desde el archivo JSON!');
           } else {
-            alert('El archivo JSON no contiene licencias nuevas o ya existía en la lista.');
+            mostrarAviso('El archivo JSON no contiene licencias nuevas o ya existía en la lista.');
           }
         } catch (err) {
-          alert('Error al leer el archivo JSON de licencia.');
+          mostrarAviso('Error al leer el archivo JSON de licencia.');
         }
       };
       reader.readAsText(file);
@@ -258,24 +356,25 @@
     function asitenciaOlvidoClave(event) {
       event.preventDefault();
       
-      const tieneRespaldo = confirm(
+      mostrarConfirm(
         "💡 ¿Tenés a mano tu archivo de respaldo (.sbo o .json)?\n\n" +
-        "• SI LO TENÉS: Tocá 'Aceptar' y usá el botón azul 'Importar Archivo' en la pantalla principal para recuperar todo al instante.\n\n" +
-        "• SI NO LO TENÉS: Tocá 'Cancelar' para ir a la Recuperación Automática y generarla con tus datos."
+        "• SI LO TENÉS: Tocá 'Aceptar' y usá el botón azul 'Importar Archivo' para recuperar todo al instante.\n\n" +
+        "• SI NO LO TENÉS: Tocá 'Cancelar' para ir a la Recuperación Automática y generarla con tus datos.",
+        "Recuperación de Clave",
+        () => { cerrarModalIngreso(); },
+        () => { window.location.href = 'recuperaclave.html'; }
       );
-
-      if (tieneRespaldo) {
-        cerrarModalIngreso();
-      } else {
-        window.location.href = 'recuperaclave.html';
-      }
     }
 
     function limpiarDatos() {
-        if(confirm('¿Seguro querés borrar todos los datos guardados?')) {
-            localStorage.clear();
-            location.reload();
+      mostrarConfirm(
+        '¿Seguro querés borrar todos los datos guardados?',
+        'Limpiar Datos',
+        () => {
+          localStorage.clear();
+          location.reload();
         }
+      );
     }
 
     function abrirModalRegistro() { 
@@ -305,7 +404,7 @@
           if (Array.isArray(config)) {
             localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(config));
             renderizarSelectLicencias();
-            alert('¡Lista de licencias importada correctamente!');
+            mostrarAviso('¡Lista de licencias importada correctamente!');
             return;
           }
 
@@ -318,6 +417,8 @@
             document.getElementById('txtClave').value = config.clave;
           }
           if (config.hardware) localStorage.setItem('sbo_huellaHardware', config.hardware);
+          if (config.fechaInicio) localStorage.setItem('sbo_fechaInicio', config.fechaInicio);
+          if (config.fechaFin) localStorage.setItem('sbo_fechaFin', config.fechaFin);
 
           let clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
           if (config.clave && !clavesCreadas.some(c => c.clave === config.clave)) {
@@ -326,15 +427,16 @@
               cliente: config.nombreCliente || 'Cliente',
               hardware: config.hardware || 'HWGEN',
               licencia: config.licencia || 'Licencia',
-              clave: config.clave
+              clave: config.clave,
+              fechaInicio: config.fechaInicio || '',
+              fechaFin: config.fechaFin || ''
             });
             localStorage.setItem('sbo_db_claves_creadas', JSON.stringify(clavesCreadas));
           }
 
-          alert('¡Licencia importada correctamente!');
-          location.reload();
+          mostrarAviso('¡Licencia importada correctamente!', 'S. B. O. Control', () => location.reload());
         } catch (err) {
-          alert('❌ El archivo seleccionado no es válido.');
+          mostrarAviso('❌ El archivo seleccionado no es válido.');
         }
       };
       reader.readAsText(file);
@@ -343,12 +445,12 @@
 
     function guardarRegistro() {
       const licenciaSeleccionadaNombre = document.getElementById('selectLicenciaModal').value;
-      if (!licenciaSeleccionadaNombre) return alert('¡Seleccioná una licencia antes de registrarte!');
+      if (!licenciaSeleccionadaNombre) return mostrarAviso('¡Seleccioná una licencia antes de registrarte!');
 
       const n = document.getElementById('txtNombre').value.trim();
       const d = document.getElementById('txtDireccion').value.trim();
       const w = document.getElementById('txtWhatsapp').value.trim();
-      if (!n || !d || !w) return alert('Completá todos los campos.');
+      if (!n || !d || !w) return mostrarAviso('Completá todos los campos.');
 
       localStorage.setItem('sbo_nombre', n);
       localStorage.setItem('sbo_direccion', d);
@@ -368,7 +470,7 @@
     function entrarAlSistema() {
         const claveInput = document.getElementById('txtClave').value.trim().toUpperCase();
         
-        if (!claveInput) return alert('¡Ingresá la clave!');
+        if (!claveInput) return mostrarAviso('¡Ingresá la clave!');
 
         const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
         const claveValida = clavesCreadas.find(c => c.clave.toUpperCase() === claveInput);
@@ -376,24 +478,63 @@
         const claveSecretaLocal = localStorage.getItem('sbo_claveSecreta');
         const clavePersonalizadaLocal = localStorage.getItem('sbo_clavePersonalizada');
 
+        // Control de Intentos Fallidos
         if (!claveValida && claveInput !== claveSecretaLocal && claveInput !== clavePersonalizadaLocal) {
-            return alert('❌ Clave incorrecta. La clave ingresada no se encuentra registrada en el sistema.');
+            intentosFallidos++;
+            if (intentosFallidos >= 3) {
+                intentosFallidos = 0;
+                return mostrarAviso(
+                    '❌ Superaste los 3 intentos fallidos con tu clave.\n\nSerás redirigido a la pantalla de recuperación.',
+                    'Acceso Bloqueado',
+                    () => { window.location.href = 'recuperaclave.html'; }
+                );
+            } else {
+                return mostrarAviso(`❌ Clave incorrecta. Intentos fallidos: ${intentosFallidos}/3`);
+            }
+        }
+
+        // Si ingresa bien, reseteamos el contador
+        intentosFallidos = 0;
+
+        // 1. Validar Hardware del Dispositivo
+        const hwActual = generarHuellaDispositivo();
+        const hwLicencia = localStorage.getItem('sbo_huellaHardware') || (claveValida ? claveValida.hardware : null);
+
+        if (hwLicencia && hwLicencia !== 'HWGEN' && hwLicencia !== hwActual) {
+            return mostrarAviso(`❌ Dispositivo no autorizado.\n\nEsta licencia está registrada para otro equipo (${hwLicencia}).\nEste dispositivo es: ${hwActual}`);
+        }
+
+        // 2. Validar Vencimiento de Licencia
+        const fechaFinStr = localStorage.getItem('sbo_fechaFin') || (claveValida ? claveValida.fechaFin : null);
+        if (fechaFinStr) {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const partes = fechaFinStr.split('-');
+            const fechaFin = new Date(partes[0], partes[1] - 1, parseInt(partes[2], 10));
+
+            if (hoy > fechaFin) {
+                return mostrarAviso(`❌ Licencia Expirada.\n\nTu licencia venció el ${partes[2]}/${partes[1]}/${partes[0]}.\nPor favor ponete en contacto con soporte para renovarla.`);
+            }
         }
 
         if (claveValida) {
             localStorage.setItem('sbo_claveSecreta', claveValida.clave);
             localStorage.setItem('sbo_licenciaElegida', claveValida.licencia);
+            if (claveValida.fechaInicio) localStorage.setItem('sbo_fechaInicio', claveValida.fechaInicio);
+            if (claveValida.fechaFin) localStorage.setItem('sbo_fechaFin', claveValida.fechaFin);
+            if (claveValida.hardware) localStorage.setItem('sbo_huellaHardware', claveValida.hardware);
             if(claveValida.cliente && claveValida.cliente !== "Sin nombre") {
                 localStorage.setItem('sbo_nombre', claveValida.cliente);
             }
         }
 
         if (!localStorage.getItem('sbo_huellaHardware')) {
-            localStorage.setItem('sbo_huellaHardware', generarHuellaDispositivo());
+            localStorage.setItem('sbo_huellaHardware', hwActual);
         }
 
-        alert('¡Acceso concedido! Bienvenido al sistema.');
-        window.location.href = 'menu.html';
+        mostrarAviso('¡Acceso concedido! Bienvenido al sistema.', 'S. B. O. Control', () => {
+            window.location.href = 'menu.html';
+        });
     }
   </script>
 </body>

@@ -79,6 +79,15 @@
         .btn-volver-menu { background-color: #546e7a; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-align: center; flex-shrink: 0; margin-top: 10px; }
         .btn-volver-menu:active { transform: scale(0.98); }
 
+        /* Modal Custom de Avisos/Alerts */
+        .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 12px; }
+        .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+        .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #059669; margin-bottom: 8px; }
+        .custom-modal-msg { font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
+        .custom-modal-actions { display: flex; gap: 8px; justify-content: center; }
+        .btn-modal-ok { background-color: #059669; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -232,7 +241,66 @@
         </div>
     </div>
 
+    <!-- Modal Custom de Avisos/Alerts -->
+    <div id="customModal" class="custom-modal-overlay">
+      <div class="custom-modal-card">
+        <div id="customModalTitle" class="custom-modal-title">S. B. O. Control</div>
+        <div id="customModalMsg" class="custom-modal-msg"></div>
+        <div class="custom-modal-actions">
+          <button id="btnCustomCancel" class="btn-modal-cancel" onclick="cancelarConfirm()">Cancelar</button>
+          <button id="btnCustomOk" class="btn-modal-ok" onclick="ejecutarAccionOk()">Aceptar</button>
+        </div>
+      </div>
+    </div>
+
     <script>
+        let accionOkCallback = null;
+        let accionCancelCallback = null;
+
+        function mostrarAviso(mensaje, titulo = "S. B. O. Control", callback = null) {
+            document.getElementById('customModalTitle').textContent = titulo;
+            document.getElementById('customModalMsg').innerText = mensaje;
+            document.getElementById('btnCustomCancel').style.display = 'none';
+            document.getElementById('btnCustomOk').textContent = 'Aceptar';
+            accionOkCallback = callback;
+            accionCancelCallback = null;
+            document.getElementById('customModal').style.display = 'flex';
+        }
+
+        function ejecutarAccionOk() {
+            document.getElementById('customModal').style.display = 'none';
+            if (accionOkCallback) {
+                const cb = accionOkCallback;
+                accionOkCallback = null;
+                cb();
+            }
+        }
+
+        function cancelarConfirm() {
+            document.getElementById('customModal').style.display = 'none';
+            if (accionCancelCallback) {
+                const cb = accionCancelCallback;
+                accionCancelCallback = null;
+                cb();
+            }
+        }
+
+        function generarHuellaDispositivo() {
+            const rawData = `${navigator.userAgent}|${window.screen.width}x${window.screen.height}|${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+            let hash = 0;
+            for (let i = 0; i < rawData.length; i++) {
+                hash = ((hash << 5) - hash) + rawData.charCodeAt(i);
+                hash |= 0;
+            }
+            let limpio = Math.abs(hash).toString(36).toUpperCase();
+            if (limpio.length >= 4) {
+                let mitad = Math.floor(limpio.length / 2);
+                let inicio = Math.max(0, mitad - 2);
+                limpio = limpio.substr(inicio, 4);
+            }
+            return 'HW-' + limpio;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Aplicar configuración de colores guardada con prefijo sbo_
             const customColor = localStorage.getItem('sbo_config_color');
@@ -244,7 +312,7 @@
                 document.documentElement.style.setProperty('--primary-light', customLight);
             }
 
-            // Configuración de la fecha de sesión (Obteniendo fecha local real del dispositivo sin desfasaje UTC)
+            // Configuración de la fecha de sesión
             const hoy = new Date();
             const yyyy = hoy.getFullYear();
             const mm = String(hoy.getMonth() + 1).padStart(2, '0');
@@ -262,34 +330,54 @@
                 }
             }
 
-            // --- LECTURA DIRECTA DE LICENCIA (Sincronizado con licencias.html e index.html) ---
-            const elemLicencia = document.querySelector('.licencia');
-            const rawLicencia = localStorage.getItem('sbo_licencia');
-            const timestampActivacion = localStorage.getItem('sbo_timestampActivacion');
-
-            let nombreLicencia = '';
-            if (rawLicencia) {
-                try {
-                    const parsed = JSON.parse(rawLicencia);
-                    if (parsed && typeof parsed === 'object') {
-                        nombreLicencia = parsed.nombre || parsed.tipo || parsed.licencia || '';
-                    } else {
-                        nombreLicencia = String(parsed);
-                    }
-                } catch(e) {
-                    nombreLicencia = String(rawLicencia);
-                }
+            // --- 1. VALIDACIÓN DE HARDWARE DE DISPOSITIVO ---
+            const hwActual = generarHuellaDispositivo();
+            const hwGuardado = localStorage.getItem('sbo_huellaHardware');
+            if (hwGuardado && hwGuardado !== 'HWGEN' && hwGuardado !== hwActual) {
+                mostrarAviso(`❌ Dispositivo no autorizado.\n\nEsta licencia pertenece a otro equipo (${hwGuardado}).`, "S. B. O. Control", () => {
+                    window.location.href = 'index.html';
+                });
+                return;
             }
 
-            nombreLicencia = nombreLicencia.replace(/['"]+/g, '').trim();
-            const textoCompleto = nombreLicencia.toLowerCase();
+            // --- 2. VALIDACIÓN Y LECTURA DE LICENCIA Y EXPIRACIÓN ---
+            const elemLicencia = document.querySelector('.licencia');
+            const fechaFinStr = localStorage.getItem('sbo_fechaFin');
+            const nombreLicencia = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia') || 'Licencia Comercial';
 
-            // Identificar si es FreePass o Licencia Paga
-            const esFreePass = !rawLicencia || !nombreLicencia || textoCompleto.includes('freepass') || textoCompleto.includes('free pass') || textoCompleto.includes('prueba');
+            if (fechaFinStr) {
+                const hoyObj = new Date();
+                hoyObj.setHours(0, 0, 0, 0);
+                const partes = fechaFinStr.split('-');
+                const fechaFin = new Date(partes[0], partes[1] - 1, parseInt(partes[2], 10));
 
-            if (esFreePass) {
-                // Modo FreePass: 15 días corridos desde instalación
-                let tsFreePass = localStorage.getItem('sbo_timestampFreePass') || timestampActivacion;
+                const diffTiempo = fechaFin.getTime() - hoyObj.getTime();
+                const diffDias = Math.ceil(diffTiempo / (1000 * 3600 * 24));
+
+                if (diffDias < 0) {
+                    elemLicencia.innerHTML = `❌ Licencia Vencida (${partes[2]}/${partes[1]}/${partes[0]})`;
+                    elemLicencia.style.backgroundColor = '#ffebee';
+                    elemLicencia.style.color = '#c62828';
+                    elemLicencia.style.borderColor = '#ffcdd2';
+                    setTimeout(() => {
+                        mostrarAviso(`❌ Licencia Expirada.\n\nTu licencia venció el ${partes[2]}/${partes[1]}/${partes[0]}.\nPor favor ponete en contacto con soporte para renovarla.`, "S. B. O. Control", () => {
+                            window.location.href = 'index.html';
+                        });
+                    }, 300);
+                } else if (diffDias <= 7) {
+                    elemLicencia.innerHTML = `⚠️ Licencia (${nombreLicencia}) - Vence en ${diffDias} día(s) (${partes[2]}/${partes[1]}/${partes[0]})`;
+                    elemLicencia.style.backgroundColor = '#fff9c4';
+                    elemLicencia.style.color = '#f57f17';
+                    elemLicencia.style.borderColor = '#fff59d';
+                } else {
+                    elemLicencia.innerHTML = `🛡️ Licencia Activa (${nombreLicencia}) - Hasta ${partes[2]}/${partes[1]}/${partes[0]}`;
+                    elemLicencia.style.backgroundColor = '#e8f5e9';
+                    elemLicencia.style.color = '#2e7d32';
+                    elemLicencia.style.borderColor = '#c8e6c9';
+                }
+            } else {
+                // Modo FreePass / Fallback cuando no hay fechaFin configurada
+                let tsFreePass = localStorage.getItem('sbo_timestampFreePass') || localStorage.getItem('sbo_timestampActivacion');
                 if (!tsFreePass) {
                     tsFreePass = Date.now().toString();
                     localStorage.setItem('sbo_timestampFreePass', tsFreePass);
@@ -312,94 +400,10 @@
                     elemLicencia.style.color = '#c62828';
                     elemLicencia.style.borderColor = '#ffcdd2';
                     setTimeout(() => {
-                        alert('⛔ Tu período de prueba FreePass (15 días) ha finalizado.\n\nComunicate para solicitar tu clave de activación y seleccionar tu plan de licencia.');
-                        window.location.href = 'index.html';
-                    }, 800);
-                }
-            } else {
-                // Modo Licencia Paga desde licencias.html
-                let tsActivacion = timestampActivacion || localStorage.getItem('sbo_timestampLicenciaPaga') || Date.now().toString();
-                const msTranscurridos = Date.now() - parseInt(tsActivacion, 10);
-                const horasPasadas = msTranscurridos / (1000 * 60 * 60);
-                const diasPasados = Math.floor(horasPasadas / 24);
-
-                const esHonorifica = textoCompleto.includes('honorífica') || textoCompleto.includes('honorifica') || textoCompleto.includes('aeternum');
-                const esProbation = textoCompleto.includes('probation');
-                const esVitalicia = textoCompleto.includes('vitalicia') || textoCompleto.includes('de por vida') || textoCompleto.includes('por vida');
-
-                if (esHonorifica) {
-                    elemLicencia.innerHTML = `🛡️ Licencia Honorífica: "${nombreLicencia}" (Sin Vencimiento)`;
-                    elemLicencia.style.backgroundColor = '#e8f5e9';
-                    elemLicencia.style.color = '#2e7d32';
-                    elemLicencia.style.borderColor = '#c8e6c9';
-                } else if (esProbation) {
-                    const horasRestantes = 24 - horasPasadas;
-                    if (horasRestantes > 0) {
-                        const hs = Math.floor(horasRestantes);
-                        const mins = Math.floor((horasRestantes - hs) * 60);
-                        elemLicencia.innerHTML = `⚠️ Licencia Ad-Probation (24 hs) - Restan ${hs}h ${mins}m`;
-                        elemLicencia.style.backgroundColor = '#fff9c4';
-                        elemLicencia.style.color = '#f57f17';
-                        elemLicencia.style.borderColor = '#fff59d';
-                    } else {
-                        elemLicencia.innerHTML = `❌ Licencia Ad-Probation Vencida (24 hs)`;
-                        elemLicencia.style.backgroundColor = '#ffebee';
-                        elemLicencia.style.color = '#c62828';
-                        elemLicencia.style.borderColor = '#ffcdd2';
-                        setTimeout(() => {
-                            alert('La licencia Ad-Probation de 24 horas ha finalizado.');
+                        mostrarAviso('⛔ Tu período de prueba FreePass (15 días) ha finalizado.\n\nComunicate para solicitar tu clave de activación y seleccionar tu plan de licencia.', "S. B. O. Control", () => {
                             window.location.href = 'index.html';
-                        }, 800);
-                    }
-                } else if (esVitalicia) {
-                    const DIAS_VITALICIA = 3650; // 10 Años
-                    const diasRestantesVitalicia = DIAS_VITALICIA - diasPasados;
-                    if (diasRestantesVitalicia > 0) {
-                        elemLicencia.innerHTML = `🛡️ Licencia Vitalicia - Activa`;
-                        elemLicencia.style.backgroundColor = '#e8f5e9';
-                        elemLicencia.style.color = '#2e7d32';
-                        elemLicencia.style.borderColor = '#c8e6c9';
-                    } else {
-                        elemLicencia.innerHTML = `❌ Licencia Vitalicia Expirada`;
-                        elemLicencia.style.backgroundColor = '#ffebee';
-                        elemLicencia.style.color = '#c62828';
-                        elemLicencia.style.borderColor = '#ffcdd2';
-                        setTimeout(() => {
-                            alert('La licencia vitalicia ha cumplido su ciclo de 10 años.');
-                            window.location.href = 'index.html';
-                        }, 800);
-                    }
-                } else {
-                    // Licencias Paga temporales: Mensual, Semestral, Anual
-                    let diasContrato = 30; // por defecto si es mensual
-                    if (textoCompleto.includes('semestral') || textoCompleto.includes('180')) {
-                        diasContrato = 180;
-                    } else if (textoCompleto.includes('anual') || textoCompleto.includes('365')) {
-                        diasContrato = 365;
-                    }
-
-                    const diasRestantesPlan = diasContrato - diasPasados;
-
-                    if (diasRestantesPlan > 5) {
-                        elemLicencia.innerHTML = `🛡️ Licencia Activa (${nombreLicencia}) - Restan ${diasRestantesPlan} días`;
-                        elemLicencia.style.backgroundColor = '#e8f5e9';
-                        elemLicencia.style.color = '#2e7d32';
-                        elemLicencia.style.borderColor = '#c8e6c9';
-                    } else if (diasRestantesPlan > 0) {
-                        elemLicencia.innerHTML = `⚠️ Licencia (${nombreLicencia}) - ¡Atención! Restan ${diasRestantesPlan} días`;
-                        elemLicencia.style.backgroundColor = '#fff9c4';
-                        elemLicencia.style.color = '#f57f17';
-                        elemLicencia.style.borderColor = '#fff59d';
-                    } else {
-                        elemLicencia.innerHTML = `❌ Licencia Vencida (${nombreLicencia})`;
-                        elemLicencia.style.backgroundColor = '#ffebee';
-                        elemLicencia.style.color = '#c62828';
-                        elemLicencia.style.borderColor = '#ffcdd2';
-                        setTimeout(() => {
-                            alert('El tiempo de uso de tu licencia ha finalizado. Renovala con soporte para continuar.');
-                            window.location.href = 'index.html';
-                        }, 800);
-                    }
+                        });
+                    }, 300);
                 }
             }
 
