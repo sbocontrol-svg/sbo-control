@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Caja Chica - S. B.O. Control</title>
+  <title>Caja Chica - S. B. O. Control</title>
 
   <link rel="icon" type="image/jpeg" href="logosbo.jpg">
   <link rel="apple-touch-icon" href="logosbo.jpg">
@@ -14,7 +14,7 @@
   <style>
     :root {
       --primary-color: #059669;
-      --font-scale: 15px; /* Tamaño base dinámico de referencia */
+      --font-scale: 15px;
     }
     html { font-size: var(--font-scale); }
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
@@ -34,16 +34,21 @@
     .resumen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
     .caja-resumen { background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; }
     .caja-resumen.total { grid-column: span 2; background: #ecfdf5; border-color: #a7f3d0; padding: 10px; }
-    .caja-resumen span { font-size: 0.8rem; font-weight: bold; color: #64748b; display: block; text-transform: uppercase; }
-    .caja-resumen strong { font-size: 1.15rem; color: #1e293b; }
-    .caja-resumen.total strong { font-size: 1.35rem; color: var(--primary-color); }
+    .caja-resumen.efectivo { grid-column: span 2; background: #f0f9ff; border-color: #bae6fd; padding: 8px 10px; }
+    .caja-resumen span { font-size: 0.75rem; font-weight: bold; color: #64748b; display: block; text-transform: uppercase; }
+    .caja-resumen strong { font-size: 1.1rem; color: #1e293b; }
+    .caja-resumen.total strong { font-size: 1.3rem; color: var(--primary-color); }
+    .caja-resumen.efectivo strong { font-size: 1.15rem; color: #0284c7; }
 
-    label { font-size: 0.85rem; font-weight: 700; color: #4b5563; display: block; margin-top: 8px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
-    input, select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; background: #fafafa; color: #333; outline: none; }
+    label { font-size: 0.8rem; font-weight: 700; color: #4b5563; display: block; margin-top: 8px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; background: #fafafa; color: #333; outline: none; }
     input:focus, select:focus { border-color: var(--primary-color); background: #fff; }
     
     .btn-accion { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(5,150,105,0.2); transition: background 0.2s; }
     .btn-accion:active { transform: scale(0.98); }
+
+    .btn-cancelar { background: #94a3b8; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.9rem; margin-top: 6px; cursor: pointer; display: none; }
+    .btn-cancelar:active { transform: scale(0.98); }
 
     .btn-registros { background: #64748b; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 8px; cursor: pointer; box-shadow: 0 3px 8px rgba(100,116,139,0.2); transition: background 0.2s; }
     .btn-registros:active { transform: scale(0.98); }
@@ -63,15 +68,26 @@
     .modal-close-btn { background: #ffebee; color: #c62828; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     
     .lista-movimientos { margin-top: 8px; max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-    .movimiento-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; font-size: 0.9rem; }
+    .movimiento-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; font-size: 0.85rem; }
     .mov-info { display: flex; flex-direction: column; }
     .mov-concepto { font-weight: bold; color: #334155; }
-    .mov-tipo { font-size: 0.75rem; color: #94a3b8; font-weight: bold; }
-    .mov-monto { font-weight: bold; font-size: 1rem; }
+    .mov-tipo { font-size: 0.7rem; color: #64748b; font-weight: bold; }
+    .mov-monto { font-weight: bold; font-size: 0.95rem; }
     .mov-monto.ingreso { color: #059669; }
     .mov-monto.egreso { color: #dc2626; }
     
-    .btn-borrar-item { background: none; border: none; color: #ef4444; font-size: 1rem; cursor: pointer; padding: 4px; }
+    .acciones-item { display: flex; align-items: center; gap: 4px; }
+    .btn-editar-item { background: none; border: none; color: #3b82f6; font-size: 0.9rem; cursor: pointer; padding: 2px; }
+    .btn-borrar-item { background: none; border: none; color: #ef4444; font-size: 0.9rem; cursor: pointer; padding: 2px; }
+
+    /* MODAL CUSTOM PARA AVISOS/ALERTAS */
+    .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 12px; }
+    .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+    .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .custom-modal-msg { font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
+    .custom-modal-actions { display: flex; gap: 8px; justify-content: center; }
+    .btn-modal-ok { background-color: #059669; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+    .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -91,7 +107,7 @@
 <body>
 
   <div class="container">
-    <div class="card">
+    <div class="card no-print">
       <div class="header-flex">
         <div>
           <h1>💵 Caja Chica</h1>
@@ -107,16 +123,20 @@
 
       <div class="resumen-grid">
         <div class="caja-resumen">
-          <span>Ingresos</span>
-          <strong id="lblTotalIngresos">$0.00</strong>
+          <span>Ingresos Totales</span>
+          <strong id="lblTotalIngresos">$ 0,00</strong>
         </div>
         <div class="caja-resumen">
-          <span>Egresos</span>
-          <strong id="lblTotalEgresos">$0.00</strong>
+          <span>Egresos Totales</span>
+          <strong id="lblTotalEgresos">$ 0,00</strong>
         </div>
         <div class="caja-resumen total">
-          <span>Saldo Actual en Caja</span>
-          <strong id="lblSaldoActual">$0.00</strong>
+          <span>Saldo General de Caja</span>
+          <strong id="lblSaldoActual">$ 0,00</strong>
+        </div>
+        <div class="caja-resumen efectivo">
+          <span>💵 Efectivo Físico en Cajón</span>
+          <strong id="lblEfectivoCajon">$ 0,00</strong>
         </div>
       </div>
 
@@ -128,13 +148,21 @@
         <option value="egreso">🔴 Egreso (Gasto / Salida)</option>
       </select>
 
+      <label>Medio de Pago:</label>
+      <select id="txtMedioPago">
+        <option value="Efectivo">💵 Efectivo</option>
+        <option value="Mercado Pago">💙 Mercado Pago</option>
+        <option value="Transferencia">🏦 Transferencia</option>
+      </select>
+
       <label>Concepto / Detalle:</label>
-      <input type="text" id="txtConcepto" placeholder="Ej: Venta menor, Compra de hielo...">
+      <input type="text" id="txtConcepto" placeholder="Ej: Venta menor, Compra de cinta...">
 
       <label>Monto ($):</label>
       <input type="number" id="txtMonto" placeholder="0.00" step="0.01" inputmode="decimal">
 
-      <button class="btn-accion" onclick="agregarMovimiento()">➕ Registrar Movimiento</button>
+      <button class="btn-accion" id="btnAccion" onclick="agregarMovimiento()">➕ Registrar Movimiento</button>
+      <button class="btn-cancelar" id="btnCancelar" onclick="cancelarEdicion()">❌ Cancelar Edición</button>
       <button class="btn-registros" id="btnAbrirModal">📋 Mostrar Registros</button>
     </div>
   </div>
@@ -149,7 +177,7 @@
       
       <div style="margin-bottom: 8px;">
         <label style="margin-top: 0;">🔍 Buscar Movimiento:</label>
-        <input type="text" id="txtBuscar" placeholder="Filtrar por concepto..." oninput="actualizarPantalla()">
+        <input type="text" id="txtBuscar" placeholder="Filtrar concepto o medio..." oninput="actualizarPantalla()">
       </div>
 
       <div id="listaMovimientos" class="lista-movimientos">
@@ -163,9 +191,78 @@
     </div>
   </div>
 
+  <!-- Modal Custom de Avisos/Alerts y Confirms -->
+  <div id="customModal" class="custom-modal-overlay">
+    <div class="custom-modal-card">
+      <div id="customModalTitle" class="custom-modal-title">Caja Chica</div>
+      <div id="customModalMsg" class="custom-modal-msg"></div>
+      <div class="custom-modal-actions">
+        <button id="btnCustomCancel" class="btn-modal-cancel" onclick="cancelarConfirm()">Cancelar</button>
+        <button id="btnCustomOk" class="btn-modal-ok" onclick="ejecutarAccionOk()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || new Date().toISOString().split('T')[0];
-    document.getElementById('lblFechaTrabajo').innerText = `Fecha de Trabajo: ${fechaSesion}`;
+    // --- Helper Formato Moneda Argentina ---
+    function formatearMoneda(valor) {
+      return '$ ' + (parseFloat(valor) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // --- Lógica del Modal Custom ---
+    let accionOkCallback = null;
+    let accionCancelCallback = null;
+
+    function mostrarAviso(mensaje, titulo = "Caja Chica", callback = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'none';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callback;
+      accionCancelCallback = null;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function mostrarConfirmacion(mensaje, titulo = "Caja Chica", callbackOk = null, callbackCancel = null) {
+      document.getElementById('customModalTitle').textContent = titulo;
+      document.getElementById('customModalMsg').innerText = mensaje;
+      document.getElementById('btnCustomCancel').style.display = 'inline-block';
+      document.getElementById('btnCustomCancel').textContent = 'Cancelar';
+      document.getElementById('btnCustomOk').textContent = 'Aceptar';
+      accionOkCallback = callbackOk;
+      accionCancelCallback = callbackCancel;
+      document.getElementById('customModal').style.display = 'flex';
+    }
+
+    function ejecutarAccionOk() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionOkCallback) { const cb = accionOkCallback; accionOkCallback = null; cb(); }
+    }
+
+    function cancelarConfirm() {
+      document.getElementById('customModal').style.display = 'none';
+      if (accionCancelCallback) { const cb = accionCancelCallback; accionCancelCallback = null; cb(); }
+    }
+
+    // --- Lógica de Fecha (Evita bugs UTC en Argentina) ---
+    function obtenerFechaLocal() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    let fechaSesion = localStorage.getItem('sbo_fechaSesion') || localStorage.getItem('bma_fechaSesion') || obtenerFechaLocal();
+
+    function formatearFecha(fechaStr) {
+      if (!fechaStr) return '';
+      const partes = fechaStr.split('-');
+      if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+      return fechaStr;
+    }
+
+    document.getElementById('lblFechaTrabajo').innerText = `Fecha: ${formatearFecha(fechaSesion)}`;
 
     let cambioInicialGuardado = localStorage.getItem(`sbo_cajachica_cambio_${fechaSesion}`);
     if (cambioInicialGuardado !== null) {
@@ -173,6 +270,8 @@
     }
 
     let movimientos = [];
+    let editandoIndex = null;
+
     try {
       const guardados = localStorage.getItem(`sbo_cajachica_${fechaSesion}`);
       if (guardados) movimientos = JSON.parse(guardados);
@@ -193,16 +292,27 @@
 
       let totalIngresos = 0;
       let totalEgresos = 0;
+      let efectivoIngresos = 0;
+      let efectivoEgresos = 0;
 
       movimientos.forEach(m => {
-        if (m.tipo === 'ingreso') totalIngresos += Number(m.monto);
-        else totalEgresos += Number(m.monto);
+        const montoNum = Number(m.monto || 0);
+        const esEfectivo = !m.medio || m.medio === 'Efectivo';
+
+        if (m.tipo === 'ingreso') {
+          totalIngresos += montoNum;
+          if (esEfectivo) efectivoIngresos += montoNum;
+        } else {
+          totalEgresos += montoNum;
+          if (esEfectivo) efectivoEgresos += montoNum;
+        }
       });
 
       const movimientosFiltrados = movimientos.filter(m => {
         const concepto = (m.concepto || '').toLowerCase();
         const tipo = (m.tipo || '').toLowerCase();
-        return concepto.includes(filtro) || tipo.includes(filtro);
+        const medio = (m.medio || '').toLowerCase();
+        return concepto.includes(filtro) || tipo.includes(filtro) || medio.includes(filtro);
       });
 
       if (movimientosFiltrados.length === 0) {
@@ -212,14 +322,19 @@
           const realIndex = movimientos.indexOf(m);
           const item = document.createElement('div');
           item.className = 'movimiento-item';
+          const medioTexto = m.medio ? ` • ${m.medio}` : '';
+          
           item.innerHTML = `
             <div class="mov-info">
               <span class="mov-concepto">${m.concepto}</span>
-              <span class="mov-tipo">${m.tipo.toUpperCase()} ${m.hora ? `• ${m.hora}` : ''}</span>
+              <span class="mov-tipo">${m.tipo.toUpperCase()}${medioTexto} ${m.hora ? `• ${m.hora}` : ''}</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="mov-monto ${m.tipo}">${m.tipo === 'ingreso' ? '+' : '-'}$${Number(m.monto).toFixed(2)}</span>
-              <button class="btn-borrar-item" onclick="eliminarMovimiento(${realIndex})">❌</button>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="mov-monto ${m.tipo}">${m.tipo === 'ingreso' ? '+' : '-'}${formatearMoneda(m.monto)}</span>
+              <div class="acciones-item no-print">
+                <button class="btn-editar-item" onclick="cargarParaEditar(${realIndex})" title="Editar">✏️</button>
+                <button class="btn-borrar-item" onclick="eliminarMovimiento(${realIndex})" title="Eliminar">❌</button>
+              </div>
             </div>
           `;
           listaContainer.appendChild(item);
@@ -227,35 +342,82 @@
       }
 
       const cambioInicial = parseFloat(document.getElementById('txtCambioInicial').value) || 0;
-      const saldo = cambioInicial + totalIngresos - totalEgresos;
+      const saldoGeneral = cambioInicial + totalIngresos - totalEgresos;
+      const efectivoCajon = cambioInicial + efectivoIngresos - efectivoEgresos;
 
-      document.getElementById('lblTotalIngresos').innerText = `$${totalIngresos.toFixed(2)}`;
-      document.getElementById('lblTotalEgresos').innerText = `$${totalEgresos.toFixed(2)}`;
-      document.getElementById('lblSaldoActual').innerText = `$${saldo.toFixed(2)}`;
+      document.getElementById('lblTotalIngresos').innerText = formatearMoneda(totalIngresos);
+      document.getElementById('lblTotalEgresos').innerText = formatearMoneda(totalEgresos);
+      document.getElementById('lblSaldoActual').innerText = formatearMoneda(saldoGeneral);
+      document.getElementById('lblEfectivoCajon').innerText = formatearMoneda(efectivoCajon);
     }
 
     function agregarMovimiento() {
       const tipo = document.getElementById('txtTipo').value;
       const concepto = document.getElementById('txtConcepto').value.trim();
       const monto = parseFloat(document.getElementById('txtMonto').value);
+      const medio = document.getElementById('txtMedioPago').value;
 
-      if (!concepto) return alert('Por favor, ingresá un concepto.');
-      if (isNaN(monto) || monto <= 0) return alert('Por favor, ingresá un monto válido mayor a cero.');
+      if (!concepto) { mostrarAviso('Por favor, ingresá un concepto.'); return; }
+      if (isNaN(monto) || monto <= 0) { mostrarAviso('Por favor, ingresá un monto válido mayor a cero.'); return; }
 
-      const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const horaActual = editandoIndex !== null && movimientos[editandoIndex].hora 
+        ? movimientos[editandoIndex].hora 
+        : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      movimientos.push({ tipo, concepto, monto, hora: horaActual });
-      guardarYActualizar();
+      if (editandoIndex !== null) {
+        movimientos[editandoIndex] = { tipo, concepto, monto, medio, hora: horaActual };
+        cancelarEdicion();
+        guardarYActualizar();
+        mostrarAviso('¡Movimiento actualizado!');
+      } else {
+        movimientos.push({ tipo, concepto, monto, medio, hora: horaActual });
+        limpiarFormulario();
+        guardarYActualizar();
+        mostrarAviso('¡Movimiento registrado con éxito!');
+      }
+    }
 
+    function cargarParaEditar(index) {
+      const m = movimientos[index];
+      document.getElementById('txtTipo').value = m.tipo;
+      document.getElementById('txtConcepto').value = m.concepto;
+      document.getElementById('txtMonto').value = m.monto;
+      document.getElementById('txtMedioPago').value = m.medio || 'Efectivo';
+
+      editandoIndex = index;
+      document.getElementById('btnAccion').innerText = '💾 Guardar Cambios';
+      document.getElementById('btnAccion').style.backgroundColor = '#3b82f6';
+      document.getElementById('btnCancelar').style.display = 'block';
+
+      modalMovimientos.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.getElementById('txtConcepto').focus();
+    }
+
+    function cancelarEdicion() {
+      editandoIndex = null;
+      document.getElementById('btnAccion').innerText = '➕ Registrar Movimiento';
+      document.getElementById('btnAccion').style.backgroundColor = 'var(--primary-color)';
+      document.getElementById('btnCancelar').style.display = 'none';
+      limpiarFormulario();
+    }
+
+    function limpiarFormulario() {
       document.getElementById('txtConcepto').value = '';
       document.getElementById('txtMonto').value = '';
     }
 
     function eliminarMovimiento(index) {
-      if (confirm('¿Querés eliminar este movimiento?')) {
+      mostrarConfirmacion('¿Querés eliminar este movimiento?', 'Borrar Movimiento', () => {
+        if (editandoIndex === index) {
+          cancelarEdicion();
+        } else if (editandoIndex !== null && editandoIndex > index) {
+          editandoIndex--;
+        }
         movimientos.splice(index, 1);
         guardarYActualizar();
-      }
+        mostrarAviso('Movimiento eliminado.');
+      });
     }
 
     function guardarYActualizar() {
@@ -270,6 +432,7 @@
     document.getElementById('btnCerrarModalGris').addEventListener('click', () => modalMovimientos.classList.remove('active'));
     modalMovimientos.addEventListener('click', (e) => { if (e.target === modalMovimientos) modalMovimientos.classList.remove('active'); });
 
+    // Inicializar
     actualizarPantalla();
   </script>
 </body>

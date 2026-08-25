@@ -17,27 +17,28 @@
       --font-scale: 15px;
     }
     html { font-size: var(--font-scale); }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #0f172a; margin: 0; padding: 12px; color: #1f2937; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     
-    .container { width: 100%; max-width: 440px; }
-    .card { background: white; padding: 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); text-align: center; }
+    body { background: #0f172a; min-height: 100vh; padding: 12px; color: #1f2937; display: flex; justify-content: center; align-items: center; }
     
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; }
+    .container { width: 100%; max-width: 460px; }
+    .card { background: white; padding: 18px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); text-align: center; }
+    
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; }
     .btn-volver:active { transform: scale(0.96); }
     
-    .btn-main { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(5,150,105,0.2); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-main { background: var(--primary-color); color: white; border: none; padding: 13px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(5,150,105,0.25); display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-main:active { transform: scale(0.98); }
 
-    .btn-contacto { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(2,132,199,0.2); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-contacto { background: #0284c7; color: white; border: none; padding: 13px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(2,132,199,0.25); display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-contacto:active { transform: scale(0.98); }
 
     /* MODAL GENERAL */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 10px; backdrop-filter: blur(2px); }
     .modal-overlay.active { display: flex; }
     
-    .modal-container { background: white; width: 100%; max-width: 420px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 85vh; display: flex; flex-direction: column; text-align: left; }
+    .modal-container { background: white; width: 100%; max-width: 440px; border-radius: 16px; padding: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: fadeIn 0.2s ease-in-out; max-height: 90vh; display: flex; flex-direction: column; text-align: left; }
     
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; flex-shrink: 0; }
     .modal-header h3 { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; margin: 0; }
@@ -47,23 +48,25 @@
     .modal-body-scroll { 
       margin-top: 6px; 
       margin-bottom: 10px;
-      max-height: 52vh; 
+      max-height: 60vh; 
       overflow-y: auto; 
       display: flex; 
       flex-direction: column; 
-      gap: 10px; 
+      gap: 12px; 
       padding-right: 6px;
       flex-shrink: 1;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: #334155;
-      line-height: 1.4;
+      line-height: 1.45;
     }
     .modal-body-scroll::-webkit-scrollbar { width: 6px; }
     .modal-body-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
     .modal-body-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-    .manual-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; }
-    .manual-item strong { color: var(--primary-color); display: block; margin-bottom: 4px; font-size: 0.95rem; }
+    .manual-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; }
+    .manual-item strong { color: var(--primary-color); display: block; margin-bottom: 5px; font-size: 0.95rem; }
+    .manual-item ul { margin-left: 18px; margin-top: 6px; }
+    .manual-item li { margin-bottom: 3px; }
 
     .contacto-box { text-align: center; font-size: 0.95rem; color: #334155; padding: 10px 0; }
     .contacto-box p { margin: 8px 0; }
@@ -75,6 +78,15 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    @media print {
+      body { background: white; color: black; padding: 0; }
+      .container, .modal-overlay:not(.active) { display: none !important; }
+      .modal-overlay.active { position: static; background: transparent; backdrop-filter: none; padding: 0; }
+      .modal-container { max-width: 100%; max-height: none; box-shadow: none; border: none; }
+      .modal-body-scroll { max-height: none; overflow: visible; }
+      .btn-main, .btn-cerrar-gris, .modal-close-btn { display: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -82,13 +94,13 @@
   <div class="container">
     <div class="card">
       <div class="top-bar">
-        <h2 style="margin: 0; font-size: 1.25rem; color: var(--primary-color);">📖 Manual y Ayuda</h2>
-        <button onclick="regresarConfig()" class="btn-volver">Volver</button>
+        <h2 style="margin: 0; font-size: 1.2rem; color: var(--primary-color);">📖 Manual & Soporte</h2>
+        <button onclick="regresarConfig()" class="btn-volver"> Volver</button>
       </div>
-      <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 16px;">Consultá la guía de uso completa del sistema o comunicate con soporte técnico.</p>
+      <p style="color: #64748b; font-size: 0.85rem; margin: 0 0 16px;">Consultá la guía de uso detallada del sistema S.B.O. Control o comunicate con el equipo técnico.</p>
 
-      <button class="btn-main" id="btnAbrirManual">📚 Ver Manual de Usuario Completo</button>
-      <button class="btn-contacto" id="btnAbrirContacto">📞 Soporte Técnico</button>
+      <button class="btn-main" id="btnAbrirManual">📚 Manual de Usuario Completo</button>
+      <button class="btn-contacto" id="btnAbrirContacto">📞 Soporte Técnico Oficial</button>
     </div>
   </div>
 
@@ -102,53 +114,100 @@
 
       <div class="modal-body-scroll">
         <div class="manual-item">
-          <strong>1. Registro de Cliente y Clave de Acceso</strong>
-          Al ingresar por primera vez, abrí la opción <em>"Registro"</em>. Seleccioná tu plan de licencia, completá tus datos personales y hacé clic en <em>"Guardar Registro y Enviar"</em>. El sistema generará una huella de dispositivo (HW) para enviarla por WhatsApp al equipo de soporte y recibir tu clave oficial de acceso.
+          <strong>1. Ingreso, Registro y Activación de Licencias</strong>
+          <ul>
+            <li><strong>Pantalla Principal (Index):</strong> Para ingresar al sistema es obligatorio contar con una clave de acceso activa.</li>
+            <li><strong>Nuevo Registro:</strong> Si sos un usuario nuevo, tocá el botón <em>"Registro"</em>, completá tus datos personales (Nombre, Emprendimiento, Teléfono) y seleccioná el tipo de plan comercial deseado.</li>
+            <li><strong>Obtener Clave:</strong> Al presionar <em>"Guardar Registro y Enviar"</em>, el sistema genera la huella digital (HW) de tu equipo y te redirige a WhatsApp para recibir tu clave oficial activada por el soporte.</li>
+            <li><strong>Ingreso Directo:</strong> Escribí tu clave guardada en la pantalla inicial y tocá <em>"Ingresar al Sistema"</em> para acceder al Menú Principal.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
-          <strong>2. Configuración del Negocio y Apariencia</strong>
-          Desde el menú de <strong>Configuración</strong> podés personalizar el nombre de tu emprendimiento, eslogan y teléfono de contacto. Estos datos figurarán en los tickets digitales. Además, en <em>"Ajustes del Sistema"</em> podés cambiar la paleta de color y ajustar el tamaño de fuente global para mejor legibilidad.
+          <strong>2. Personalización y Datos del Negocio</strong>
+          <ul>
+            <li><strong>Ajustes del Negocio:</strong> En el menú <em>Configuración</em> podés definir el Nombre Comercial, Eslogan, WhatsApp de atención, Billetera Digital de Cobro y tu Alias/CBU/CVU. Estos datos figurarán de forma automática en los comprobantes y tickets.</li>
+            <li><strong>Apariencia y Colores:</strong> Elegí la paleta cromática de tu preferencia (Verde, Azul, Violeta o Naranja).</li>
+            <li><strong>Modo Oscuro:</strong> Activá el interruptor de Modo Oscuro para descansar la vista en ambientes con poca luz.</li>
+            <li><strong>Tamaño de Pantalla:</strong> Seleccioná entre tamaño Compacto, Normal o Grande según la pantalla de tu dispositivo.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
           <strong>3. Gestión de Clientes</strong>
-          Registrá tu base de compradores especificando Nombre, Teléfono/WhatsApp, Localidad y E-mail. Mantener actualizada esta sección te facilita el envío directo de comprobantes de compra por WhatsApp con un solo toque.
+          <ul>
+            <li>Permite guardar la base de compradores de tu emprendimiento con su Nombre, WhatsApp, Localidad y Correo Electrónico.</li>
+            <li>Al asociar un cliente registrado a una venta, el sistema te permite enviarle el comprobante digital directo a su chat de WhatsApp con un solo toque.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
-          <strong>4. Control de Inventario y Stock</strong>
-          Cargá tus productos especificando descripción, precio unitario y cantidad disponible. El sistema descuenta las unidades de forma automática con cada venta concretada y advierte cuando intentás sobrepasar el stock físico disponible.
+          <strong>4. Inventario de Productos y Control de Stock</strong>
+          <ul>
+            <li><strong>Alta de Artículos:</strong> Registrá tus productos especificando Descripción/Nombre, Precio de Venta Unitario y Stock Disponible inicial.</li>
+            <li><strong>Descuento Automático:</strong> Cada vez que confirmás una venta, el sistema descuenta automáticamente las unidades del inventario.</li>
+            <li><strong>Alerta de Stock Insuficiente:</strong> El carrito te notificará y bloqueará la venta si intentás vender más unidades de las existentes físicamente.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
-          <strong>5. Ventas, Carrito y Tickets Digitales</strong>
-          Seleccioná un cliente, armá el pedido agregando productos al carrito y elegí el medio de pago (Efectivo, Transferencia, Mercado Pago, Tarjeta). Al confirmar, se genera el comprobante digital detallado listo para compartir por WhatsApp, guardar en PDF o imprimir.
+          <strong>5. Punto de Venta (POS), Carrito y Comprobantes</strong>
+          <ul>
+            <li><strong>Armado de Pedido:</strong> Seleccioná los artículos del catálogo o buscador y sumalos al carrito de compras. Podés ajustar las cantidades de cada ítem dinámicamente.</li>
+            <li><strong>Medios de Pago:</strong> Elegí cómo abona el cliente: Efectivo, Transferencia, Mercado Pago, Tarjetas de Débito/Crédito u otras Billeteras.</li>
+            <li><strong>Emisión de Ticket Digital:</strong> Al finalizar la compra se genera el comprobante detallado, listo para compartir vía WhatsApp, descargar en formato PDF o imprimir.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
-          <strong>6. Control de Caja Chica</strong>
-          Administrá el dinero en efectivo del día a día. Podés ingresar un <em>Fondo / Cambio Inicial</em> y registrar todos los ingresos o egresos extras (pago a proveedores, insumos, compras menores). El sistema recalcula en tiempo real el <strong>Saldo Actual en Caja</strong>.
+          <strong>6. Caja Chica y Control de Flujo de Efectivo</strong>
+          <ul>
+            <li><strong>Fondo Inicial (Cambio):</strong> Registrá el dinero en efectivo con el que iniciás la jornada de trabajo.</li>
+            <li><strong>Movimientos Extras:</strong> Registrá cualquier <em>Ingreso Extra</em> o <em>Egreso / Gasto</em> (pago a proveedores, insumos, gastos diarios).</li>
+            <li><strong>Arqueo en Tiempo Real:</strong> El sistema recalculará en todo momento el total de dinero físico exacto que debe haber en la caja registradora.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
-          <strong>7. Libro Diario y Consulta de Métodos de Pago</strong>
-          Visualizá el desglose diario de tus ingresos. Podés filtrar por fecha para analizar las ventas globales, la facturación por método de pago (Efectivo vs. Medios Digitales) y el balance de la jornada de trabajo.
+          <strong>7. Libro Diario y Consulta de Ventas</strong>
+          <ul>
+            <li>Historial centralizado donde podés consultar cada transacción realizada durante el día o en fechas anteriores.</li>
+            <li>Permite filtrar y comparar las ventas abonadas en <em>Efectivo</em> respecto a los <em>Medios Digitales / Transferencias</em> para facilitar el arqueo bancario.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
           <strong>8. Cierre Z y Blanqueo de Jornada</strong>
-          Al finalizar el día, accedé al módulo de <strong>Cierre Z</strong>. El sistema realiza un balance completo: ventas del día, arqueo de efectivo esperado en caja, saldo acumulado del mes y valorización de inventario. Al pulsar <em>"Confirmar Cierre Z"</em>, se resguardan las estadísticas del mes y se reinicia la jornada a cero para el próximo día.
+          <ul>
+            <li><strong>Cierre de Jornada:</strong> Al terminar el día de trabajo, accedé al módulo <strong>Cierre Z</strong>.</li>
+            <li><strong>Balance Integral:</strong> El sistema calcula el total vendido en el día, arqueo de efectivo en caja, acumulación de ventas mensuales y la valorización total de tu stock en depósito.</li>
+            <li><strong>Reinicio Diario:</strong> Al pulsar <em>"Confirmar Cierre Z"</em>, el sistema resguarda el acumulado mensual, limpia las ventas del día y deja la caja lista a cero para la siguiente jornada.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
-          <strong>9. Respaldo de Datos (Backup) y Restauración</strong>
-          En Configuración &gt; Ajustes del Sistema podés pulsar <em>"Exportar Datos"</em> para descargar un archivo de copia de seguridad (`.json`). Podés restaurar este archivo en cualquier momento o realizar un <em>"Reinicio de Fábrica"</em> que vacía los registros locales conservando un respaldo de seguridad previo.
+          <strong>9. Respaldo de Datos (Backup), Restauración y Reset</strong>
+          <ul>
+            <li><strong>Exportar Backup:</strong> En <em>Configuración &gt; Ajustes del Sistema</em>, usá el botón <em>"Exportar Datos"</em> para descargar una copia de seguridad en archivo `.json` a tu dispositivo.</li>
+            <li><strong>Restaurar Backup:</strong> Podés cargar un archivo `.json` grabado anteriormente para recuperar toda tu información de productos, clientes y ventas de forma instantánea.</li>
+            <li><strong>Reinicio de Fábrica:</strong> Limpia completamente el sistema para empezar desde cero, descargando por seguridad una copia de respaldo automática previa.</li>
+          </ul>
         </div>
 
         <div class="manual-item">
-          <strong>10. Tipos de Licencias y Renovaciones</strong>
-          El sistema administra licencias comerciales (Mensual, Semestral, Anual o Vitalicia). Al renovar tu suscripción, ingresá la clave entregada en la pantalla de inicio para extender la validez de tu acceso sin perder ninguno de tus datos.
+          <strong>10. Área Técnica y Panel de Desarrollador</strong>
+          <ul>
+            <li>Área restringida exclusiva para licencias de Desarrollador autorizadas (como <code>LP-GEN-JMD</code> o <code>LD-GEN-JMD</code>).</li>
+            <li>Permite validar y auditar el estado del sistema, administrar licencias avanzadas y acceder a herramientas de mantenimiento técnico de baja nivel.</li>
+          </ul>
+        </div>
+
+        <div class="manual-item">
+          <strong>11. Renovación y Tipos de Licencia</strong>
+          <ul>
+            <li>S.B.O. Control comercializa planes adaptados a cada emprendimiento: Mensual, Semestral, Anual y Licencia Vitalicia.</li>
+            <li>Cuando venza tu plan, podés ingresar una nueva clave desde la pantalla de inicio o desde el menú de Configuración sin perder tus productos ni historial guardado.</li>
+          </ul>
         </div>
       </div>
 
@@ -159,19 +218,19 @@
 
   <!-- MODAL CONTACTO -->
   <div class="modal-overlay" id="modal-contacto">
-    <div class="modal-container" style="max-width: 360px;">
+    <div class="modal-container" style="max-width: 380px;">
       <div class="modal-header">
-        <h3>📞 Contactanos</h3>
+        <h3>📞 Soporte Técnico Oficial</h3>
         <button class="modal-close-btn" id="btnCerrarContactoX">✕</button>
       </div>
 
       <div class="contacto-box">
-        <p><strong>S. B. O. Control</strong></p>
+        <p><strong style="font-size: 1.1rem; color: var(--primary-color);">S. B. O. Control</strong></p>
         <p style="color: #64748b; font-size: 0.85rem;">Gestión Integral para Emprendedores</p>
-        <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 10px 0;">
-        <p>💬 <strong>WhatsApp Oficial:</strong><br><a href="https://wa.me/5492364502082" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">+54 9 236 450-2082</a></p>
-        <p>📧 <strong>Email de Soporte:</strong><br><a href="mailto:sbocontrol@gmail.com" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">sbocontrol@gmail.com</a></p>
-        <p>🕒 <strong>Horario de Atención:</strong><br><span style="color: #334155; font-size: 0.85rem;">Lun a Vie de 8:30 a 12:30 hs<br>Sábados de 9:00 a 13:00 hs</span></p>
+        <hr style="border: none; border-top: 1px dashed #cbd5e1; margin: 12px 0;">
+        <p>💬 <strong>WhatsApp de Atención:</strong><br><a href="https://wa.me/5492364502082" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: bold; font-size: 1.05rem;">+54 9 236 450-2082</a></p>
+        <p style="margin-top: 10px;">📧 <strong>Correo de Soporte:</strong><br><a href="mailto:sbocontrol@gmail.com" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">sbocontrol@gmail.com</a></p>
+        <p style="margin-top: 10px;">🕒 <strong>Horarios de Soporte:</strong><br><span style="color: #334155; font-size: 0.85rem;">Lunes a Viernes de 8:30 a 12:30 hs<br>Sábados de 9:00 a 13:00 hs</span></p>
       </div>
 
       <button class="btn-cerrar-gris" id="btnCerrarContactoGris">Cerrar</button>
@@ -179,7 +238,7 @@
   </div>
 
   <script>
-    /* FUNCIÓN INTELIGENTE DE RETORNO */
+    /* RETORNO INTELIGENTE */
     function regresarConfig() {
       if (document.referrer && document.referrer.includes('configuracion.html')) {
         history.back();
@@ -188,14 +247,14 @@
       }
     }
 
-    /* MODAL MANUAL */
+    /* CONTROLES MODAL MANUAL */
     const modalManual = document.getElementById('modal-manual');
     document.getElementById('btnAbrirManual').addEventListener('click', () => modalManual.classList.add('active'));
     document.getElementById('btnCerrarManualX').addEventListener('click', () => modalManual.classList.remove('active'));
     document.getElementById('btnCerrarManualGris').addEventListener('click', () => modalManual.classList.remove('active'));
     modalManual.addEventListener('click', (e) => { if (e.target === modalManual) modalManual.classList.remove('active'); });
 
-    /* MODAL CONTACTO */
+    /* CONTROLES MODAL CONTACTO */
     const modalContacto = document.getElementById('modal-contacto');
     document.getElementById('btnAbrirContacto').addEventListener('click', () => modalContacto.classList.add('active'));
     document.getElementById('btnCerrarContactoX').addEventListener('click', () => modalContacto.classList.remove('active'));

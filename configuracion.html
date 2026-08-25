@@ -18,10 +18,21 @@
         }
         html { font-size: var(--font-scale); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #0d1b2a; color: #333; padding: 10px; display: flex; justify-content: center; min-height: 100vh; }
-        .container { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); height: fit-content; }
         
+        body { background-color: #0d1b2a; color: #333; padding: 10px; display: flex; justify-content: center; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
+        .container { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); height: fit-content; transition: background-color 0.3s; }
+        
+        /* MODO OSCURO GLOBAL */
+        body.dark-mode { background-color: #050b14; color: #e2e8f0; }
+        body.dark-mode .container,
+        body.dark-mode .modal-content { background-color: #1e293b; color: #f1f5f9; }
+        body.dark-mode .section-card { background-color: #0f172a; border-color: #334155; color: #f1f5f9; }
+        body.dark-mode .section-card h3 { color: #f1f5f9; }
+        body.dark-mode label { color: #94a3b8; }
+        body.dark-mode input, body.dark-mode select { background-color: #1e293b; color: #f8fafc; border-color: #475569; }
+
         .header-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; }
+        body.dark-mode .header-top { border-bottom-color: #334155; }
         .header-top h2 { font-size: 1.15rem; color: var(--primary-color); font-weight: 700; }
         .btn-volver { background: #546e7a; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; }
         .btn-volver:active { transform: scale(0.96); }
@@ -36,6 +47,7 @@
         .color-picker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
         .color-option { height: 42px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; font-weight: bold; }
         .color-option.selected { border-color: #333; transform: scale(1.05); }
+        body.dark-mode .color-option.selected { border-color: #fff; }
 
         .btn-main { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: 700; font-size: 1rem; margin-top: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
         .btn-main:active { transform: scale(0.98); }
@@ -44,7 +56,7 @@
         .btn-action:active { transform: scale(0.98); }
         .btn-backup-restore { background: #e1f5fe; border: 1px solid #b3e5fc; color: #0277bd; }
         
-        /* Estilos para Modales Flotantes */
+        /* Modales */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); z-index: 1000; justify-content: center; align-items: center; padding: 10px; backdrop-filter: blur(2px); }
         .modal-content { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 14px; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.4); animation: fadeIn 0.2s ease-out; }
 
@@ -53,12 +65,15 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Toast Notificación */
+        /* Toast */
         #toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; pointer-events: none; width: 90%; max-width: 400px; }
         .toast { background: #1e293b; color: white; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(10px); }
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast.error { background: #dc2626; }
         .toast.success { background: #059669; }
+
+        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; }
+        body.dark-mode .switch-container { background: #1e293b; }
 
         @media print {
             body { background: white !important; padding: 0 !important; }
@@ -76,10 +91,10 @@
             <a href="menu.html" class="btn-volver">⬅️ Volver</a>
         </div>
 
-        <!-- SECCIÓN 1: DATOS DEL TICKET Y NEGOCIO -->
+        <!-- SECCIÓN 1: DATOS DEL NEGOCIO -->
         <div class="section-card">
-            <h3>🏷️ Datos del Ticket y Emprendimiento</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Personalizá cómo aparecerá tu negocio en comprobantes y WhatsApp.</p>
+            <h3>🏷️ Datos del Negocio</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Personalizá cómo aparecerá tu emprendimiento.</p>
             <button class="btn-action" style="background: var(--primary-color); color: white; border: none;" onclick="abrirModal('modalNegocio')">
                 ✏️ Ajustes Negocio
             </button>
@@ -88,7 +103,7 @@
         <!-- SECCIÓN 2: AJUSTES DEL SISTEMA -->
         <div class="section-card" style="background: #ffebee; border-color: #ffcdd2;">
             <h3>🛠️ Ajustes del Sistema</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Configurá colores, tamaños de pantalla, respaldos y reinicio.</p>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Configurá colores, modo oscuro, respaldos y reinicio.</p>
             <button class="btn-action" style="background: #c62828; color: white; border: none;" onclick="abrirModal('modalAjustes')">
                 ⚙️ Abrir Ajustes del Sistema
             </button>
@@ -114,14 +129,16 @@
         <!-- SECCIÓN 5: MÓDULO DESARROLLADOR -->
         <div class="section-card" style="margin-top: 10px; background: #fff8e1; border-color: #ffe082;">
             <h3>🛠️ Área Técnica & Publicidad</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Herramientas avanzadas para pruebas, capturas publicitarias y licencias.</p>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Acceso restringido únicamente para la clave de Desarrollador.</p>
+
+            <div id="boxClaveDev" style="background: #fff; border: 1px dashed #ffa000; padding: 8px; border-radius: 6px; margin-bottom: 8px; text-align: center;">
+                <span id="lblClaveDev" style="font-family: monospace; font-weight: bold; font-size: 0.95rem;">
+                    🔒 Verificando Permisos...
+                </span>
+            </div>
             
-            <button id="btnDevAccess" onclick="accederPanelDev()" class="btn-action" style="background: #f57f17; border-color: #fbc02d; color: white;">
-                🔒 Abrir Panel de Desarrollador
-            </button>
-            
-            <button id="btnDevReset" onclick="resetearClaveDev()" class="btn-action" style="background: #d32f2f; border-color: #b71c1c; color: white; margin-top: 6px;">
-                🔄 Cambiar Clave de Desarrollador
+            <button id="btnDevAccess" onclick="accederPanelDev()" class="btn-action" style="background: #757575; border-color: #616161; color: white;">
+                🔒 Acceso Bloqueado (Requiere Licencia Dev)
             </button>
         </div>
     </div>
@@ -159,10 +176,10 @@
             </div>
 
             <div class="section-card" style="margin-bottom: 0;">
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">Podés ingresar una clave fácil y personalizada para tu uso personal:</p>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">Ingresá la clave correspondiente a tu licencia:</p>
                 
                 <label>Nueva Clave Personalizada:</label>
-                <input type="text" id="txtNuevaClaveCustom" placeholder="Ej: MI-CLAVE-FACIL" style="text-transform: uppercase;">
+                <input type="text" id="txtNuevaClaveCustom" placeholder="Ej: LP-GEN-JMD" style="text-transform: uppercase;">
 
                 <button class="btn-main" onclick="guardarClavePersonalizada()">💾 Guardar Clave Nueva</button>
             </div>
@@ -213,14 +230,18 @@
 
             <div class="section-card" style="margin-bottom: 10px;">
                 <h3>🎨 Apariencia y Visualización</h3>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Elegí el color principal y el tamaño de letra:</p>
                 
-                <label style="margin-top: 4px;">Color del Sistema (Tema):</label>
+                <label style="margin-top: 4px;">Color Principal del Tema:</label>
                 <div class="color-picker-grid">
-                    <div class="color-option" style="background: #00796b;" onclick="cambiarTema('#00796b', '#e0f2f1')" data-color="#00796b">✓</div>
-                    <div class="color-option" style="background: #0277bd;" onclick="cambiarTema('#0277bd', '#e1f5fe')" data-color="#0277bd">✓</div>
-                    <div class="color-option" style="background: #7b1fa2;" onclick="cambiarTema('#7b1fa2', '#f3e5f5')" data-color="#7b1fa2">✓</div>
-                    <div class="color-option" style="background: #d84315;" onclick="cambiarTema('#d84315', '#fbe9e7')" data-color="#d84315">✓</div>
+                    <div class="color-option" style="background: #00796b;" onclick="cambiarTema('#00796b', '#e0f2f1')" data-color="#00796b"></div>
+                    <div class="color-option" style="background: #0277bd;" onclick="cambiarTema('#0277bd', '#e1f5fe')" data-color="#0277bd"></div>
+                    <div class="color-option" style="background: #7b1fa2;" onclick="cambiarTema('#7b1fa2', '#f3e5f5')" data-color="#7b1fa2"></div>
+                    <div class="color-option" style="background: #d84315;" onclick="cambiarTema('#d84315', '#fbe9e7')" data-color="#d84315"></div>
+                </div>
+
+                <div class="switch-container">
+                    <span style="font-size: 0.85rem; font-weight: 700;">🌙 Modo Oscuro / Noche:</span>
+                    <input type="checkbox" id="checkModoOscuro" onchange="toggleModoOscuro(this.checked)" style="width: auto; margin: 0; cursor: pointer;">
                 </div>
 
                 <label style="margin-top: 10px;">Tamaño de Pantalla y Letra:</label>
@@ -233,7 +254,7 @@
 
             <div class="section-card" style="margin-bottom: 10px;">
                 <h3>💾 Copias de Seguridad (Backup)</h3>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 4px;">Exportá tus datos o restauralos cuando quieras:</p>
+                <p id="lblUltimoBackup" style="font-size: 0.8rem; font-weight: bold; color: #0277bd; margin-bottom: 6px;">Última copia: Nunca realizada</p>
                 
                 <button class="btn-action" onclick="exportarBackup()">📥 Exportar Datos (Backup)</button>
                 <label class="btn-action btn-backup-restore" style="margin-top: 6px; cursor: pointer; text-align: center;">
@@ -253,33 +274,91 @@
     </div>
 
     <script>
-        const MAX_INTENTOS = 3;
+        // LISTA ESTRICTA DE CLAVES CON ROL DESARROLLADOR
+        const CLAVES_DEV_AUTORIZADAS = ['LP-GEN-JMD', 'LD-GEN-JMD'];
 
         document.addEventListener('DOMContentLoaded', () => {
             // Cargar datos
-            document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || localStorage.getItem('sbo_sbo_config_nombre') || '';
-            document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || localStorage.getItem('sbo_sbo_config_eslogan') || '';
-            document.getElementById('cfgContacto').value = localStorage.getItem('sbo_config_contacto') || localStorage.getItem('sbo_sbo_config_contacto') || '';
-            document.getElementById('cfgAlias').value = localStorage.getItem('sbo_alias') || localStorage.getItem('sbo_sbo_alias') || '';
-            document.getElementById('cfgBilletera').value = localStorage.getItem('sbo_billetera') || localStorage.getItem('sbo_sbo_billetera') || 'mp';
+            document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || '';
+            document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || '';
+            document.getElementById('cfgContacto').value = localStorage.getItem('sbo_config_contacto') || '';
+            document.getElementById('cfgAlias').value = localStorage.getItem('sbo_alias') || '';
+            document.getElementById('cfgBilletera').value = localStorage.getItem('sbo_billetera') || 'mp';
 
             cargarEstadoLicenciaConfig();
 
             // Cargar Tema
-            const colorGuardado = localStorage.getItem('sbo_config_color') || localStorage.getItem('sbo_sbo_config_color') || '#00796b';
-            const colorLightGuardado = localStorage.getItem('sbo_config_color_light') || localStorage.getItem('sbo_sbo_config_color_light') || '#e0f2f1';
+            const colorGuardado = localStorage.getItem('sbo_config_color') || '#00796b';
+            const colorLightGuardado = localStorage.getItem('sbo_config_color_light') || '#e0f2f1';
             
             document.documentElement.style.setProperty('--primary-color', colorGuardado);
             document.documentElement.style.setProperty('--primary-light', colorLightGuardado);
             marcarColorSeleccionado(colorGuardado);
 
+            // Cargar Modo Oscuro
+            const modoOscuroGuardado = localStorage.getItem('sbo_modo_oscuro') === 'true';
+            document.getElementById('checkModoOscuro').checked = modoOscuroGuardado;
+            toggleModoOscuro(modoOscuroGuardado);
+
             // Cargar Tamaño
-            const savedSize = localStorage.getItem('sbo_config_tamanio') || localStorage.getItem('sbo_sbo_config_tamanio') || '15px';
+            const savedSize = localStorage.getItem('sbo_config_tamanio') || '15px';
             document.documentElement.style.setProperty('--font-scale', savedSize);
             document.getElementById('selectTamanioLetra').value = savedSize;
 
-            verificarEstadoBloqueoDev();
+            actualizarInfoBackup();
+            verificarAccesoDevPorClaveMaestra();
         });
+
+        // OBTENER CLAVE ACTIVA DEL SISTEMA
+        function obtenerClaveGuardada() {
+            const c1 = localStorage.getItem('sbo_claveSecreta');
+            const c2 = localStorage.getItem('sbo_clave');
+            const c3 = localStorage.getItem('sbo_licenciaElegida');
+            
+            return (c1 || c2 || c3 || '').trim().toUpperCase();
+        }
+
+        // VERIFICAR SI LA CLAVE ES DEV
+        function esLicenciaDev(clave) {
+            return CLAVES_DEV_AUTORIZADAS.includes((clave || '').trim().toUpperCase());
+        }
+
+        // VALIDACIÓN DIRECTA PARA EL PANEL DEV
+        function verificarAccesoDevPorClaveMaestra() {
+            const claveSistema = obtenerClaveGuardada();
+            const btnAccess = document.getElementById('btnDevAccess');
+            const lblClaveDev = document.getElementById('lblClaveDev');
+
+            if (esLicenciaDev(claveSistema)) {
+                lblClaveDev.innerText = `🔑 Licencia Dev Activa ("${claveSistema}")`;
+                lblClaveDev.style.color = "#2e7d32";
+                
+                btnAccess.disabled = false;
+                btnAccess.style.opacity = '1';
+                btnAccess.style.cursor = 'pointer';
+                btnAccess.style.background = '#2e7d32';
+                btnAccess.innerText = '🔓 Abrir Panel de Desarrollador';
+            } else {
+                lblClaveDev.innerText = `🔒 Acceso Bloqueado (Clave: "${claveSistema || 'Ninguna'}")`;
+                lblClaveDev.style.color = "#d32f2f";
+                
+                btnAccess.disabled = true;
+                btnAccess.style.opacity = '0.5';
+                btnAccess.style.cursor = 'not-allowed';
+                btnAccess.style.background = '#757575';
+                btnAccess.innerText = '🔒 Acceso Bloqueado (Requiere Licencia Dev)';
+            }
+        }
+
+        function accederPanelDev() {
+            const claveSistema = obtenerClaveGuardada();
+            
+            if (esLicenciaDev(claveSistema)) {
+                window.location.href = 'dev_panel.html';
+            } else {
+                alert(`🚫 Acceso Denegado.\nLa clave ingresada en el sistema ("${claveSistema}") no cuenta con permisos de Desarrollador.`);
+            }
+        }
 
         // --- SISTEMA DE TOASTS ---
         function mostrarToast(mensaje, tipo = 'success') {
@@ -321,11 +400,22 @@
             abrirModal('modalClave');
         }
 
+        // --- MODO OSCURO ---
+        function toggleModoOscuro(activar) {
+            if (activar) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('sbo_modo_oscuro', 'true');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('sbo_modo_oscuro', 'false');
+            }
+        }
+
         // --- ESTADO LICENCIA ---
         function cargarEstadoLicenciaConfig() {
             const cliente = localStorage.getItem('sbo_nombre') || 'Cliente Registrado';
             const licencia = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia_plan') || 'Licencia Estándar';
-            const claveSecreta = localStorage.getItem('sbo_claveSecreta') || 'Sin configurar';
+            const claveSecreta = obtenerClaveGuardada() || 'Sin configurar';
 
             document.getElementById('lblCfgCliente').innerText = cliente;
             document.getElementById('lblCfgLicencia').innerText = licencia;
@@ -367,25 +457,10 @@
 
             localStorage.setItem('sbo_claveSecreta', nuevaClave);
 
-            const clavesCreadas = JSON.parse(localStorage.getItem('sbo_db_claves_creadas')) || [];
-            const licenciaActual = localStorage.getItem('sbo_licenciaElegida') || 'LAM';
-            const clienteActual = localStorage.getItem('sbo_nombre') || 'Cliente';
-            const huellaActual = localStorage.getItem('sbo_huellaHardware') || 'HW-CUSTOM';
-
-            if (!clavesCreadas.some(c => c.clave === nuevaClave)) {
-                clavesCreadas.push({
-                    clave: nuevaClave,
-                    licencia: licenciaActual,
-                    cliente: clienteActual,
-                    huella: huellaActual,
-                    fecha: new Date().toISOString()
-                });
-                localStorage.setItem('sbo_db_claves_creadas', JSON.stringify(clavesCreadas));
-            }
-
-            mostrarToast('🎉 ¡Clave personalizada guardada!');
+            mostrarToast('🎉 ¡Clave guardada con éxito!');
             cerrarModal('modalClave');
             cargarEstadoLicenciaConfig();
+            verificarAccesoDevPorClaveMaestra();
         }
 
         // --- GESTIÓN GENERAL DE CONFIG ---
@@ -398,21 +473,11 @@
 
             if (!nombre) return mostrarToast('El nombre no puede estar vacío.', 'error');
 
-            // Guardar en claves limpias y duplicadas por compatibilidad
             localStorage.setItem('sbo_config_nombre', nombre);
-            localStorage.setItem('sbo_sbo_config_nombre', nombre);
-
             localStorage.setItem('sbo_config_eslogan', eslogan);
-            localStorage.setItem('sbo_sbo_config_eslogan', eslogan);
-
             localStorage.setItem('sbo_config_contacto', contacto);
-            localStorage.setItem('sbo_sbo_config_contacto', contacto);
-
             localStorage.setItem('sbo_alias', alias);
-            localStorage.setItem('sbo_sbo_alias', alias);
-
             localStorage.setItem('sbo_billetera', billetera);
-            localStorage.setItem('sbo_sbo_billetera', billetera);
 
             mostrarToast('✅ ¡Ajustes del negocio guardados!');
             cerrarModal('modalNegocio');
@@ -421,9 +486,7 @@
         // --- TEMA Y TAMAÑO ---
         function cambiarTema(colorHex, colorLight) {
             localStorage.setItem('sbo_config_color', colorHex);
-            localStorage.setItem('sbo_sbo_config_color', colorHex);
             localStorage.setItem('sbo_config_color_light', colorLight);
-            localStorage.setItem('sbo_sbo_config_color_light', colorLight);
 
             document.documentElement.style.setProperty('--primary-color', colorHex);
             document.documentElement.style.setProperty('--primary-light', colorLight);
@@ -436,105 +499,21 @@
             document.querySelectorAll('.color-option').forEach(el => {
                 if (el.getAttribute('data-color') === color) {
                     el.classList.add('selected');
+                    el.innerText = '✓';
                 } else {
                     el.classList.remove('selected');
+                    el.innerText = '';
                 }
             });
         }
 
         function cambiarTamanioGlobal(tamanio) {
             localStorage.setItem('sbo_config_tamanio', tamanio);
-            localStorage.setItem('sbo_sbo_config_tamanio', tamanio);
             document.documentElement.style.setProperty('--font-scale', tamanio);
             mostrarToast('📐 Tamaño de letra ajustado');
         }
 
-        // --- ACCESO PANEL DEV ---
-        function verificarEstadoBloqueoDev() {
-            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || localStorage.getItem('sbo_sbo_dev_intentos') || 0);
-            const btnAccess = document.getElementById('btnDevAccess');
-
-            if (intentos >= MAX_INTENTOS) {
-                btnAccess.disabled = true;
-                btnAccess.style.background = '#9e9e9e';
-                btnAccess.style.borderColor = '#757575';
-                btnAccess.innerText = '🚫 Panel Bloqueado (Max Intentos)';
-            } else {
-                btnAccess.disabled = false;
-                btnAccess.style.background = '#f57f17';
-                btnAccess.style.borderColor = '#fbc02d';
-                btnAccess.innerText = '🔒 Abrir Panel de Desarrollador';
-            }
-        }
-
-        function accederPanelDev() {
-            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || localStorage.getItem('sbo_sbo_dev_intentos') || 0);
-
-            if (intentos >= MAX_INTENTOS) {
-                mostrarToast('🚫 Acceso bloqueado. Cambiá la clave acreditando la anterior.', 'error');
-                return;
-            }
-
-            const claveCorrecta = localStorage.getItem('sbo_dev_clave') || localStorage.getItem('sbo_sbo_dev_clave') || "21-07-16";
-            const intentosRestantes = MAX_INTENTOS - intentos;
-            const claveIngresada = prompt(`🔐 Clave secreta de desarrollador (Intentos restantes: ${intentosRestantes}):`);
-
-            if (claveIngresada === null) return;
-
-            if (claveIngresada === claveCorrecta) {
-                localStorage.setItem('sbo_dev_intentos', 0);
-                localStorage.setItem('sbo_sbo_dev_intentos', 0);
-                window.location.href = 'dev_panel.html';
-            } else {
-                intentos++;
-                localStorage.setItem('sbo_dev_intentos', intentos);
-                localStorage.setItem('sbo_sbo_dev_intentos', intentos);
-                
-                if (intentos >= MAX_INTENTOS) {
-                    mostrarToast('⚠️ Superaste el límite de intentos. Módulo bloqueado.', 'error');
-                } else {
-                    mostrarToast(`❌ Clave incorrecta. Te quedan ${MAX_INTENTOS - intentos} intento(s).`, 'error');
-                }
-                verificarEstadoBloqueoDev();
-            }
-        }
-
-        function resetearClaveDev() {
-            let intentos = parseInt(localStorage.getItem('sbo_dev_intentos') || localStorage.getItem('sbo_sbo_dev_intentos') || 0);
-            const claveActual = localStorage.getItem('sbo_dev_clave') || localStorage.getItem('sbo_sbo_dev_clave') || "21-07-16";
-
-            if (intentos >= MAX_INTENTOS) {
-                const confirmacion = prompt("🚨 SISTEMA BLOQUEADO. Ingrese su Clave Actual previa para desbloquear:");
-                if (confirmacion !== claveActual) {
-                    mostrarToast("❌ Validación fallida.", "error");
-                    return;
-                }
-            } else {
-                const validacion = prompt("🔐 Ingrese su CLAVE ACTUAL para autorizar el cambio:");
-                if (validacion !== claveActual) {
-                    mostrarToast("❌ La clave actual es incorrecta.", "error");
-                    return;
-                }
-            }
-
-            const nuevaClave = prompt("✅ Autorizado. Ingrese la NUEVA clave:");
-            if (!nuevaClave) return;
-
-            if (nuevaClave.trim().length < 6) {
-                mostrarToast("❌ La contraseña es demasiado corta.", "error");
-                return;
-            }
-
-            localStorage.setItem('sbo_dev_clave', nuevaClave.trim());
-            localStorage.setItem('sbo_sbo_dev_clave', nuevaClave.trim());
-            localStorage.setItem('sbo_dev_intentos', 0);
-            localStorage.setItem('sbo_sbo_dev_intentos', 0);
-
-            mostrarToast("🎉 ¡Clave modificada y módulo desbloqueado!");
-            verificarEstadoBloqueoDev();
-        }
-
-        // --- BACKUP Y RESTAURACIÓN (COMPATIBLE CON ANDROID) ---
+        // --- BACKUP Y RESTAURACIÓN ---
         function obtenerObjetoBackup() {
             let backupData = {};
             for (let i = 0; i < localStorage.length; i++) {
@@ -562,10 +541,23 @@
             URL.revokeObjectURL(url);
         }
 
+        function actualizarInfoBackup() {
+            const ult = localStorage.getItem('sbo_fecha_ultimo_backup');
+            const lbl = document.getElementById('lblUltimoBackup');
+            if (lbl) {
+                lbl.innerText = ult ? `Última copia: ${ult}` : 'Última copia: Nunca realizada';
+            }
+        }
+
         function exportarBackup() {
             const backupData = obtenerObjetoBackup();
-            const fecha = new Date().toISOString().split('T')[0];
-            descargarJSON(backupData, `sbo_backup_${fecha}.json`);
+            const fechaHoy = new Date().toISOString().split('T')[0];
+            descargarJSON(backupData, `sbo_backup_${fechaHoy}.json`);
+            
+            const fechaLocalStr = new Date().toLocaleDateString('es-AR');
+            localStorage.setItem('sbo_fecha_ultimo_backup', fechaLocalStr);
+            actualizarInfoBackup();
+
             mostrarToast('📥 Copia de seguridad guardada');
         }
 
@@ -576,6 +568,13 @@
             reader.onload = function(event) {
                 try {
                     let backupData = JSON.parse(event.target.result);
+                    
+                    const keys = Object.keys(backupData);
+                    const esValido = keys.some(k => k.startsWith('sbo_') || k.startsWith('bma_'));
+                    if (!esValido) {
+                        return mostrarToast('El archivo no es un respaldo válido de S.B.O.', 'error');
+                    }
+
                     for (let key in backupData) {
                         if (typeof backupData[key] === 'object') {
                             localStorage.setItem(key, JSON.stringify(backupData[key]));
@@ -583,7 +582,7 @@
                             localStorage.setItem(key, backupData[key]);
                         }
                     }
-                    mostrarToast('¡Backup restaurado con éxito!');
+                    mostrarToast('🎉 ¡Backup restaurado con éxito!');
                     setTimeout(() => location.reload(), 1000);
                 } catch (err) {
                     mostrarToast('Error al leer el archivo de backup.', 'error');

@@ -23,7 +23,8 @@
     .container { width: 100%; max-width: 480px; }
     .card { background: white; padding: 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 12px; }
     
-    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 10px; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .btn-volver { background: #64748b; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-block; }
     .btn-volver:active { transform: scale(0.96); }
     
     .mes-banner { background: #f3e8ff; border: 1px solid #e9d5ff; color: #6b21a8; padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; }
@@ -107,8 +108,10 @@
 
   <div class="container">
     <div class="card">
-      <a href="menu.html" class="btn-volver no-print">⬅️ Volver al Menú</a>
-      <h2 style="margin: 0 0 4px; font-size: 1.25rem; color: var(--primary-color);">📊 Libro Mensual</h2>
+      <div class="header-top">
+        <h2 style="margin: 0; font-size: 1.25rem; color: var(--primary-color);">📊 Libro Mensual</h2>
+        <a href="menu.html" class="btn-volver no-print">⬅️ Volver</a>
+      </div>
       <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 12px;">Estadísticas generales y rendimiento por mes</p>
 
       <!-- SELECTOR DE MES -->
@@ -216,35 +219,41 @@
       const ventas = JSON.parse(ventasRaw);
       const ventasMes = ventas.filter(v => v.fecha && v.fecha.startsWith(mesActual));
 
-      // Obtener Movimientos de Caja / Egresos
+      // Obtener Movimientos de Caja / Egresos (Estructura unificada + Retrocompatibilidad)
       let movsMes = [];
 
-      // 1. Recorrer claves individuales sbo_cajachica_YYYY-MM-DD
+      // 1. Array general sbo_cajachica / sbo_caja / sbo_caja_movimientos
+      const cajaGralRaw = localStorage.getItem('sbo_cajachica') || localStorage.getItem('sbo_caja') || localStorage.getItem('sbo_caja_movimientos') || '[]';
+      const cajaGral = JSON.parse(cajaGralRaw);
+
+      cajaGral.forEach(m => {
+        if (m.fecha && m.fecha.startsWith(mesActual)) {
+          movsMes.push(m);
+        }
+      });
+
+      // 2. Claves individuales por fecha (sbo_cajachica_YYYY-MM-DD)
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('sbo_cajachica_' + mesActual)) {
           try {
             const arr = JSON.parse(localStorage.getItem(key)) || [];
             arr.forEach(m => {
-              if (m.tipo === 'egreso') {
-                movsMes.push({ ...m, fecha: m.fecha || key.replace('sbo_cajachica_', '') });
-              }
+              movsMes.push({ ...m, fecha: m.fecha || key.replace('sbo_cajachica_', '') });
             });
           } catch(e) {}
         }
       }
 
-      // 2. Recorrer arreglo general sbo_caja_movimientos
-      const movsGral = JSON.parse(localStorage.getItem('sbo_caja_movimientos')) || [];
-      movsGral.forEach(m => {
-        if (m.fecha && m.fecha.startsWith(mesActual) && m.tipo === 'egreso') {
-          movsMes.push(m);
-        }
+      // Filtrar solo Egresos/Gastos
+      const egresosMes = movsMes.filter(m => {
+        const tipo = (m.tipo || '').toLowerCase();
+        return tipo.includes('egreso') || tipo.includes('gasto') || tipo.includes('salida');
       });
 
       // Totales
       const totalVentas = ventasMes.reduce((sum, v) => sum + Number(v.total || 0), 0);
-      const totalGastos = movsMes.reduce((sum, m) => sum + Number(m.monto || 0), 0);
+      const totalGastos = egresosMes.reduce((sum, m) => sum + Number(m.monto || m.importe || 0), 0);
       const gananciaNeta = totalVentas - totalGastos;
 
       // Desglose por Medio de Pago
@@ -281,8 +290,9 @@
       ventasMes.forEach(v => {
         (v.items || []).forEach(item => {
           const nombre = item.nombre || 'Producto General';
-          const cant = Number(item.cant || 1);
-          const recaudado = Number(item.subtotal || (item.precio * cant) || 0);
+          const cant = Number(item.cant || item.cantidad || 1);
+          const precioUnit = Number(item.precio || item.precioUnitario || 0);
+          const recaudado = Number(item.subtotal || (precioUnit * cant) || 0);
 
           if (!conteoProds[nombre]) {
             conteoProds[nombre] = { cant: 0, recaudado: 0 };
@@ -325,10 +335,10 @@
         diasMap[v.fecha].ventas += Number(v.total || 0);
       });
 
-      movsMes.forEach(m => {
+      egresosMes.forEach(m => {
         if (!m.fecha) return;
         if (!diasMap[m.fecha]) diasMap[m.fecha] = { ventas: 0, gastos: 0 };
-        diasMap[m.fecha].gastos += Number(m.monto || 0);
+        diasMap[m.fecha].gastos += Number(m.monto || m.importe || 0);
       });
 
       const diasOrdenados = Object.keys(diasMap).sort().reverse();

@@ -147,29 +147,19 @@
     </div>
   </div>
 
-  <!-- MODAL CALCULADORA DE COSTOS -->
+  <!-- MODAL CALCULADORA DE COSTOS MEJORADA -->
   <div id="modalCalculadora" class="modal-calc">
     <div class="calc-card">
       <h3 style="margin: 0 0 2px; font-size: 1.05rem; color: var(--primary-color);">🧮 Calculadora de Costos</h3>
-      <p style="font-size: 0.75rem; color: #64748b; margin: 0 0 10px;">Insumos, valor hora y tiempo de elaboración.</p>
+      <p style="font-size: 0.75rem; color: #64748b; margin: 0 0 10px;">Armá la receta de tu producto e insumos.</p>
 
-      <label style="font-weight: bold; color: #334155; font-size: 0.72rem;">Materia Prima e Insumos:</label>
-      <div class="calc-row">
-        <input type="text" id="mat1_desc" placeholder="Material 1" style="flex: 2; margin-top:0;">
-        <input type="number" id="mat1_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <label style="font-weight: bold; color: #334155; font-size: 0.72rem; margin: 0;">Materia Prima e Insumos:</label>
+        <button type="button" class="btn-calc-link" onclick="agregarFilaInsumo()">➕ Insumo</button>
       </div>
-      <div class="calc-row">
-        <input type="text" id="mat2_desc" placeholder="Material 2" style="flex: 2; margin-top:0;">
-        <input type="number" id="mat2_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
-      </div>
-      <div class="calc-row">
-        <input type="text" id="mat3_desc" placeholder="Material 3" style="flex: 2; margin-top:0;">
-        <input type="number" id="mat3_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
-      </div>
-      <div class="calc-row">
-        <input type="text" id="mat4_desc" placeholder="Material 4" style="flex: 2; margin-top:0;">
-        <input type="number" id="mat4_val" placeholder="$ Costo" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
-      </div>
+
+      <!-- Contenedor dinámico de insumos -->
+      <div id="contenedorInsumos" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;"></div>
 
       <label style="font-weight: bold; color: #334155; margin-top: 10px; font-size: 0.72rem;">Mano de Obra:</label>
       <div class="calc-row">
@@ -183,7 +173,7 @@
         </div>
       </div>
       <div style="font-size: 0.72rem; color: #64748b; margin-top: 4px; text-align: right;">
-        Costo tiempo: $<span id="lblCostoManoObra">0.00</span>
+        Costo tiempo: <span id="lblCostoManoObra">$ 0,00</span>
       </div>
 
       <label style="font-weight: bold; color: #334155; margin-top: 8px; font-size: 0.72rem;">Margen de Ganancia:</label>
@@ -193,8 +183,8 @@
       </div>
 
       <div style="background: #f1f5f9; padding: 10px; border-radius: 6px; margin-top: 10px; text-align: right;">
-        <div style="font-size: 0.75rem; color: #64748b;">Costo Total: $<span id="lblCostoTotal">0.00</span></div>
-        <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-color); margin-top: 2px;">Precio Sugerido: $<span id="lblPrecioFinal">0.00</span></div>
+        <div style="font-size: 0.75rem; color: #64748b;">Costo Total: <span id="lblCostoTotal">$ 0,00</span></div>
+        <div style="font-size: 1.05rem; font-weight: 800; color: var(--primary-color); margin-top: 2px;">Precio Sugerido: <span id="lblPrecioFinal">$ 0,00</span></div>
       </div>
 
       <button class="btn-accion" style="margin-top: 10px;" onclick="aplicarPrecioCalculado()">✅ Usar este Precio</button>
@@ -215,6 +205,11 @@
   </div>
 
   <script>
+    // --- Helper Formato Moneda Argentina ---
+    function formatearMoneda(valor) {
+      return '$ ' + (parseFloat(valor) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     // --- Lógica del Modal Custom ---
     let accionOkCallback = null;
     let accionCancelCallback = null;
@@ -294,7 +289,7 @@
           item.innerHTML = `
             <div class="stock-info">
               <span class="stock-producto">${p.producto}</span>
-              <span class="stock-detalles">Precio: $${Number(p.precio || 0).toFixed(2)}</span>
+              <span class="stock-detalles">Precio: ${formatearMoneda(p.precio)}</span>
             </div>
             <div class="acciones-item">
               <span class="stock-cantidad">${p.cantidad} un.</span>
@@ -317,24 +312,32 @@
       if (!producto) { mostrarAviso('Por favor, ingresá el nombre del producto.'); return; }
       if (isNaN(cantidad) || cantidad <= 0) { mostrarAviso('Por favor, ingresá una cantidad válida.'); return; }
 
+      const receta = {
+        insumos: recetaTemporal,
+        valorHora: document.getElementById('calcValorHora').value,
+        minutos: document.getElementById('calcMinutos').value,
+        ganancia: document.getElementById('calcGanancia').value
+      };
+
       if (editandoIndex !== null) {
         inventario[editandoIndex] = { 
           ...inventario[editandoIndex], 
           producto, 
           cantidad, 
           precio, 
+          receta: receta.insumos.length > 0 ? receta : inventario[editandoIndex].receta,
           fecha: inventario[editandoIndex].fecha || fechaSesion 
         };
         cancelarEdicion();
         guardarYActualizar();
         mostrarAviso('¡Producto actualizado con éxito!');
       } else {
-        // Le mandamos un ID por si ventas.html necesita anclarlo
-        inventario.push({ id: Date.now(), producto, cantidad, precio, fecha: fechaSesion });
+        inventario.push({ id: Date.now(), producto, cantidad, precio, receta, fecha: fechaSesion });
         limpiarFormulario();
         guardarYActualizar();
         mostrarAviso('¡Producto agregado al stock con éxito!');
       }
+      recetaTemporal = [];
     }
 
     function cargarParaEditar(index) {
@@ -357,6 +360,7 @@
       document.getElementById('btnAccion').innerText = '➕ Agregar al Stock';
       document.getElementById('btnAccion').style.backgroundColor = 'var(--primary-color)';
       document.getElementById('btnCancelar').style.display = 'none';
+      recetaTemporal = [];
       limpiarFormulario();
     }
 
@@ -384,62 +388,106 @@
       actualizarPantalla();
     }
 
-    /* CALCULADORA DE COSTOS */
+    /* CALCULADORA DE COSTOS CON RECETAS EN MEMORIA */
+    let recetaTemporal = [];
+    let precioSugeridoCalculado = 0;
+
     function abrirCalculadora() {
+      if (editandoIndex !== null && inventario[editandoIndex].receta) {
+        cargarRecetaEnModal(inventario[editandoIndex].receta);
+      } else if (document.getElementById('contenedorInsumos').children.length === 0) {
+        resetearCalculadora();
+      }
       document.getElementById('modalCalculadora').style.display = 'flex';
       calcularTotalModal();
     }
 
     function cerrarCalculadora() {
       document.getElementById('modalCalculadora').style.display = 'none';
-      resetearCalculadora();
     }
 
     function resetearCalculadora() {
-      document.getElementById('mat1_desc').value = '';
-      document.getElementById('mat1_val').value = '';
-      document.getElementById('mat2_desc').value = '';
-      document.getElementById('mat2_val').value = '';
-      document.getElementById('mat3_desc').value = '';
-      document.getElementById('mat3_val').value = '';
-      document.getElementById('mat4_desc').value = '';
-      document.getElementById('mat4_val').value = '';
+      const contenedor = document.getElementById('contenedorInsumos');
+      contenedor.innerHTML = '';
+      agregarFilaInsumo();
+      agregarFilaInsumo();
 
-      document.getElementById('calcValorHora').value = '10000';
+      const vHora = localStorage.getItem('sbo_valorHora') || '10000';
+      document.getElementById('calcValorHora').value = vHora;
       document.getElementById('calcMinutos').value = '';
       document.getElementById('calcGanancia').value = '50';
 
-      document.getElementById('lblCostoManoObra').innerText = '0.00';
-      document.getElementById('lblCostoTotal').innerText = '0.00';
-      document.getElementById('lblPrecioFinal').innerText = '0.00';
+      calcularTotalModal();
+    }
+
+    function agregarFilaInsumo(desc = '', costo = '') {
+      const contenedor = document.getElementById('contenedorInsumos');
+      const div = document.createElement('div');
+      div.className = 'calc-row';
+      div.innerHTML = `
+        <input type="text" class="insumo-desc" placeholder="Material / Insumo" value="${desc}" style="flex: 2; margin-top:0;">
+        <input type="number" class="insumo-val" placeholder="$ Costo" value="${costo}" step="0.01" style="flex: 1; margin-top:0;" oninput="calcularTotalModal()">
+        <button type="button" onclick="eliminarFilaInsumo(this)" style="background:none; border:none; color:#ef4444; font-weight:bold; cursor:pointer; padding:2px 4px;">✕</button>
+      `;
+      contenedor.appendChild(div);
+    }
+
+    function eliminarFilaInsumo(btn) {
+      btn.parentElement.remove();
+      calcularTotalModal();
     }
 
     function calcularTotalModal() {
-      const m1 = parseFloat(document.getElementById('mat1_val').value) || 0;
-      const m2 = parseFloat(document.getElementById('mat2_val').value) || 0;
-      const m3 = parseFloat(document.getElementById('mat3_val').value) || 0;
-      const m4 = parseFloat(document.getElementById('mat4_val').value) || 0;
+      const descs = document.querySelectorAll('.insumo-desc');
+      const vals = document.querySelectorAll('.insumo-val');
+      
+      let costoTotalInsumos = 0;
+      recetaTemporal = [];
+
+      vals.forEach((inputVal, i) => {
+        const val = parseFloat(inputVal.value) || 0;
+        const desc = descs[i] ? descs[i].value.trim() : '';
+        costoTotalInsumos += val;
+        if (desc || val > 0) {
+          recetaTemporal.push({ desc, costo: val });
+        }
+      });
 
       const valorHora = parseFloat(document.getElementById('calcValorHora').value) || 0;
       const minutos = parseFloat(document.getElementById('calcMinutos').value) || 0;
       
+      if (valorHora > 0) localStorage.setItem('sbo_valorHora', valorHora);
+
       const costoManoObra = (minutos / 60) * valorHora;
       const gananciaPct = parseFloat(document.getElementById('calcGanancia').value) || 0;
 
-      const costoTotalInsumos = m1 + m2 + m3 + m4;
       const costoTotal = costoTotalInsumos + costoManoObra;
-      const precioFinal = costoTotal * (1 + (gananciaPct / 100));
+      precioSugeridoCalculado = costoTotal * (1 + (gananciaPct / 100));
 
-      document.getElementById('lblCostoManoObra').innerText = costoManoObra.toFixed(2);
-      document.getElementById('lblCostoTotal').innerText = costoTotal.toFixed(2);
-      document.getElementById('lblPrecioFinal').innerText = precioFinal.toFixed(2);
+      document.getElementById('lblCostoManoObra').innerText = formatearMoneda(costoManoObra);
+      document.getElementById('lblCostoTotal').innerText = formatearMoneda(costoTotal);
+      document.getElementById('lblPrecioFinal').innerText = formatearMoneda(precioSugeridoCalculado);
     }
 
     function aplicarPrecioCalculado() {
-      const precioFinal = document.getElementById('lblPrecioFinal').innerText;
-      document.getElementById('txtPrecio').value = precioFinal;
-      document.getElementById('modalCalculadora').style.display = 'none';
-      resetearCalculadora();
+      document.getElementById('txtPrecio').value = precioSugeridoCalculado > 0 ? precioSugeridoCalculado.toFixed(2) : '';
+      cerrarCalculadora();
+    }
+
+    function cargarRecetaEnModal(recetaObj) {
+      const contenedor = document.getElementById('contenedorInsumos');
+      contenedor.innerHTML = '';
+
+      if (recetaObj.insumos && recetaObj.insumos.length > 0) {
+        recetaObj.insumos.forEach(i => agregarFilaInsumo(i.desc, i.costo));
+      } else {
+        agregarFilaInsumo();
+      }
+
+      document.getElementById('calcValorHora').value = recetaObj.valorHora || '10000';
+      document.getElementById('calcMinutos').value = recetaObj.minutos || '';
+      document.getElementById('calcGanancia').value = recetaObj.ganancia || '50';
+      calcularTotalModal();
     }
 
     /* CONTROL DE MODAL INVENTARIO */

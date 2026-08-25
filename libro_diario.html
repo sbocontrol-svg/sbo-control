@@ -24,7 +24,8 @@
     .container { width: 100%; max-width: 480px; }
     .card { background: white; padding: 14px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); margin-bottom: 12px; }
     
-    .btn-volver { background: #64748b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 10px; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .btn-volver { background: #64748b; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; text-decoration: none; display: inline-block; }
     .btn-volver:active { transform: scale(0.96); }
     
     .fecha-banner { background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; padding: 10px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 0.9rem; margin-bottom: 12px; }
@@ -94,8 +95,10 @@
 
   <div class="container">
     <div class="card">
-      <a href="menu.html" class="btn-volver no-print">⬅️ Volver al Menú</a>
-      <h2 style="margin: 0 0 4px; font-size: 1.25rem; color: var(--primary-color);">📖 Libro Diario</h2>
+      <div class="header-top">
+        <h2 style="margin: 0; font-size: 1.25rem; color: var(--primary-color);">📖 Libro Diario</h2>
+        <a href="menu.html" class="btn-volver no-print">⬅️ Volver</a>
+      </div>
       <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 12px;">Cierre y balance general de la jornada</p>
 
       <!-- SELECTOR DE FECHA DE CONSULTA -->
@@ -218,10 +221,15 @@
       // Filtrar ventas de la fecha seleccionada
       const ventasHoy = ventas.filter(v => v.fecha === fechaVer);
 
-      // Obtener Movimientos de Caja Chica
-      const movsFecha = JSON.parse(localStorage.getItem(`sbo_cajachica_${fechaVer}`)) || [];
-      const movsGral = (JSON.parse(localStorage.getItem('sbo_caja_movimientos')) || []).filter(m => m.fecha === fechaVer);
-      const movsHoy = [...movsFecha, ...movsGral];
+      // Obtener Movimientos de Caja Chica (Estructura unificada)
+      const cajaRaw = localStorage.getItem('sbo_cajachica') || localStorage.getItem('sbo_caja') || '[]';
+      const cajaGral = JSON.parse(cajaRaw);
+      
+      // Mantenemos soporte retroactivo por si había claves por fecha
+      const movsFechaEspecifica = JSON.parse(localStorage.getItem(`sbo_cajachica_${fechaVer}`)) || [];
+      const movsDelDia = cajaGral.filter(m => m.fecha === fechaVer);
+
+      const movsHoy = [...movsDelDia, ...movsFechaEspecifica];
       
       // Totales de ventas por medio de pago (Detección flexible)
       let totalVendido = 0;
@@ -241,7 +249,6 @@
         } else if (pago.includes('tarj') || pago.includes('débito') || pago.includes('debito') || pago.includes('crédito') || pago.includes('credito')) {
           tarjVentas += monto;
         } else {
-          // Si no entra en los filtros estándar, suma a digital por defecto
           mpVentas += monto;
         }
       });
@@ -254,9 +261,22 @@
       document.getElementById('lblPagoMP').innerText = formatPesos(mpVentas);
       document.getElementById('lblPagoTarjeta').innerText = formatPesos(tarjVentas);
 
-      // Cálculos de caja chica
-      const oIngresos = movsHoy.filter(m => m.tipo === 'ingreso').reduce((sum, m) => sum + Number(m.monto || 0), 0);
-      const egresos = movsHoy.filter(m => m.tipo === 'egreso').reduce((sum, m) => sum + Number(m.monto || 0), 0);
+      // Cálculos de caja chica (Maneja variaciones 'monto'/'importe' e 'ingreso'/'egreso')
+      let oIngresos = 0;
+      let egresos = 0;
+
+      movsHoy.forEach(m => {
+        const monto = Number(m.monto || m.importe || 0);
+        const tipo = (m.tipo || '').toLowerCase();
+        if (tipo.includes('ingreso') || tipo.includes('fondo') || tipo.includes('entrada')) {
+          oIngresos += monto;
+        } else if (tipo.includes('egreso') || tipo.includes('gasto') || tipo.includes('salida')) {
+          egresos += monto;
+        } else {
+          if (monto >= 0) oIngresos += monto;
+          else egresos += Math.abs(monto);
+        }
+      });
       
       const efectivoFinal = efecVentas + oIngresos - egresos;
       const ventasDigitales = mpVentas + tarjVentas;
@@ -309,18 +329,20 @@
       // Render Lista de Movimientos de Caja
       let htmlMovs = '';
       movsHoy.forEach(m => {
-        const esEgreso = m.tipo === 'egreso';
+        const tipoLower = (m.tipo || '').toLowerCase();
+        const esEgreso = tipoLower.includes('egreso') || tipoLower.includes('gasto') || tipoLower.includes('salida');
         const color = esEgreso ? '#dc2626' : '#059669';
         const signo = esEgreso ? '-' : '+';
+        const monto = Number(m.monto || m.importe || 0);
 
         htmlMovs += `
           <div class="venta-item" style="display:flex; justify-content:space-between; align-items:center;">
             <div>
-              <div style="font-weight:bold; color: #1e293b;">${m.concepto || 'Movimiento vario'}</div>
+              <div style="font-weight:bold; color: #1e293b;">${m.concepto || m.detalle || 'Movimiento vario'}</div>
               <div class="venta-det" style="margin:0;">${(m.tipo || 'ingreso').toUpperCase()}</div>
             </div>
             <div style="font-weight:800; color:${color}; font-size: 0.95rem;">
-              ${signo}${formatPesos(m.monto)}
+              ${signo}${formatPesos(monto)}
             </div>
           </div>
         `;

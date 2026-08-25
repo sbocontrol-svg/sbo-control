@@ -186,7 +186,7 @@
           </div>
         </div>
 
-        <div class="ventas-total-box" id="lblTotalVenta">Total: $0</div>
+        <div class="ventas-total-box" id="lblTotalVenta">Total: $ 0,00</div>
       </div>
 
       <button class="ventas-btn-main" style="background:#16a34a; margin-top:12px;" onclick="confirmarVentaActual()">🚀 Confirmar Venta</button>
@@ -226,7 +226,7 @@
       <p style="margin:4px 0; font-size:0.72rem; border-bottom:1px dashed #000;">DETALLE:</p>
       <div id="tDetalleProductos" style="max-height: 120px; overflow-y: auto;"></div>
 
-      <div style="font-size: 1.05rem; font-weight: bold; border-top: 2px dashed #000; border-bottom: 2px dashed #000; padding: 4px 0; margin-top: 6px; text-align: right;" id="tTotal">TOTAL: $0</div>
+      <div style="font-size: 1.05rem; font-weight: bold; border-top: 2px dashed #000; border-bottom: 2px dashed #000; padding: 4px 0; margin-top: 6px; text-align: right;" id="tTotal">TOTAL: $ 0,00</div>
 
       <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
         <button class="ventas-btn-main" style="background:#16a34a; margin-top:0; padding: 10px;" id="btnWaTicket">💬 Compartir por WhatsApp</button>
@@ -249,6 +249,11 @@
   </div>
 
   <script>
+    // --- Helper Formato Moneda Argentina ---
+    function formatearMoneda(valor) {
+      return '$ ' + (parseFloat(valor) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     let accionOkCallback = null;
     let accionCancelCallback = null;
 
@@ -328,7 +333,7 @@
       clientesVentas = JSON.parse(localStorage.getItem('sbo_clientes')) || JSON.parse(localStorage.getItem('bma_clientes')) || JSON.parse(localStorage.getItem('clientes')) || [];
       ventasList = JSON.parse(localStorage.getItem('sbo_ventas')) || JSON.parse(localStorage.getItem('bma_ventas')) || JSON.parse(localStorage.getItem('ventas')) || [];
 
-      // Cargar Nombre y Eslogan dinámicos desde Configuración
+      // Cargar Nombre y Eslogan dinámicos
       const cfgLocal = JSON.parse(localStorage.getItem('sbo_config')) || JSON.parse(localStorage.getItem('bma_config')) || {};
       if (cfgLocal.nombreEmpresa || cfgLocal.nombre) configVentas.nombre = cfgLocal.nombreEmpresa || cfgLocal.nombre;
       if (cfgLocal.eslogan) configVentas.eslogan = cfgLocal.eslogan;
@@ -443,7 +448,7 @@
             const precioProd = p.precio || p.precioVenta || 0;
             
             if (nombreProd) {
-              selProd.innerHTML += `<option value="${idProd}">${nombreProd} (Stock: ${stockProd} u. | $${precioProd})</option>`;
+              selProd.innerHTML += `<option value="${idProd}">${nombreProd} (Stock: ${stockProd} u. | ${formatearMoneda(precioProd)})</option>`;
             }
           });
         }
@@ -476,7 +481,6 @@
       const stockActual = prod.cantidad !== undefined ? prod.cantidad : (prod.stock !== undefined ? prod.stock : 0);
       const nombreProd = prod.producto || prod.nombre || prod.descripcion || 'Producto';
       
-      // Control acumulado del stock ya agregado al carrito
       const cantEnCarrito = carritoVentas
         .filter(item => item.productoId == pId)
         .reduce((sum, item) => sum + item.cant, 0);
@@ -519,7 +523,7 @@
 
       if (carritoVentas.length === 0) {
         cont.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.78rem; margin:4px 0;">El carrito está vacío</p>';
-        if (totalBox) totalBox.innerText = 'Total: $0';
+        if (totalBox) totalBox.innerText = 'Total: $ 0,00';
         return;
       }
 
@@ -532,10 +536,10 @@
           <div class="ventas-cart-item">
             <div>
               <strong>${item.nombre}</strong><br>
-              <small>${item.cant} u. x $${item.precio.toLocaleString('es-AR')}</small>
+              <small>${item.cant} u. x ${formatearMoneda(item.precio)}</small>
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
-              <span><strong>$${item.subtotal.toLocaleString('es-AR')}</strong></span>
+              <span><strong>${formatearMoneda(item.subtotal)}</strong></span>
               <button class="ventas-btn-del-cart" onclick="eliminarDelCarritoVentas(${idx})">✕</button>
             </div>
           </div>
@@ -559,12 +563,12 @@
       if (totalBox) {
         if (montoDescuento > 0) {
           totalBox.innerHTML = `
-            <div style="font-size: 0.8rem; color: #64748b; font-weight: normal;">Subtotal: $${subtotalBruto.toLocaleString('es-AR')}</div>
-            <div style="font-size: 0.8rem; color: #dc2626; font-weight: normal;">Descuento: -$${montoDescuento.toLocaleString('es-AR')}</div>
-            <div style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-top: 2px;">Total: $${totalFinal.toLocaleString('es-AR')}</div>
+            <div style="font-size: 0.8rem; color: #64748b; font-weight: normal;">Subtotal: ${formatearMoneda(subtotalBruto)}</div>
+            <div style="font-size: 0.8rem; color: #dc2626; font-weight: normal;">Descuento: -${formatearMoneda(montoDescuento)}</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-top: 2px;">Total: ${formatearMoneda(totalFinal)}</div>
           `;
         } else {
-          totalBox.innerHTML = `Total: $${totalFinal.toLocaleString('es-AR')}`;
+          totalBox.innerHTML = `Total: ${formatearMoneda(totalFinal)}`;
         }
       }
     }
@@ -606,6 +610,7 @@
       }
       const total = Math.max(0, subtotalBruto - montoDescuento);
 
+      // Descontar Stock
       carritoVentas.forEach(item => {
         const prod = buscarProductoVentasPorId(item.productoId);
         if (prod) {
@@ -615,11 +620,13 @@
       });
       localStorage.setItem('sbo_stock', JSON.stringify(stockVentas));
 
+      const horaActual = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
       const nuevaVenta = {
         id: Date.now(),
         numTicket: String(ventasList.length + 1).padStart(4, '0'),
         fecha: fechaSesionVentas,
-        hora: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+        hora: horaActual,
         cliente: clienteNombre,
         telefono: clienteTelefono,
         pago,
@@ -629,8 +636,25 @@
         total
       };
 
+      // Guardar Venta
       ventasList.unshift(nuevaVenta);
       localStorage.setItem('sbo_ventas', JSON.stringify(ventasList));
+
+      // INTEGRACIÓN: Registrar ingreso automático en la Caja Chica del día
+      try {
+        const keyCaja = `sbo_cajachica_${fechaSesionVentas}`;
+        let movsCaja = JSON.parse(localStorage.getItem(keyCaja)) || [];
+        movsCaja.push({
+          tipo: 'ingreso',
+          concepto: `Venta Ticket N° ${nuevaVenta.numTicket} (${clienteNombre})`,
+          monto: total,
+          medio: pago,
+          hora: horaActual
+        });
+        localStorage.setItem(keyCaja, JSON.stringify(movsCaja));
+      } catch (e) {
+        console.error("Error registrando en Caja Chica:", e);
+      }
 
       carritoVentas = [];
       if (document.getElementById('vDescuentoPorc')) document.getElementById('vDescuentoPorc').value = 0;
@@ -675,12 +699,12 @@
           <div class="venta-item">
             <div class="venta-header">
               <span>Ticket N° ${v.numTicket} - ${v.cliente}</span>
-              <span style="color:#0f172a;">$${v.total.toLocaleString('es-AR')}</span>
+              <span style="color:#0f172a;">${formatearMoneda(v.total)}</span>
             </div>
             <div class="venta-detalles">
               📅 ${formatearFechaVentas(v.fecha)} ${v.hora} hs | 💳 ${v.pago}<br>
               📦 ${v.items.map(i => `${i.cant}x ${i.nombre}`).join(', ')}
-              ${v.descuentoAplicado > 0 ? `<br><span style="color:#dc2626;">🏷️ Descuento aplicado: -$${v.descuentoAplicado.toLocaleString('es-AR')}</span>` : ''}
+              ${v.descuentoAplicado > 0 ? `<br><span style="color:#dc2626;">🏷️ Descuento aplicado: -${formatearMoneda(v.descuentoAplicado)}</span>` : ''}
             </div>
             <div class="ventas-acciones">
               <button class="ventas-btn-action" style="background: #e0f2fe; color: #0369a1;" onclick="verTicketVentas(${v.id})">📄 Ver</button>
@@ -713,15 +737,15 @@
 
       v.items.forEach(i => {
         let descItem = `${i.cant}x ${i.nombre}`;
-        if (i.cant > 1) descItem += ` ($${i.precio.toLocaleString('es-AR')} c/u)`;
+        if (i.cant > 1) descItem += ` (${formatearMoneda(i.precio)} c/u)`;
 
         itemsHtml += `
           <div style="display: flex; justify-content: space-between; font-size: 0.72rem; margin: 3px 0;">
             <span>${descItem}</span>
-            <span>$${i.subtotal.toLocaleString('es-AR')}</span>
+            <span>${formatearMoneda(i.subtotal)}</span>
           </div>
         `;
-        textoWa += `• ${i.cant}x ${i.nombre}${i.cant > 1 ? ` ($${i.precio.toLocaleString('es-AR')} c/u)` : ''} - $${i.subtotal.toLocaleString('es-AR')}\n`;
+        textoWa += `• ${i.cant}x ${i.nombre}${i.cant > 1 ? ` (${formatearMoneda(i.precio)} c/u)` : ''} - ${formatearMoneda(i.subtotal)}\n`;
       });
 
       if (v.descuentoAplicado && v.descuentoAplicado > 0) {
@@ -730,21 +754,21 @@
           <div style="border-top: 1px dashed #000; margin-top: 4px; padding-top: 4px;">
             <div style="display: flex; justify-content: space-between; font-size: 0.72rem;">
               <span>Subtotal:</span>
-              <span>$${subBruto.toLocaleString('es-AR')}</span>
+              <span>${formatearMoneda(subBruto)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #b91c1c;">
               <span>Descuento:</span>
-              <span>-$${v.descuentoAplicado.toLocaleString('es-AR')}</span>
+              <span>-${formatearMoneda(v.descuentoAplicado)}</span>
             </div>
           </div>
         `;
-        textoWa += `\nSubtotal: $${subBruto.toLocaleString('es-AR')}\nDescuento: -$${v.descuentoAplicado.toLocaleString('es-AR')}\n`;
+        textoWa += `\nSubtotal: ${formatearMoneda(subBruto)}\nDescuento: -${formatearMoneda(v.descuentoAplicado)}\n`;
       }
 
-      textoWa += `\n*TOTAL: $${v.total.toLocaleString('es-AR')}*\n\n¡Muchas gracias!`;
+      textoWa += `\n*TOTAL: ${formatearMoneda(v.total)}*\n\n¡Muchas gracias!`;
 
       document.getElementById('tDetalleProductos').innerHTML = itemsHtml;
-      document.getElementById('tTotal').innerText = `TOTAL: $${v.total.toLocaleString('es-AR')}`;
+      document.getElementById('tTotal').innerText = `TOTAL: ${formatearMoneda(v.total)}`;
 
       let telCliente = v.telefono || '';
       if (!telCliente && v.cliente) {
@@ -752,7 +776,6 @@
         telCliente = cliObj ? (cliObj.tel || cliObj.telefono || '') : '';
       }
       
-      // Limpieza de teléfono argentina para WhatsApp
       let telWa = telCliente.replace(/\D/g, '');
       if (telWa.startsWith('0')) telWa = telWa.substring(1);
       if (telWa.startsWith('15')) telWa = telWa.substring(2);
@@ -775,10 +798,12 @@
     }
 
     function anularVentaActual(idVenta) {
-      mostrarConfirmacion('¿Anular esta venta? El stock será devuelto.', 'S. B. O. Control', () => {
+      mostrarConfirmacion('¿Anular esta venta? El stock será devuelto y se ajustará la Caja Chica.', 'S. B. O. Control', () => {
         const idx = ventasList.findIndex(v => v.id === idVenta);
         if (idx !== -1) {
           const ventaAnulada = ventasList[idx];
+          
+          // Devuelve Stock
           ventaAnulada.items.forEach(item => {
             const prod = buscarProductoVentasPorId(item.productoId);
             if (prod) {
@@ -786,12 +811,28 @@
               else if (prod.stock !== undefined) prod.stock += item.cant;
             }
           });
-
           localStorage.setItem('sbo_stock', JSON.stringify(stockVentas));
+
+          // Registrar egreso compensatorio en Caja Chica por la anulación
+          try {
+            const keyCaja = `sbo_cajachica_${fechaSesionVentas}`;
+            let movsCaja = JSON.parse(localStorage.getItem(keyCaja)) || [];
+            movsCaja.push({
+              tipo: 'egreso',
+              concepto: `ANULACIÓN Ticket N° ${ventaAnulada.numTicket} (${ventaAnulada.cliente})`,
+              monto: ventaAnulada.total,
+              medio: ventaAnulada.pago,
+              hora: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+            });
+            localStorage.setItem(keyCaja, JSON.stringify(movsCaja));
+          } catch (e) {
+            console.error("Error registrando anulación en Caja Chica:", e);
+          }
+
           ventasList.splice(idx, 1);
           localStorage.setItem('sbo_ventas', JSON.stringify(ventasList));
 
-          mostrarAviso('✅ Venta anulada y stock devuelto.');
+          mostrarAviso('✅ Venta anulada, stock devuelto y Caja Chica ajustada.');
           cargarDesplegablesVentas();
           renderizarHistorialVentas();
         }

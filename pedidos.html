@@ -23,6 +23,21 @@
     .container { width: 100%; max-width: 440px; }
     .card { background: white; padding: 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
 
+    .btn-volver { 
+      background: #64748b; 
+      color: white; 
+      border: none; 
+      padding: 6px 10px; 
+      border-radius: 8px; 
+      font-weight: bold; 
+      font-size: 0.85rem; 
+      cursor: pointer; 
+      text-decoration: none; 
+      display: inline-block; 
+      transition: background 0.2s ease;
+    }
+    .btn-volver:active { transform: scale(0.96); background: #475569; }
+
     .pedidos-container-box *, .pedidos-modal-overlay * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     .pedidos-container-box label, .pedidos-modal-container label { font-size: 11px; font-weight: 700; color: #475569; display: block; margin-top: 10px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
     
@@ -47,6 +62,49 @@
     .pedidos-container-box input:focus, .pedidos-container-box select:focus, .pedidos-container-box textarea:focus,
     .pedidos-modal-container input:focus, .pedidos-modal-container select:focus, .pedidos-modal-container textarea:focus { border-color: #2f4f2f; background: #fff; }
     
+    /* Panel Metricas */
+    .dashboard-summary {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      margin-bottom: 6px;
+    }
+    .metric-card {
+      flex: 1;
+      background: #f1f5f9;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 8px;
+      text-align: center;
+    }
+    .metric-card .title { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+    .metric-card .value { font-size: 1rem; font-weight: 800; color: #2f4f2f; margin-top: 2px; }
+    .metric-card.alert .value { color: #dc2626; }
+
+    /* Filtros rápidas */
+    .filter-chips {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-top: 8px;
+    }
+    .filter-chip {
+      background: #e2e8f0;
+      color: #475569;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .filter-chip.active {
+      background: #2f4f2f;
+      color: white;
+    }
+
     /* Botones principales en Azul */
     .pedidos-btn-main { 
       background: #2563eb; 
@@ -57,7 +115,7 @@
       border-radius: 10px; 
       font-weight: 700; 
       font-size: 0.92rem; 
-      margin-top: 14px; 
+      margin-top: 10px; 
       cursor: pointer; 
       box-shadow: 0 4px 12px rgba(37,99,235,0.3); 
       display: flex;
@@ -68,27 +126,19 @@
     }
     .pedidos-btn-main:active { background: #1d4ed8; }
 
-    /* Botones secundarios en Gris Topo */
     .pedidos-btn-secundario { 
       background: #64748b; 
       color: white; 
       border: none; 
-      padding: 12px; 
-      width: 100%; 
-      border-radius: 10px; 
+      padding: 8px 12px; 
+      border-radius: 8px; 
       font-weight: bold; 
-      font-size: 0.95rem; 
-      margin-top: 10px; 
+      font-size: 0.8rem; 
       cursor: pointer; 
-      display: flex; 
+      display: inline-flex; 
       align-items: center; 
-      justify-content: center; 
-      gap: 6px; 
-      text-decoration: none; 
-      box-shadow: 0 4px 12px rgba(100,116,139,0.3);
-      transition: background 0.2s ease;
+      gap: 4px; 
     }
-    .pedidos-btn-secundario:active { background: #475569; }
     
     .pedidos-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(47,79,47,0.7); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
     .pedidos-modal-overlay.active { display: flex; }
@@ -130,26 +180,46 @@
   <div class="container">
     <div class="card">
       <div class="pedidos-container-box">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 4px;">
-          <div style="display: flex; flex-direction: column; justify-content: space-between; height: 48px;">
-            <h3 style="font-size: 1.05rem; color: #2f4f2f; font-weight: 800; margin: 0; line-height: 1;">📌 Pedidos y Encargos</h3>
-            <div id="lblFechaTrabajoPedidos" style="font-size: 0.80rem; color: #64748b; font-weight: 700; line-height: 1;">Fecha: -</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 8px;">
+          <div>
+            <h3 style="font-size: 1.1rem; color: #2f4f2f; font-weight: 800; margin: 0; line-height: 1.2;">📌 Pedidos y Encargos</h3>
+            <div id="lblFechaTrabajoPedidos" style="font-size: 0.80rem; color: #64748b; font-weight: 700; margin-top: 4px;">Fecha: -</div>
           </div>
-          
-          <button onclick="window.cerrarVentanaModalPedidosGen()" title="Volver al Menú" style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;">
-            <img src="logosbo.jpg" alt="Logo SBO" style="width: 56px; height: 56px; object-fit: contain;">
-          </button>
+          <button onclick="window.cerrarVentanaModalPedidosGen()" class="btn-volver">⬅️ Volver</button>
         </div>
 
-        <button class="pedidos-btn-main" style="margin-top: 4px;" onclick="window.abrirModalNuevoPedido()">
+        <!-- PANEL DE MÉTRICAS / PLATAS EN LA CALLE -->
+        <div class="dashboard-summary">
+          <div class="metric-card alert">
+            <div class="title">Por Cobrar</div>
+            <div class="value" id="lblPlataEnLaCalle">$0</div>
+          </div>
+          <div class="metric-card">
+            <div class="title">Encargos Activos</div>
+            <div class="value" id="lblPedidosActivos">0</div>
+          </div>
+        </div>
+
+        <button class="pedidos-btn-main" onclick="window.abrirModalNuevoPedido()">
           ➕ Nuevo Encargo / Pedido
         </button>
 
-        <input type="text" id="buscarPedidoInput" placeholder="🔍 Buscar por cliente o detalle..." onkeyup="window.renderizarListaPedidos()" style="margin-top: 10px;">
+        <!-- FILTROS DE ESTADO Y BÚSQUEDA -->
+        <div class="filter-chips">
+          <button class="filter-chip active" onclick="window.filtrarPorEstado('TODOS', this)">Todos</button>
+          <button class="filter-chip" onclick="window.filtrarPorEstado('Pendiente', this)">⏳ Pendientes</button>
+          <button class="filter-chip" onclick="window.filtrarPorEstado('En Proceso', this)">🧵 En Proceso</button>
+          <button class="filter-chip" onclick="window.filtrarPorEstado('Listo', this)">✅ Listos</button>
+          <button class="filter-chip" onclick="window.filtrarPorEstado('Entregado', this)">📦 Entregados</button>
+        </div>
 
-        <div id="listaPedidosContenedor" style="margin-top: 12px;"></div>
+        <input type="text" id="buscarPedidoInput" placeholder="🔍 Buscar cliente o producto..." onkeyup="window.renderizarListaPedidos()" style="margin-top: 8px;">
 
-        <button onclick="window.cerrarVentanaModalPedidosGen()" class="pedidos-btn-secundario">Volver al Menú</button>
+        <div id="listaPedidosContenedor" style="margin-top: 10px;"></div>
+
+        <div style="margin-top: 14px; text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 10px;">
+          <button onclick="window.exportarBackupPedidos()" class="pedidos-btn-secundario">💾 Backup Pedidos</button>
+        </div>
       </div>
     </div>
   </div>
@@ -199,7 +269,7 @@
           <input type="number" id="pTotal" placeholder="0" readonly style="background: #e2e8f0; font-weight: bold;">
         </div>
         <div style="flex: 1;">
-          <label>Seña ($):</label>
+          <label>Seña Abonada ($):</label>
           <input type="number" id="pSena" value="0" min="0" oninput="window.calcularSaldoPendiente()">
         </div>
       </div>
@@ -256,7 +326,7 @@
 
       <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 6px;">
         <button class="pedidos-btn-main" style="margin-top:0;" id="btnWaPedido">💬 Enviar Resumen por WhatsApp</button>
-        <button class="pedidos-btn-secundario" style="margin-top:0;" onclick="window.cerrarTicketPedido()">Cerrar</button>
+        <button class="pedidos-btn-secundario" style="margin-top:0; width:100%; justify-content:center;" onclick="window.cerrarTicketPedido()">Cerrar</button>
       </div>
     </div>
   </div>
@@ -284,6 +354,7 @@
       let productosStock = [];
       let pedidosList = [];
       let itemsPedidoActual = [];
+      let estadoFiltroActual = 'TODOS';
       let configPedidos = { nombre: 'S. B. O. Control', eslogan: 'Control y Gestión Comercial' };
 
       function obtenerFechaLocal() {
@@ -295,6 +366,24 @@
         if (!f) return 'Sin fecha';
         const p = f.split('-');
         return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : f;
+      }
+
+      function registrarIngresoCaja(monto, concepto) {
+        if (!monto || monto <= 0) return;
+        try {
+          let caja = obtenerDatosSafe('sbo_caja') || obtenerDatosSafe('bma_caja') || [];
+          caja.unshift({
+            id: Date.now(),
+            fecha: obtenerFechaLocal(),
+            concepto: concepto,
+            monto: parseFloat(monto),
+            tipo: 'INGRESO',
+            metodo: 'Efectivo/Digital'
+          });
+          localStorage.setItem('sbo_caja', JSON.stringify(caja));
+        } catch(e) {
+          console.error("Error al registrar en caja", e);
+        }
       }
 
       function inicializarPedidos() {
@@ -397,6 +486,13 @@
         document.getElementById('pSaldoTexto').innerText = `$${saldo.toLocaleString('es-AR')}`;
       };
 
+      window.filtrarPorEstado = function(estado, btn) {
+        estadoFiltroActual = estado;
+        document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        window.renderizarListaPedidos();
+      };
+
       window.abrirModalNuevoPedido = function() {
         document.getElementById('pIdEdit').value = '';
         document.getElementById('tituloModalPedido').innerText = '📝 Registrar Pedido';
@@ -454,6 +550,23 @@
         if (idEdit) {
           const idx = pedidosList.findIndex(p => p.id == idEdit);
           if (idx !== -1) {
+            const pedidoViejo = pedidosList[idx];
+            
+            // Impactar seña adicional o saldo cobrado a caja si cambia
+            if (sena > pedidoViejo.sena) {
+              const diffSeña = sena - pedidoViejo.sena;
+              registrarIngresoCaja(diffSeña, `Seña Adicional Pedido #${pedidoViejo.numPedido} - ${clienteNom}`);
+            }
+
+            if (estado === 'Entregado' && pedidoViejo.estado !== 'Entregado') {
+              const saldoPendiente = Math.max(0, total - sena);
+              if (saldoPendiente > 0) {
+                if (confirm(`¿Ingresar el saldo pendiente ($${saldoPendiente.toLocaleString('es-AR')}) a la Caja Diaria?`)) {
+                  registrarIngresoCaja(saldoPendiente, `Cobro Saldo Entrega Pedido #${pedidoViejo.numPedido} - ${clienteNom}`);
+                }
+              }
+            }
+
             pedidosList[idx] = { 
               ...pedidosList[idx], 
               cliente: clienteNom, 
@@ -468,9 +581,10 @@
             };
           }
         } else {
+          const numPedido = String(pedidosList.length + 1).padStart(4, '0');
           const nuevo = {
             id: Date.now(),
-            numPedido: String(pedidosList.length + 1).padStart(4, '0'),
+            numPedido,
             fechaRegistro: obtenerFechaLocal(),
             cliente: clienteNom,
             telefono: clienteTel,
@@ -482,7 +596,13 @@
             fechaEntrega,
             estado
           };
+          
           pedidosList.unshift(nuevo);
+
+          // Impacto automático en Caja
+          if (sena > 0) {
+            registrarIngresoCaja(sena, `Seña Pedido #${numPedido} - ${clienteNom}`);
+          }
         }
 
         localStorage.setItem('sbo_pedidos', JSON.stringify(pedidosList));
@@ -492,13 +612,30 @@
 
       window.renderizarListaPedidos = function() {
         const cont = document.getElementById('listaPedidosContenedor');
-        const filtro = document.getElementById('buscarPedidoInput').value.toLowerCase();
+        const filtroTxt = document.getElementById('buscarPedidoInput').value.toLowerCase();
         if (!cont) return;
 
-        const filtrados = pedidosList.filter(p => p.cliente.toLowerCase().includes(filtro) || p.detalle.toLowerCase().includes(filtro));
+        let totalPlataEnLaCalle = 0;
+        let cantActivos = 0;
+
+        const filtrados = pedidosList.filter(p => {
+          const coincideTexto = p.cliente.toLowerCase().includes(filtroTxt) || p.detalle.toLowerCase().includes(filtroTxt);
+          const coincideEstado = (estadoFiltroActual === 'TODOS') || (p.estado === estadoFiltroActual);
+          return coincideTexto && coincideEstado;
+        });
+
+        pedidosList.forEach(p => {
+          if (p.estado !== 'Entregado') {
+            totalPlataEnLaCalle += Math.max(0, p.total - p.sena);
+            cantActivos++;
+          }
+        });
+
+        document.getElementById('lblPlataEnLaCalle').innerText = `$${totalPlataEnLaCalle.toLocaleString('es-AR')}`;
+        document.getElementById('lblPedidosActivos').innerText = cantActivos;
 
         if (filtrados.length === 0) {
-          cont.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:15px;">No hay encargos registrados.</p>';
+          cont.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:15px;">No hay encargos que coincidan.</p>';
           return;
         }
 
@@ -598,6 +735,16 @@
 
       window.cerrarTicketPedido = function() {
         document.getElementById('modalTicketPedido').classList.remove('active');
+      };
+
+      window.exportarBackupPedidos = function() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pedidosList, null, 2));
+        const dlAnchorElem = document.createElement('a');
+        dlAnchorElem.setAttribute("href", dataStr);
+        dlAnchorElem.setAttribute("download", `pedidos_backup_${obtenerFechaLocal()}.json`);
+        document.body.appendChild(dlAnchorElem);
+        dlAnchorElem.click();
+        dlAnchorElem.remove();
       };
 
       inicializarPedidos();
