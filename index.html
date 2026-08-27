@@ -26,7 +26,7 @@
     .brand-slogan { font-size: 0.8rem; color: #4b5563; font-weight: 600; text-transform: uppercase; }
     .divider { border: 0; border-top: 1px dashed #cbd5e1; margin: 8px 0; }
     .date-section { display: flex; align-items: center; justify-content: space-between; margin: 2px 0; }
-    .date-input { width: 140px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-weight: bold; color: #1e293b; background-color: #f8fafc; text-align: right; }
+    .date-input { width: 140px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-weight: bold; color: #64748b; background-color: #e2e8f0; text-align: right; pointer-events: none; }
     .client-display-section { text-align: center; margin: 4px 0 6px 0; background: #f8fafc; padding: 14px 10px; border-radius: 12px; border: 1px dashed #cbd5e1; }
     .client-box-label { font-size: 0.9rem; color: var(--primary-color); text-transform: uppercase; font-weight: 800; }
     .client-box-name { font-family: Georgia, serif; font-size: 1.35rem; color: #0f172a; font-weight: 700; font-style: italic; margin: 4px 0; }
@@ -85,7 +85,7 @@
     <hr class="divider">
     <div class="date-section">
       <label for="txtFechaSesion">📅 FECHA:</label>
-      <input type="date" id="txtFechaSesion" class="date-input">
+      <input type="date" id="txtFechaSesion" class="date-input" readonly tabindex="-1">
     </div>
     <hr class="divider">
     <div class="client-display-section">
@@ -496,7 +496,12 @@
         // Si ingresa bien, reseteamos el contador
         intentosFallidos = 0;
 
-        // 1. Validar Hardware del Dispositivo
+        // 1. Tomar la Fecha Actual del Sistema en formato YYYY-MM-DD
+        const hoySistemaStr = new Date().toISOString().split('T')[0];
+        localStorage.setItem('sbo_fechaSesion', hoySistemaStr);
+        localStorage.setItem('bma_fechaSesion', hoySistemaStr);
+
+        // 2. Validar Hardware del Dispositivo
         const hwActual = generarHuellaDispositivo();
         const hwLicencia = localStorage.getItem('sbo_huellaHardware') || (claveValida ? claveValida.hardware : null);
 
@@ -504,16 +509,34 @@
             return mostrarAviso(`❌ Dispositivo no autorizado.\n\nEsta licencia está registrada para otro equipo (${hwLicencia}).\nEste dispositivo es: ${hwActual}`);
         }
 
-        // 2. Validar Vencimiento de Licencia
+        // 3. Validar Vencimiento de Licencia contra la Fecha Actual del Sistema
         const fechaFinStr = localStorage.getItem('sbo_fechaFin') || (claveValida ? claveValida.fechaFin : null);
         if (fechaFinStr) {
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
+
             const partes = fechaFinStr.split('-');
             const fechaFin = new Date(partes[0], partes[1] - 1, parseInt(partes[2], 10));
 
             if (hoy > fechaFin) {
-                return mostrarAviso(`❌ Licencia Expirada.\n\nTu licencia venció el ${partes[2]}/${partes[1]}/${partes[0]}.\nPor favor ponete en contacto con soporte para renovarla.`);
+                const clienteNombre = localStorage.getItem('sbo_nombre') || 'Cliente';
+                const hwCliente = localStorage.getItem('sbo_huellaHardware') || hwActual;
+                
+                const msgVencido = encodeURIComponent(
+                    `¡Hola! Mi licencia de SBO Control se encuentra VENCIDA.\n\n` +
+                    `👤 Cliente: ${clienteNombre}\n` +
+                    `📅 Venció el: ${partes[2]}/${partes[1]}/${partes[0]}\n` +
+                    `🔒 HW: ${hwCliente}\n\n` +
+                    `Necesito renovar mi licencia para continuar operando.`
+                );
+
+                return mostrarAviso(
+                    `❌ Licencia Expirada.\n\nLa licencia se encuentra vencida (Venció el ${partes[2]}/${partes[1]}/${partes[0]}).\n\nAl tocar Aceptar serás redirigido a Soporte por WhatsApp para renovarla.`,
+                    'S. B. O. Control',
+                    () => {
+                        window.location.href = `https://wa.me/${NUMERO_WHATSAPP_SBO}?text=${msgVencido}`;
+                    }
+                );
             }
         }
 
