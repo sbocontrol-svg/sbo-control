@@ -98,6 +98,31 @@
       .container { max-width: 100%; }
       .card { box-shadow: none; border: 1px solid #cbd5e1; }
       .no-print { display: none !important; }
+
+      /* --- AJUSTES PARA IMPRESIÓN DEL INVENTARIO --- */
+      .modal-overlay { 
+        position: static !important; 
+        display: block !important; 
+        background: transparent !important; 
+        padding: 0 !important; 
+      }
+      .modal-container { 
+        max-width: 100% !important; 
+        box-shadow: none !important; 
+        border: none !important; 
+        padding: 0 !important; 
+        max-height: none !important; 
+      }
+      .lista-stock-modal { 
+        max-height: none !important; 
+        overflow: visible !important; 
+      }
+      .modal-header button, 
+      .btn-print, 
+      .btn-cerrar-gris, 
+      .acciones-item { 
+        display: none !important; 
+      }
     }
   </style>
 </head>
