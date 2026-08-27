@@ -36,7 +36,6 @@
         .btn:active { transform: scale(0.97); }
         .btn-seed { background-color: #0284c7; color: white; }
         .btn-license { background-color: #059669; color: white; }
-        .btn-unlock { background-color: #d97706; color: white; }
         .btn-clear { background-color: #dc2626; color: white; }
         .btn-back { background-color: #475569; color: white; margin-top: 10px; }
 
@@ -84,13 +83,6 @@
                 <option value="Licencia Honorífica Aeternum">Licencia Aeternum (Vitalicia)</option>
             </select>
             <button class="btn btn-license" onclick="aplicarLicenciaPrueba()">🔄 Forzar Licencia Seleccionada</button>
-        </div>
-
-        <!-- CONTROL DE INTENTOS DEV -->
-        <div class="section-title">🔓 Seguridad y Claves</div>
-        <div class="card-dev">
-            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 8px;">Si bloqueaste el acceso por ingresar mal la contraseña en Configuración, reiniciá los intentos acá.</p>
-            <button class="btn btn-unlock" onclick="desbloquearIntentosDev()">🔓 Resetear Intentos de Acceso Dev</button>
         </div>
 
         <!-- LIMPIEZA DE DATOS -->
@@ -143,10 +135,72 @@
 
             // 2. Ventas Ficticias de la Jornada
             const ventasDemo = [
-                { id: 101, fecha: fechaHoy, cliente: "Consumidor Final", total: 11300, pago: "Efectivo" },
-                { id: 102, fecha: fechaHoy, cliente: "María González", total: 9800, pago: "Transferencia" },
-                { id: 103, fecha: fechaHoy, cliente: "Juan Pérez", total: 4900, pago: "Tarjeta Débito" },
-                { id: 104, fecha: fechaHoy, cliente: "Lucas Rodríguez", total: 15700, pago: "Efectivo" }
+                { 
+                    id: 101, 
+                    ticket: "TK-101",
+                    fecha: fechaHoy, 
+                    cliente: "Consumidor Final", 
+                    total: 11300, 
+                    pago: "Efectivo",
+                    metodoPago: "Efectivo",
+                    items: [
+                        { id: 1, nombre: "Café de Especialidad 250g", cantidad: 1, precio: 8500, subtotal: 8500 },
+                        { id: 2, nombre: "Croissant de Almendras", cantidad: 1, precio: 2800, subtotal: 2800 }
+                    ],
+                    productos: [
+                        { id: 1, nombre: "Café de Especialidad 250g", cantidad: 1, precio: 8500, subtotal: 8500 },
+                        { id: 2, nombre: "Croissant de Almendras", cantidad: 1, precio: 2800, subtotal: 2800 }
+                    ]
+                },
+                { 
+                    id: 102, 
+                    ticket: "TK-102",
+                    fecha: fechaHoy, 
+                    cliente: "María González", 
+                    total: 9800, 
+                    pago: "Transferencia",
+                    metodoPago: "Transferencia",
+                    items: [
+                        { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 1, precio: 7200, subtotal: 7200 },
+                        { id: 2, nombre: "Croissant de Almendras", cantidad: 1, precio: 2600, subtotal: 2600 }
+                    ],
+                    productos: [
+                        { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 1, precio: 7200, subtotal: 7200 },
+                        { id: 2, nombre: "Croissant de Almendras", cantidad: 1, precio: 2600, subtotal: 2600 }
+                    ]
+                },
+                { 
+                    id: 103, 
+                    ticket: "TK-103",
+                    fecha: fechaHoy, 
+                    cliente: "Juan Pérez", 
+                    total: 4900, 
+                    pago: "Tarjeta Débito",
+                    metodoPago: "Tarjeta Débito",
+                    items: [
+                        { id: 5, nombre: "Sándwich Gouda y Jamón", cantidad: 1, precio: 4900, subtotal: 4900 }
+                    ],
+                    productos: [
+                        { id: 5, nombre: "Sándwich Gouda y Jamón", cantidad: 1, precio: 4900, subtotal: 4900 }
+                    ]
+                },
+                { 
+                    id: 104, 
+                    ticket: "TK-104",
+                    fecha: fechaHoy, 
+                    cliente: "Lucas Rodríguez", 
+                    total: 15700, 
+                    pago: "Efectivo",
+                    metodoPago: "Efectivo",
+                    items: [
+                        { id: 1, nombre: "Café de Especialidad 250g", cantidad: 1, precio: 8500, subtotal: 8500 },
+                        { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 1, precio: 7200, subtotal: 7200 }
+                    ],
+                    productos: [
+                        { id: 1, nombre: "Café de Especialidad 250g", cantidad: 1, precio: 8500, subtotal: 8500 },
+                        { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 1, precio: 7200, subtotal: 7200 }
+                    ]
+                }
             ];
 
             // 3. Caja e Identidad Ficticia
@@ -184,13 +238,6 @@
             localStorage.setItem('sbo_timestampActivacion', timestamp);
 
             mostrarToast(`🛡️ Licencia forzada a: "${licenciaSeleccionada}"`);
-        }
-
-        // --- UNLOCK INTENTOS DEV ---
-        function desbloquearIntentosDev() {
-            localStorage.setItem('sbo_dev_intentos', '0');
-            localStorage.setItem('sbo_sbo_dev_intentos', '0');
-            mostrarToast('🔓 Intentos de acceso dev reseteados a 0');
         }
 
         // --- RESPALDO Y RESETEO TOTAL ---

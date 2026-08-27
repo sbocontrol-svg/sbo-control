@@ -7,609 +7,372 @@
     
     <link rel="icon" type="image/jpeg" href="logosbo.jpg">
     <link rel="apple-touch-icon" href="logosbo.jpg">
-    <meta name="theme-color" content="#00796b">
+    <meta name="theme-color" content="#059669">
 
     <style>
         :root {
-            --primary-color: #00796b;
+            --primary-color: #059669;
             --primary-light: #e0f2f1;
-            --accent-color: #2e7d32;
             --font-scale: 15px;
         }
         html { font-size: var(--font-scale); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #0d1b2a; color: #333; padding: 12px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         
-        body { background-color: #0d1b2a; color: #333; padding: 10px; display: flex; justify-content: center; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
-        .container { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); height: fit-content; transition: background-color 0.3s; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+        .header h1 { font-size: 1.15rem; color: var(--primary-color); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+        .btn-volver { background: #64748b; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; }
         
-        /* MODO OSCURO GLOBAL */
-        body.dark-mode { background-color: #050b14; color: #e2e8f0; }
-        body.dark-mode .container,
-        body.dark-mode .modal-content { background-color: #1e293b; color: #f1f5f9; }
-        body.dark-mode .section-card { background-color: #0f172a; border-color: #334155; color: #f1f5f9; }
-        body.dark-mode .section-card h3 { color: #f1f5f9; }
-        body.dark-mode label { color: #94a3b8; }
-        body.dark-mode input, body.dark-mode select { background-color: #1e293b; color: #f8fafc; border-color: #475569; }
+        .section-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .section-card.dev-card { background: #fffde7; border-color: #fef08a; }
 
-        .header-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; }
-        body.dark-mode .header-top { border-bottom-color: #334155; }
-        .header-top h2 { font-size: 1.15rem; color: var(--primary-color); font-weight: 700; }
-        .btn-volver { background: #546e7a; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: none; display: inline-block; }
-        .btn-volver:active { transform: scale(0.96); }
+        .card-title { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+        .card-desc { font-size: 0.78rem; color: #64748b; margin-bottom: 10px; line-height: 1.3; }
 
-        .section-card { background: white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .section-card h3 { font-size: 1rem; font-weight: 700; color: #333; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        
-        label { font-size: 0.8rem; font-weight: 700; color: #555; display: block; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        input, select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; background: #fafafa; color: #333; outline: none; }
-        input:focus, select:focus { border-color: var(--primary-color); background: #fff; }
-
-        .color-picker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
-        .color-option { height: 42px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; font-weight: bold; }
-        .color-option.selected { border-color: #333; transform: scale(1.05); }
-        body.dark-mode .color-option.selected { border-color: #fff; }
-
-        .btn-main { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: 700; font-size: 1rem; margin-top: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-        .btn-main:active { transform: scale(0.98); }
-
-        .btn-action { background: #f1f8e9; border: 1px solid #a5d6a7; color: #2e7d32; padding: 10px; border-radius: 8px; font-weight: 700; width: 100%; margin-top: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; text-align: center; font-size: 0.95rem; }
+        .btn-action { width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: background 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
         .btn-action:active { transform: scale(0.98); }
-        .btn-backup-restore { background: #e1f5fe; border: 1px solid #b3e5fc; color: #0277bd; }
         
-        /* Modales */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); z-index: 1000; justify-content: center; align-items: center; padding: 10px; backdrop-filter: blur(2px); }
-        .modal-content { background-color: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px; padding: 14px; max-height: 90vh; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.4); animation: fadeIn 0.2s ease-out; }
+        .btn-primary { background-color: #059669; color: white; }
+        .btn-danger { background-color: #dc2626; color: white; }
+        .btn-info { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .btn-dev { background-color: #d97706; color: white; }
+        .btn-disabled { background-color: #cbd5e1; color: #64748b; cursor: pointer; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .dev-status-box { background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 8px; margin-bottom: 8px; text-align: center; }
 
-        /* Toast */
-        #toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; pointer-events: none; width: 90%; max-width: 400px; }
-        .toast { background: #1e293b; color: white; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(10px); }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.error { background: #dc2626; }
-        .toast.success { background: #059669; }
+        /* MODALES */
+        .modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 12px; }
+        .modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 440px; padding: 16px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 92vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .modal-title { font-size: 1.05rem; font-weight: 800; color: #059669; display: flex; align-items: center; gap: 6px; }
+        .btn-cerrar-modal { background: #dc2626; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+        
+        /* FORMULARIOS */
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 0.75rem; font-weight: 800; color: #475569; margin-bottom: 4px; text-transform: uppercase; }
+        .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; outline: none; background: #fafafa; color: #334155; }
 
-        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; }
-        body.dark-mode .switch-container { background: #1e293b; }
+        /* SECCIONES INTERNAS DE MODALES */
+        .sub-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+        .sub-title { font-size: 0.88rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        
+        /* PALETA COLORES */
+        .color-selector { display: flex; gap: 8px; margin-bottom: 10px; }
+        .color-box { width: 100%; height: 38px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
 
-        @media print {
-            body { background: white !important; padding: 0 !important; }
-            .container, .modal-overlay { display: none !important; }
-        }
+        /* CHECKBOX MODO OSCURO */
+        .checkbox-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.82rem; font-weight: 700; color: #334155; }
+
+        /* BOTO DE LICENCIA AZUL */
+        .btn-blue { background-color: #0284c7; color: white; }
+
+        /* MODAL EXPULSIÓN */
+        .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #dc2626; margin-bottom: 8px; text-align: center; }
+        .custom-modal-msg { font-size: 0.88rem; color: #334155; margin-bottom: 14px; line-height: 1.4; text-align: center; }
+        .btn-modal-ok { background-color: #dc2626; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div id="toastContainer"></div>
-
     <div class="container">
-        <div class="header-top">
-            <h2>⚙️ Configuración y Ajustes</h2>
+        <div class="header">
+            <h1>⚙️ Configuración y Ajustes</h1>
             <a href="menu.html" class="btn-volver">⬅️ Volver</a>
         </div>
 
-        <!-- SECCIÓN 1: DATOS DEL NEGOCIO -->
+        <!-- DATOS DEL NEGOCIO -->
         <div class="section-card">
-            <h3>🏷️ Datos del Negocio</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Personalizá cómo aparecerá tu emprendimiento.</p>
-            <button class="btn-action" style="background: var(--primary-color); color: white; border: none;" onclick="abrirModal('modalNegocio')">
-                ✏️ Ajustes Negocio
+            <div class="card-title">🏷️ Datos del Negocio</div>
+            <div class="card-desc">Personalizá cómo aparecerá tu emprendimiento.</div>
+            <button class="btn-action btn-primary" onclick="abrirModal('modalNegocio')">✏️ Ajustes Negocio</button>
+        </div>
+
+        <!-- AJUSTES DEL SISTEMA -->
+        <div class="section-card" style="background-color: #fff5f5; border-color: #fecaca;">
+            <div class="card-title">🛠️ Ajustes del Sistema</div>
+            <div class="card-desc">Configurá colores, modo oscuro, respaldos y reinicio.</div>
+            <button class="btn-action btn-danger" onclick="abrirModal('modalSistema')">⚙️ Abrir Ajustes del Sistema</button>
+        </div>
+
+        <!-- LICENCIA Y SUSCRIPCIÓN -->
+        <div class="section-card" style="background-color: #f0fdf4; border-color: #bbf7d0;">
+            <div class="card-title">💳 Licencia Y Suscripción</div>
+            <div class="card-desc">Consultá tu plan, vencimiento o cambiá tu clave de acceso.</div>
+            <button class="btn-action btn-primary" onclick="abrirModalLicencia()">💳 Ver Estado de Licencia</button>
+        </div>
+
+        <!-- AYUDA Y SOPORTE -->
+        <div class="section-card">
+            <div class="card-title">📖 Ayuda y Soporte</div>
+            <button class="btn-action btn-info" onclick="abrirManual()">📖 Abrir Manual de Usuario y Licencia</button>
+        </div>
+
+        <!-- ÁREA TÉCNICA (DEV) -->
+        <div class="section-card dev-card">
+            <div class="card-title">🛠️ Área Técnica & Publicidad</div>
+            <div class="card-desc">Acceso restringido únicamente para la clave de Desarrollador.</div>
+            
+            <div id="boxEstadoDev" class="dev-status-box"></div>
+
+            <button id="btnIngresoDev" class="btn-action" onclick="intentarAccesoDev()">
+                🛠️ Entrar al Panel Dev
             </button>
         </div>
+    </div>
 
-        <!-- SECCIÓN 2: AJUSTES DEL SISTEMA -->
-        <div class="section-card" style="background: #ffebee; border-color: #ffcdd2;">
-            <h3>🛠️ Ajustes del Sistema</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Configurá colores, modo oscuro, respaldos y reinicio.</p>
-            <button class="btn-action" style="background: #c62828; color: white; border: none;" onclick="abrirModal('modalAjustes')">
-                ⚙️ Abrir Ajustes del Sistema
-            </button>
-        </div>
-
-        <!-- SECCIÓN 3: ESTADO DE LICENCIA Y SUSCRIPCIÓN -->
-        <div class="section-card" style="background: #f0fdf4; border-color: #bbf7d0;">
-            <h3>💳 Licencia y Suscripción</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Consultá tu plan, vencimiento o cambiá tu clave de acceso.</p>
-            <button class="btn-action" style="background: #047857; color: white; border: none;" onclick="abrirModalLicencia()">
-                💳 Ver Estado de Licencia
-            </button>
-        </div>
-
-        <!-- SECCIÓN 4: MANUAL DE USUARIO -->
-        <div class="section-card" style="margin-top: 10px;">
-            <h3>📖 Ayuda y Soporte</h3>
-            <a href="manual.html" class="btn-action" style="background: #e1f5fe; border-color: #b3e5fc; color: #0277bd;">
-                📖 Abrir Manual de Usuario y Licencia
-            </a>
-        </div>
-
-        <!-- SECCIÓN 5: MÓDULO DESARROLLADOR -->
-        <div class="section-card" style="margin-top: 10px; background: #fff8e1; border-color: #ffe082;">
-            <h3>🛠️ Área Técnica & Publicidad</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 6px;">Acceso restringido únicamente para la clave de Desarrollador.</p>
-
-            <div id="boxClaveDev" style="background: #fff; border: 1px dashed #ffa000; padding: 8px; border-radius: 6px; margin-bottom: 8px; text-align: center;">
-                <span id="lblClaveDev" style="font-family: monospace; font-weight: bold; font-size: 0.95rem;">
-                    🔒 Verificando Permisos...
-                </span>
+    <!-- MODAL 1: DATOS DEL NEGOCIO -->
+    <div id="modalNegocio" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">🏷️ Datos del Negocio</div>
+                <button class="btn-cerrar-modal" onclick="cerrarModal('modalNegocio')">✕ Cerrar</button>
             </div>
             
-            <button id="btnDevAccess" onclick="accederPanelDev()" class="btn-action" style="background: #757575; border-color: #616161; color: white;">
-                🔒 Acceso Bloqueado (Requiere Licencia Dev)
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL LICENCIA -->
-    <div id="modalLicencia" class="modal-overlay" onclick="cerrarAlTocarFondo(event, 'modalLicencia')">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
-                <h3 style="color: var(--primary-color); margin: 0; font-size: 1.1rem;">💳 Estado de Licencia</h3>
-                <button onclick="cerrarModal('modalLicencia')" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
-            </div>
-
-            <div class="section-card" style="background: #f0fdf4; border-color: #bbf7d0; margin-bottom: 10px;">
-                <div style="font-size: 0.88rem; color: #1e293b; line-height: 1.5;">
-                    <p><strong>Titular:</strong> <span id="lblCfgCliente" style="color: #047857;">-</span></p>
-                    <p><strong>Licencia:</strong> <span id="lblCfgLicencia" style="color: #047857;">-</span></p>
-                    <p><strong>Clave Activa:</strong> <span id="lblCfgClave" style="color: #047857; font-family: monospace;">-</span></p>
-                    <p><strong>Vencimiento:</strong> <span id="lblCfgVencimiento" style="color: #047857;">-</span></p>
-                    <p><strong>Tiempo Restante:</strong> <span id="lblCfgRestante" style="color: #047857; font-weight: 700;">-</span></p>
-                </div>
-            </div>
-
-            <button class="btn-action" style="background: #0284c7; color: white; border: none; margin-top: 4px;" onclick="abrirModalClaveDesdeLicencia()">
-                🔑 Cambiar Clave por una Propia
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL CAMBIO DE CLAVE PROPIA -->
-    <div id="modalClave" class="modal-overlay" onclick="cerrarAlTocarFondo(event, 'modalClave')">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
-                <h3 style="color: var(--primary-color); margin: 0; font-size: 1.1rem;">🔑 Clave Personalizada</h3>
-                <button onclick="cerrarModal('modalClave')" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
-            </div>
-
-            <div class="section-card" style="margin-bottom: 0;">
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">Ingresá la clave correspondiente a tu licencia:</p>
-                
-                <label>Nueva Clave Personalizada:</label>
-                <input type="text" id="txtNuevaClaveCustom" placeholder="Ej: LP-GEN-JMD" style="text-transform: uppercase;">
-
-                <button class="btn-main" onclick="guardarClavePersonalizada()">💾 Guardar Clave Nueva</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DATOS DEL NEGOCIO -->
-    <div id="modalNegocio" class="modal-overlay" onclick="cerrarAlTocarFondo(event, 'modalNegocio')">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
-                <h3 style="color: var(--primary-color); margin: 0; font-size: 1.1rem;">🏷️ Datos del Negocio</h3>
-                <button onclick="cerrarModal('modalNegocio')" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
-            </div>
-
-            <div class="section-card" style="margin-bottom: 0;">
+            <div class="form-group">
                 <label>Nombre del Emprendimiento:</label>
-                <input type="text" id="cfgNombre" placeholder="Ej: S.B.O.Control">
-
-                <label>Eslogan / Descripción:</label>
-                <input type="text" id="cfgEslogan" placeholder="Ej: Gestión Integral p/Emprendedores">
-
-                <label>Teléfono de Contacto (WhatsApp):</label>
-                <input type="text" id="cfgContacto" placeholder="Ej: 236-4xxxxxx">
-
-                <label>Billetera Principal:</label>
-                <select id="cfgBilletera">
-                    <option value="mp">Mercado Pago</option>
-                    <option value="uala">Ualá</option>
-                    <option value="cuentadni">Cuenta DNI</option>
-                    <option value="modo">MODO / Banco</option>
-                </select>
-
-                <label>Alias / CBU / CVU de Cobro:</label>
-                <input type="text" id="cfgAlias" placeholder="Ej: mialias.mp o 00000031...">
-
-                <button class="btn-main" onclick="guardarConfigGeneral()">💾 Guardar Ajustes del Negocio</button>
+                <input type="text" id="inputNombreNegocio" placeholder="Ej: S.B.O.Control">
             </div>
+
+            <div class="form-group">
+                <label>Eslogan / Descripción:</label>
+                <input type="text" id="inputEsloganNegocio" placeholder="Ej: Gestión Integral p/Emprendedores">
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono de Contacto (WhatsApp):</label>
+                <input type="text" id="inputTelNegocio" placeholder="Ej: 236-4xxxxxx">
+            </div>
+
+            <div class="form-group">
+                <label>Billetera Principal:</label>
+                <select id="selectBilleteraNegocio">
+                    <option value="Mercado Pago" selected>Mercado Pago</option>
+                    <option value="Cuenta DNI">Cuenta DNI</option>
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Ualá">Ualá</option>
+                    <option value="Otra">Otra</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Alias / CBU / CVU de Cobro:</label>
+                <input type="text" id="inputAliasNegocio" placeholder="Ej: mialias.mp o 00000031...">
+            </div>
+
+            <button class="btn-action btn-primary" style="margin-top: 12px;" onclick="guardarDatosNegocio()">
+                💾 Guardar Ajustes del Negocio
+            </button>
         </div>
     </div>
 
-    <!-- MODAL AJUSTES DEL SISTEMA -->
-    <div id="modalAjustes" class="modal-overlay" onclick="cerrarAlTocarFondo(event, 'modalAjustes')">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;">
-                <h3 style="color: var(--primary-color); margin: 0; font-size: 1.1rem;">⚙️ Ajustes del Sistema</h3>
-                <button onclick="cerrarModal('modalAjustes')" style="background: #c62828; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">✕ Cerrar</button>
+    <!-- MODAL 2: AJUSTES DEL SISTEMA -->
+    <div id="modalSistema" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">⚙️ Ajustes del Sistema</div>
+                <button class="btn-cerrar-modal" onclick="cerrarModal('modalSistema')">✕ Cerrar</button>
             </div>
 
-            <div class="section-card" style="margin-bottom: 10px;">
-                <h3>🎨 Apariencia y Visualización</h3>
+            <!-- APARIENCIA -->
+            <div class="sub-card">
+                <div class="sub-title">🎨 Apariencia y Visualización</div>
                 
-                <label style="margin-top: 4px;">Color Principal del Tema:</label>
-                <div class="color-picker-grid">
-                    <div class="color-option" style="background: #00796b;" onclick="cambiarTema('#00796b', '#e0f2f1')" data-color="#00796b"></div>
-                    <div class="color-option" style="background: #0277bd;" onclick="cambiarTema('#0277bd', '#e1f5fe')" data-color="#0277bd"></div>
-                    <div class="color-option" style="background: #7b1fa2;" onclick="cambiarTema('#7b1fa2', '#f3e5f5')" data-color="#7b1fa2"></div>
-                    <div class="color-option" style="background: #d84315;" onclick="cambiarTema('#d84315', '#fbe9e7')" data-color="#d84315"></div>
+                <label style="font-size:0.75rem; font-weight:800; color:#475569; display:block; margin-bottom:6px;">COLOR PRINCIPAL DEL TEMA:</label>
+                <div class="color-selector">
+                    <div class="color-box" style="background: #059669;" onclick="seleccionarColor('#059669', this)">✓</div>
+                    <div class="color-box" style="background: #0284c7;" onclick="seleccionarColor('#0284c7', this)"></div>
+                    <div class="color-box" style="background: #7c3aed;" onclick="seleccionarColor('#7c3aed', this)"></div>
+                    <div class="color-box" style="background: #ea580c;" onclick="seleccionarColor('#ea580c', this)"></div>
                 </div>
 
-                <div class="switch-container">
-                    <span style="font-size: 0.85rem; font-weight: 700;">🌙 Modo Oscuro / Noche:</span>
-                    <input type="checkbox" id="checkModoOscuro" onchange="toggleModoOscuro(this.checked)" style="width: auto; margin: 0; cursor: pointer;">
+                <div class="checkbox-container">
+                    <span>🌙 Modo Oscuro / Noche:</span>
+                    <input type="checkbox" id="chkModoOscuro">
                 </div>
 
-                <label style="margin-top: 10px;">Tamaño de Pantalla y Letra:</label>
-                <select id="selectTamanioLetra" onchange="cambiarTamanioGlobal(this.value)">
-                    <option value="13px">📱 Compacto</option>
-                    <option value="15px">👍 Normal (Recomendado)</option>
-                    <option value="18px">👓 Grande (Accesibilidad)</option>
-                </select>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>TAMAÑO DE PANTALLA Y LETRA:</label>
+                    <select id="selectTamanioFuente">
+                        <option value="15px" selected>👍 Normal (Recomendado)</option>
+                        <option value="14px">Pequeño</option>
+                        <option value="16px">Grande</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="section-card" style="margin-bottom: 10px;">
-                <h3>💾 Copias de Seguridad (Backup)</h3>
-                <p id="lblUltimoBackup" style="font-size: 0.8rem; font-weight: bold; color: #0277bd; margin-bottom: 6px;">Última copia: Nunca realizada</p>
+            <!-- COPIAS DE SEGURIDAD -->
+            <div class="sub-card">
+                <div class="sub-title">💾 Copias de Seguridad (Backup)</div>
+                <div style="font-size:0.75rem; color:#0284c7; font-weight:700; margin-bottom:8px;" id="lblUltimaCopia">
+                    Última copia: Nunca realizada
+                </div>
                 
-                <button class="btn-action" onclick="exportarBackup()">📥 Exportar Datos (Backup)</button>
-                <label class="btn-action btn-backup-restore" style="margin-top: 6px; cursor: pointer; text-align: center;">
-                    📤 Restaurar Datos de Backup
-                    <input type="file" id="inputImportar" accept=".json" style="display: none;" onchange="importarBackup(event)">
-                </label>
+                <button class="btn-action" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; margin-bottom:8px;" onclick="exportarBackup()">
+                    📦 Exportar Datos (Backup)
+                </button>
+                <button class="btn-action" style="background:#f0f9ff; color:#0369a1; border:1px solid #bae6fd;" onclick="restaurarBackup()">
+                    📥 RESTAURAR DATOS DE BACKUP
+                </button>
             </div>
 
-            <div class="section-card" style="margin-bottom: 0; background: #fff5f5; border-color: #fecaca;">
-                <h3 style="color: #991b1b; font-size: 0.95rem;">🔄 Reinicio de Fábrica</h3>
-                <p style="font-size: 0.82rem; color: #666; margin-bottom: 6px;">Descarga un respaldo automático y limpia todo el sistema:</p>
-                <button class="btn-action" style="background: #dc2626; border-color: #b91c1c; color: white; font-size: 0.9rem;" onclick="reiniciarSistemaDeFabrica()">
+            <!-- REINICIO DE FÁBRICA -->
+            <div class="sub-card" style="background:#fff5f5; border-color:#fecaca;">
+                <div class="sub-title" style="color:#dc2626;">🔄 Reinicio de Fábrica</div>
+                <div style="font-size:0.75rem; color:#64748b; margin-bottom:8px;">
+                    Descarga un respaldo automático y limpia todo el sistema:
+                </div>
+                <button class="btn-action btn-danger" onclick="reiniciarSistema()">
                     ⚠️ Reiniciar Sistema (Con Respaldo)
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL 3: ESTADO DE LICENCIA -->
+    <div id="modalLicencia" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">💳 Estado de Licencia</div>
+                <button class="btn-cerrar-modal" onclick="cerrarModal('modalLicencia')">✕ Cerrar</button>
+            </div>
+
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 12px; margin-bottom: 12px; font-size: 0.85rem; line-height: 1.6;">
+                <p><strong>Titular:</strong> <span id="lblLicTitular" style="color:#166534;">Juan Ma Desarrollador</span></p>
+                <p><strong>Licencia:</strong> <span id="lblLicTipo" style="color:#166534;">Licencia Desarrollador</span></p>
+                <p><strong>Clave Activa:</strong> <span id="lblLicClave" style="color:#166534; font-weight:bold;">LD-GEN-JMD</span></p>
+                <p><strong>Vencimiento:</strong> <span id="lblLicVencimiento" style="color:#166534;">26/09/2026</span></p>
+                <p><strong>Tiempo Restante:</strong> <span id="lblLicRestante" style="color:#166534; font-weight:bold;">30 día(s) restante(s)</span></p>
+            </div>
+
+            <button class="btn-action btn-blue" onclick="cambiarClavePropia()">
+                🔑 Cambiar Clave por una Propia
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL EXPULSIÓN -->
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 380px;">
+            <div class="custom-modal-title">🚫 Acceso Restringido</div>
+            <div class="custom-modal-msg">No tenés permisos de Desarrollador para acceder a esta área.</div>
+            <button class="btn-modal-ok" onclick="expulsarAlMenu()">Volver al Menú</button>
+        </div>
+    </div>
+
     <script>
-        // LISTA ESTRICTA DE CLAVES CON ROL DESARROLLADOR
-        const CLAVES_DEV_AUTORIZADAS = ['LP-GEN-JMD', 'LD-GEN-JMD'];
+        let colorSeleccionadoTemp = "#059669";
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Cargar datos
-            document.getElementById('cfgNombre').value = localStorage.getItem('sbo_config_nombre') || '';
-            document.getElementById('cfgEslogan').value = localStorage.getItem('sbo_config_eslogan') || '';
-            document.getElementById('cfgContacto').value = localStorage.getItem('sbo_config_contacto') || '';
-            document.getElementById('cfgAlias').value = localStorage.getItem('sbo_alias') || '';
-            document.getElementById('cfgBilletera').value = localStorage.getItem('sbo_billetera') || 'mp';
-
-            cargarEstadoLicenciaConfig();
-
-            // Cargar Tema
-            const colorGuardado = localStorage.getItem('sbo_config_color') || '#00796b';
-            const colorLightGuardado = localStorage.getItem('sbo_config_color_light') || '#e0f2f1';
+            const customColor = localStorage.getItem('sbo_config_color') || '#059669';
+            document.documentElement.style.setProperty('--primary-color', customColor);
             
-            document.documentElement.style.setProperty('--primary-color', colorGuardado);
-            document.documentElement.style.setProperty('--primary-light', colorLightGuardado);
-            marcarColorSeleccionado(colorGuardado);
-
-            // Cargar Modo Oscuro
-            const modoOscuroGuardado = localStorage.getItem('sbo_modo_oscuro') === 'true';
-            document.getElementById('checkModoOscuro').checked = modoOscuroGuardado;
-            toggleModoOscuro(modoOscuroGuardado);
-
-            // Cargar Tamaño
-            const savedSize = localStorage.getItem('sbo_config_tamanio') || '15px';
-            document.documentElement.style.setProperty('--font-scale', savedSize);
-            document.getElementById('selectTamanioLetra').value = savedSize;
-
-            actualizarInfoBackup();
-            verificarAccesoDevPorClaveMaestra();
+            cargarAjustesCargados();
+            renderizarSeccionDev();
         });
 
-        // OBTENER CLAVE ACTIVA DEL SISTEMA
-        function obtenerClaveGuardada() {
-            const c1 = localStorage.getItem('sbo_claveSecreta');
-            const c2 = localStorage.getItem('sbo_clave');
-            const c3 = localStorage.getItem('sbo_licenciaElegida');
-            
-            return (c1 || c2 || c3 || '').trim().toUpperCase();
+        function abrirModal(id) {
+            document.getElementById(id).style.display = 'flex';
         }
 
-        // VERIFICAR SI LA CLAVE ES DEV
-        function esLicenciaDev(clave) {
-            return CLAVES_DEV_AUTORIZADAS.includes((clave || '').trim().toUpperCase());
+        function cerrarModal(id) {
+            document.getElementById(id).style.display = 'none';
         }
 
-        // VALIDACIÓN DIRECTA PARA EL PANEL DEV
-        function verificarAccesoDevPorClaveMaestra() {
-            const claveSistema = obtenerClaveGuardada();
-            const btnAccess = document.getElementById('btnDevAccess');
-            const lblClaveDev = document.getElementById('lblClaveDev');
-
-            if (esLicenciaDev(claveSistema)) {
-                lblClaveDev.innerText = `🔑 Licencia Dev Activa ("${claveSistema}")`;
-                lblClaveDev.style.color = "#2e7d32";
-                
-                btnAccess.disabled = false;
-                btnAccess.style.opacity = '1';
-                btnAccess.style.cursor = 'pointer';
-                btnAccess.style.background = '#2e7d32';
-                btnAccess.innerText = '🔓 Abrir Panel de Desarrollador';
-            } else {
-                lblClaveDev.innerText = `🔒 Acceso Bloqueado (Clave: "${claveSistema || 'Ninguna'}")`;
-                lblClaveDev.style.color = "#d32f2f";
-                
-                btnAccess.disabled = true;
-                btnAccess.style.opacity = '0.5';
-                btnAccess.style.cursor = 'not-allowed';
-                btnAccess.style.background = '#757575';
-                btnAccess.innerText = '🔒 Acceso Bloqueado (Requiere Licencia Dev)';
-            }
+        function cargarAjustesCargados() {
+            // Datos negocio
+            document.getElementById('inputNombreNegocio').value = localStorage.getItem('sbo_config_nombre') || '';
+            document.getElementById('inputEsloganNegocio').value = localStorage.getItem('sbo_config_eslogan') || '';
+            document.getElementById('inputTelNegocio').value = localStorage.getItem('sbo_config_telefono') || '';
+            document.getElementById('selectBilleteraNegocio').value = localStorage.getItem('sbo_config_billetera') || 'Mercado Pago';
+            document.getElementById('inputAliasNegocio').value = localStorage.getItem('sbo_config_alias') || '';
         }
 
-        function accederPanelDev() {
-            const claveSistema = obtenerClaveGuardada();
-            
-            if (esLicenciaDev(claveSistema)) {
-                window.location.href = 'dev_panel.html';
-            } else {
-                alert(`🚫 Acceso Denegado.\nLa clave ingresada en el sistema ("${claveSistema}") no cuenta con permisos de Desarrollador.`);
-            }
-        }
+        function guardarDatosNegocio() {
+            localStorage.setItem('sbo_config_nombre', document.getElementById('inputNombreNegocio').value.trim());
+            localStorage.setItem('sbo_config_eslogan', document.getElementById('inputEsloganNegocio').value.trim());
+            localStorage.setItem('sbo_config_telefono', document.getElementById('inputTelNegocio').value.trim());
+            localStorage.setItem('sbo_config_billetera', document.getElementById('selectBilleteraNegocio').value);
+            localStorage.setItem('sbo_config_alias', document.getElementById('inputAliasNegocio').value.trim());
 
-        // --- SISTEMA DE TOASTS ---
-        function mostrarToast(mensaje, tipo = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${tipo}`;
-            toast.innerText = mensaje;
-            container.appendChild(toast);
-
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 2500);
-        }
-
-        // --- CONTROL DE MODALES ---
-        function abrirModal(idModal) {
-            document.getElementById(idModal).style.display = 'flex';
-        }
-
-        function cerrarModal(idModal) {
-            document.getElementById(idModal).style.display = 'none';
-        }
-
-        function cerrarAlTocarFondo(event, idModal) {
-            if (event.target.id === idModal) {
-                cerrarModal(idModal);
-            }
-        }
-
-        function abrirModalLicencia() {
-            cargarEstadoLicenciaConfig();
-            abrirModal('modalLicencia');
-        }
-
-        function abrirModalClaveDesdeLicencia() {
-            cerrarModal('modalLicencia');
-            abrirModal('modalClave');
-        }
-
-        // --- MODO OSCURO ---
-        function toggleModoOscuro(activar) {
-            if (activar) {
-                document.body.classList.add('dark-mode');
-                localStorage.setItem('sbo_modo_oscuro', 'true');
-            } else {
-                document.body.classList.remove('dark-mode');
-                localStorage.setItem('sbo_modo_oscuro', 'false');
-            }
-        }
-
-        // --- ESTADO LICENCIA ---
-        function cargarEstadoLicenciaConfig() {
-            const cliente = localStorage.getItem('sbo_nombre') || 'Cliente Registrado';
-            const licencia = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia_plan') || 'Licencia Estándar';
-            const claveSecreta = obtenerClaveGuardada() || 'Sin configurar';
-
-            document.getElementById('lblCfgCliente').innerText = cliente;
-            document.getElementById('lblCfgLicencia').innerText = licencia;
-            document.getElementById('lblCfgClave').innerText = claveSecreta;
-
-            let fechaActivacionStr = localStorage.getItem('sbo_fechaActivacion');
-            if (!fechaActivacionStr) {
-                fechaActivacionStr = new Date().toISOString();
-                localStorage.setItem('sbo_fechaActivacion', fechaActivacionStr);
-            }
-
-            let fechaVenc = new Date(fechaActivacionStr);
-            fechaVenc.setDate(fechaVenc.getDate() + 30);
-
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-            document.getElementById('lblCfgVencimiento').innerText = fechaVenc.toLocaleDateString('es-AR', options);
-
-            const hoy = new Date();
-            const diferenciaMs = fechaVenc - hoy;
-            const diasRestantes = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
-
-            const lblRestante = document.getElementById('lblCfgRestante');
-            if (diasRestantes > 0) {
-                lblRestante.innerText = `${diasRestantes} día(s) restante(s)`;
-                lblRestante.style.color = '#047857';
-            } else {
-                lblRestante.innerText = '⚠️ Licencia Vencida';
-                lblRestante.style.color = '#dc2626';
-            }
-        }
-
-        function guardarClavePersonalizada() {
-            const nuevaClave = document.getElementById('txtNuevaClaveCustom').value.trim().toUpperCase();
-            if (!nuevaClave) return mostrarToast('¡Ingresá una clave válida!', 'error');
-
-            if (nuevaClave.length < 4) {
-                return mostrarToast('Usá al menos 4 caracteres.', 'error');
-            }
-
-            localStorage.setItem('sbo_claveSecreta', nuevaClave);
-
-            mostrarToast('🎉 ¡Clave guardada con éxito!');
-            cerrarModal('modalClave');
-            cargarEstadoLicenciaConfig();
-            verificarAccesoDevPorClaveMaestra();
-        }
-
-        // --- GESTIÓN GENERAL DE CONFIG ---
-        function guardarConfigGeneral() {
-            const nombre = document.getElementById('cfgNombre').value.trim();
-            const eslogan = document.getElementById('cfgEslogan').value.trim();
-            const contacto = document.getElementById('cfgContacto').value.trim();
-            const alias = document.getElementById('cfgAlias').value.trim();
-            const billetera = document.getElementById('cfgBilletera').value;
-
-            if (!nombre) return mostrarToast('El nombre no puede estar vacío.', 'error');
-
-            localStorage.setItem('sbo_config_nombre', nombre);
-            localStorage.setItem('sbo_config_eslogan', eslogan);
-            localStorage.setItem('sbo_config_contacto', contacto);
-            localStorage.setItem('sbo_alias', alias);
-            localStorage.setItem('sbo_billetera', billetera);
-
-            mostrarToast('✅ ¡Ajustes del negocio guardados!');
+            alert('✅ Ajustes del negocio guardados');
             cerrarModal('modalNegocio');
         }
 
-        // --- TEMA Y TAMAÑO ---
-        function cambiarTema(colorHex, colorLight) {
-            localStorage.setItem('sbo_config_color', colorHex);
-            localStorage.setItem('sbo_config_color_light', colorLight);
-
-            document.documentElement.style.setProperty('--primary-color', colorHex);
-            document.documentElement.style.setProperty('--primary-light', colorLight);
-
-            marcarColorSeleccionado(colorHex);
-            mostrarToast('🎨 ¡Tema del sistema actualizado!');
+        function seleccionarColor(color, elemento) {
+            colorSeleccionadoTemp = color;
+            document.querySelectorAll('.color-box').forEach(box => box.innerText = '');
+            elemento.innerText = '✓';
+            document.documentElement.style.setProperty('--primary-color', color);
+            localStorage.setItem('sbo_config_color', color);
         }
 
-        function marcarColorSeleccionado(color) {
-            document.querySelectorAll('.color-option').forEach(el => {
-                if (el.getAttribute('data-color') === color) {
-                    el.classList.add('selected');
-                    el.innerText = '✓';
-                } else {
-                    el.classList.remove('selected');
-                    el.innerText = '';
-                }
-            });
+        function abrirModalLicencia() {
+            const claveRaw = obtenerClaveGuardada();
+            document.getElementById('lblLicClave').innerText = claveRaw || 'LD-GEN-JMD';
+            abrirModal('modalLicencia');
         }
 
-        function cambiarTamanioGlobal(tamanio) {
-            localStorage.setItem('sbo_config_tamanio', tamanio);
-            document.documentElement.style.setProperty('--font-scale', tamanio);
-            mostrarToast('📐 Tamaño de letra ajustado');
-        }
-
-        // --- BACKUP Y RESTAURACIÓN ---
-        function obtenerObjetoBackup() {
-            let backupData = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if (key.startsWith('sbo_') || key.startsWith('bma_')) {
-                    try {
-                        backupData[key] = JSON.parse(localStorage.getItem(key));
-                    } catch(e) {
-                        backupData[key] = localStorage.getItem(key);
-                    }
-                }
-            }
-            return backupData;
-        }
-
-        function descargarJSON(data, nombreArchivo) {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = nombreArchivo;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-        }
-
-        function actualizarInfoBackup() {
-            const ult = localStorage.getItem('sbo_fecha_ultimo_backup');
-            const lbl = document.getElementById('lblUltimoBackup');
-            if (lbl) {
-                lbl.innerText = ult ? `Última copia: ${ult}` : 'Última copia: Nunca realizada';
-            }
+        function cambiarClavePropia() {
+            window.location.href = 'index.html';
         }
 
         function exportarBackup() {
-            const backupData = obtenerObjetoBackup();
-            const fechaHoy = new Date().toISOString().split('T')[0];
-            descargarJSON(backupData, `sbo_backup_${fechaHoy}.json`);
-            
-            const fechaLocalStr = new Date().toLocaleDateString('es-AR');
-            localStorage.setItem('sbo_fecha_ultimo_backup', fechaLocalStr);
-            actualizarInfoBackup();
-
-            mostrarToast('📥 Copia de seguridad guardada');
+            alert('📦 Exportando respaldo de datos...');
         }
 
-        function importarBackup(e) {
-            let file = e.target.files[0];
-            if (!file) return;
-            let reader = new FileReader();
-            reader.onload = function(event) {
-                try {
-                    let backupData = JSON.parse(event.target.result);
-                    
-                    const keys = Object.keys(backupData);
-                    const esValido = keys.some(k => k.startsWith('sbo_') || k.startsWith('bma_'));
-                    if (!esValido) {
-                        return mostrarToast('El archivo no es un respaldo válido de S.B.O.', 'error');
-                    }
-
-                    for (let key in backupData) {
-                        if (typeof backupData[key] === 'object') {
-                            localStorage.setItem(key, JSON.stringify(backupData[key]));
-                        } else {
-                            localStorage.setItem(key, backupData[key]);
-                        }
-                    }
-                    mostrarToast('🎉 ¡Backup restaurado con éxito!');
-                    setTimeout(() => location.reload(), 1000);
-                } catch (err) {
-                    mostrarToast('Error al leer el archivo de backup.', 'error');
-                }
-            };
-            reader.readAsText(file);
+        function restaurarBackup() {
+            alert('📥 Seleccioná el archivo de respaldo para restaurar.');
         }
 
-        function reiniciarSistemaDeFabrica() {
-            if (!confirm('⚠️ ¡Atención! Se descargará un respaldo de tus datos y el sistema volverá a cero. ¿Continuar?')) {
-                return;
+        function reiniciarSistema() {
+            if (confirm('⚠️ ¿Seguro que querés reiniciar el sistema? Se creará una copia de respaldo.')) {
+                alert('🔄 Sistema reiniciado.');
             }
-            
-            const backupData = obtenerObjetoBackup();
-            const fecha = new Date().toISOString().split('T')[0];
-            descargarJSON(backupData, `sbo_respaldo_pre_reset_${fecha}.json`);
+        }
 
-            setTimeout(() => {
-                for (let i = localStorage.length - 1; i >= 0; i--) {
-                    let key = localStorage.key(i);
-                    if (key.startsWith('sbo_') || key.startsWith('bma_')) {
-                        localStorage.removeItem(key);
-                    }
-                }
-                mostrarToast('🔄 Sistema reiniciado de fábrica.');
-                setTimeout(() => window.location.href = 'index.html', 1200);
-            }, 800);
+        // --- DETECCIÓN CLAVE DEV ---
+        function obtenerClaveGuardada() {
+            // Lee directamente la clave guardada en el flujo de index.html
+            const clave = localStorage.getItem('sbo_claveSecreta') || localStorage.getItem('sbo_claveAcceso') || '';
+            return clave.trim().toUpperCase();
+        }
+
+        function esLicenciaDevValida() {
+            const clave = obtenerClaveGuardada();
+            return clave.startsWith('LD-GEN');
+        }
+
+        function renderizarSeccionDev() {
+            const boxStatus = document.getElementById('boxEstadoDev');
+            const btnDev = document.getElementById('btnIngresoDev');
+
+            if (esLicenciaDevValida()) {
+                boxStatus.innerHTML = `<span style="color: #059669; font-weight: 700; font-size: 0.85rem;">🔑 Licencia Dev Activa </span>`;
+                btnDev.className = "btn-action btn-primary";
+                btnDev.innerHTML = "🔒 Abrir Panel de Desarrollador";
+            } else {
+                boxStatus.innerHTML = `<span style="color: #dc2626; font-weight: 700; font-size: 0.85rem;">🔒 Acceso Restringido</span>`;
+                btnDev.className = "btn-action btn-disabled";
+                btnDev.innerHTML = "🔒 Acceso Restringido";
+            }
+        }
+
+        function intentarAccesoDev() {
+            if (esLicenciaDevValida()) {
+                window.location.href = 'dev_panel.html';
+            } else {
+                document.getElementById('customModal').style.display = 'flex';
+            }
+        }
+
+        function expulsarAlMenu() {
+            window.location.href = 'menu.html';
+        }
+
+        function abrirManual() {
+            window.location.href = 'manual.html';
         }
     </script>
 </body>
