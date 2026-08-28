@@ -25,8 +25,12 @@
     h1 { font-size: 1.25rem; font-weight: 800; color: var(--primary-color); }
     .brand-slogan { font-size: 0.8rem; color: #4b5563; font-weight: 600; text-transform: uppercase; }
     .divider { border: 0; border-top: 1px dashed #cbd5e1; margin: 8px 0; }
-    .date-section { display: flex; align-items: center; justify-content: space-between; margin: 2px 0; }
-    .date-input { width: 140px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-weight: bold; color: #64748b; background-color: #e2e8f0; text-align: right; pointer-events: none; }
+    
+    /* Frame de fecha rediseñado sin desplegable */
+    .date-frame { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; margin: 4px 0; }
+    .date-label { font-size: 0.85rem; font-weight: 800; color: #475569; display: flex; align-items: center; gap: 6px; }
+    .date-value { font-size: 0.9rem; font-weight: 700; color: #0f172a; }
+
     .client-display-section { text-align: center; margin: 4px 0 6px 0; background: #f8fafc; padding: 14px 10px; border-radius: 12px; border: 1px dashed #cbd5e1; }
     .client-box-label { font-size: 0.9rem; color: var(--primary-color); text-transform: uppercase; font-weight: 800; }
     .client-box-name { font-family: Georgia, serif; font-size: 1.35rem; color: #0f172a; font-weight: 700; font-style: italic; margin: 4px 0; }
@@ -39,7 +43,7 @@
     .modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.75); display: none; justify-content: center; align-items: center; z-index: 100; padding: 12px; }
     .modal-container { background-color: #ffffff; color: #1e293b; width: 100%; max-width: 400px; padding: 16px; border-radius: 16px; font-weight: 600; }
     .form-group { margin-bottom: 6px; }
-    .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #1e293b; background-color: #f8fafc; }
+    .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; color: #1e293b; background-color: #f8fafc; }
     
     .password-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
     .password-wrapper input { padding-right: 42px; width: 100%; }
@@ -48,13 +52,10 @@
     .btn { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-save { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
     .btn-import { background-color: #0284c7; color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 8px; font-weight: bold; cursor: pointer; }
-    .btn-cargar-json { background-color: #374151; color: white; border: none; padding: 0 10px; border-radius: 8px; font-weight: bold; font-size: 11px; white-space: nowrap; cursor: pointer; }
-    .btn-cargar-json:hover { background-color: #1f2937; }
     .extra-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.8rem; }
     .support-link { color: #0284c7; text-decoration: none; font-weight: 600; cursor: pointer; }
     .clear-btn { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
 
-    /* Modal de avisos custom (reemplazo de alert/confirm) */
     .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 200; padding: 12px; }
     .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
     .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #059669; margin-bottom: 8px; }
@@ -82,15 +83,20 @@
       <h1>S. B. O. Control</h1>
       <div class="brand-slogan">Small Business Owner</div>
     </div>
+    
     <hr class="divider">
-    <div class="date-section">
-      <label for="txtFechaSesion">📅 FECHA:</label>
-      <input type="date" id="txtFechaSesion" class="date-input" readonly tabindex="-1">
+    
+    <!-- Frame de Fecha Estilizado (sin input desplegable) -->
+    <div class="date-frame">
+      <span class="date-label">📅 FECHA DE HOY</span>
+      <span id="lblFechaFrame" class="date-value">--/--/----</span>
     </div>
+    
     <hr class="divider">
+    
     <div class="client-display-section">
       <div class="client-box-label">¡BIENVENIDO!</div>
-      <div id="lblNombreCliente" class="client-box-name">nombre-cliente</div>
+      <div id="lblNombreCliente" class="client-box-name">Sin Registrar</div>
       <div id="lblEstadoLicencia" style="font-size: 0.78rem; font-weight: 700; margin: 2px 0 6px 0;"></div>
       <button type="button" class="btn-subtle-modify" onclick="abrirModalRegistro()">⚙️ Registro</button>
     </div>
@@ -111,16 +117,14 @@
       <h3 style="margin-bottom: 12px; color: var(--primary-color);">👥 Registro de Cliente:</h3>
       <div class="form-group">
         <label for="selectLicenciaModal">Seleccioná tu Licencia:</label>
-        <div style="display: flex; gap: 6px;">
-          <select id="selectLicenciaModal" class="form-control"><option value="">Cargando...</option></select>
-          <input type="file" id="inputImportarLicenciaModal" accept=".json,.sbo" style="display: none;" onchange="cargarLicenciaDesdeArchivoIndex(event)">
-          <button type="button" class="btn-cargar-json" onclick="document.getElementById('inputImportarLicenciaModal').click()">📂 Cargar JSON</button>
-        </div>
+        <select id="selectLicenciaModal" class="form-control">
+          <option value="">Cargando licencias...</option>
+        </select>
       </div>
-      <div class="form-group"><label>Nombre y Apellido:</label><input type="text" id="txtNombre" class="form-control"></div>
-      <div class="form-group"><label>Dirección:</label><input type="text" id="txtDireccion" class="form-control"></div>
-      <div class="form-group"><label>WhatsApp:</label><input type="tel" id="txtWhatsapp" class="form-control"></div>
-      <button class="btn-save" onclick="guardarRegistro()">Guardar Registro y Enviar</button>
+      <div class="form-group"><label for="txtNombre">Nombre y Apellido / Negocio:</label><input type="text" id="txtNombre" class="form-control"></div>
+      <div class="form-group"><label for="txtDireccion">Dirección:</label><input type="text" id="txtDireccion" class="form-control"></div>
+      <div class="form-group"><label for="txtWhatsapp">WhatsApp:</label><input type="tel" id="txtWhatsapp" class="form-control"></div>
+      <button class="btn-save" onclick="guardarRegistro()">Guardar Registro y Enviar por WhatsApp</button>
       <button type="button" class="clear-btn" style="margin-top: 10px; width: 100%; text-align: center;" onclick="cerrarModalRegistro()">Cancelar / Cerrar</button>
     </div>
   </div>
@@ -160,9 +164,18 @@
   <script>
     const NUMERO_WHATSAPP_SBO = "5492364502082"; 
 
+    // Licencias ordenadas de menor a mayor duración
+    const LICENCIAS_BASE_DEFAULT = [
+      { id: 2, nombreLicencia: "Licencia FreePass", duracion: "15 dias", precio: 0, modalidad: "Sin costo" },
+      { id: 3, nombreLicencia: "Licencia Mensual", duracion: "30 dias", precio: 5000, modalidad: "/mes" },
+      { id: 4, nombreLicencia: "Licencia Semestral", duracion: "180 dias", precio: 30000, modalidad: "1 pago" },
+      { id: 1, nombreLicencia: "Licencia Anual", duracion: "365 dias", precio: 60000, modalidad: "" },
+      { id: 5, nombreLicencia: "Licencia Vitalicia", duracion: "De por vida", precio: "Consultar", modalidad: "🔒 Próximamente / Solo consulta", disabled: true }
+    ];
+
     let accionOkCallback = null;
     let accionCancelCallback = null;
-    let intentosFallidos = 0; // Control de 3 intentos fallidos
+    let intentosFallidos = 0;
 
     function mostrarAviso(mensaje, titulo = "S. B. O. Control", callback = null) {
       document.getElementById('customModalTitle').textContent = titulo;
@@ -203,8 +216,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('txtFechaSesion').value = new Date().toISOString().split('T')[0];
-      
+      // Formatear e insertar la fecha en el frame estilizado
+      const hoy = new Date();
+      const dd = String(hoy.getDate()).padStart(2, '0');
+      const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+      const yyyy = hoy.getFullYear();
+      document.getElementById('lblFechaFrame').textContent = `${dd}/${mm}/${yyyy}`;
+
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('abrirIngreso') === 'true') {
         abrirModalIngreso();
@@ -256,73 +274,28 @@
 
     function renderizarSelectLicencias() {
       const selectModal = document.getElementById('selectLicenciaModal');
-      const licenciasGuardadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
+      let licenciasGuardadas = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas'));
+
+      if (!licenciasGuardadas || !Array.isArray(licenciasGuardadas) || licenciasGuardadas.length === 0) {
+        licenciasGuardadas = LICENCIAS_BASE_DEFAULT;
+      }
 
       const licenciasValidas = licenciasGuardadas.filter(item => item && (item.nombreLicencia || item.nombre || item.licencia));
 
-      if (licenciasValidas.length === 0) {
-        selectModal.innerHTML = '<option value="">No hay licencias disponibles (Usá 📂 Cargar JSON)</option>';
-        return;
-      }
-
       let html = '<option value="">Seleccioná una licencia...</option>';
       licenciasValidas.forEach((item) => {
-        const nombreLic = item.nombreLicencia || item.nombre || item.licencia || 'Licencia Comercial';
+        const nombreLic = item.nombreLicencia || item.nombre || item.licencia;
         const duracionLic = item.duracion ? ` (${item.duracion})` : '';
-        html += `<option value="${nombreLic}">${nombreLic}${duracionLic}</option>`;
+        const isDisabled = item.disabled ? ' disabled' : '';
+        
+        html += `<option value="${nombreLic}"${isDisabled}>${nombreLic}${duracionLic}</option>`;
       });
       selectModal.innerHTML = html;
-    }
 
-    function cargarLicenciaDesdeArchivoIndex(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          let licenciasLocales = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas')) || [];
-          let nuevasAgregadas = 0;
-          let nombreSeleccionado = "";
-
-          const procesar = (item) => {
-            if (!item) return;
-            const nombreL = item.nombreLicencia || item.nombre || item.licencia;
-            if (!nombreL) return;
-
-            const existe = licenciasLocales.some(l => (l.nombreLicencia || l.nombre || l.licencia) === nombreL);
-            if (!existe) {
-              licenciasLocales.push(item);
-              nuevasAgregadas++;
-            }
-            nombreSeleccionado = nombreL;
-          };
-
-          if (Array.isArray(data)) {
-            data.forEach(item => procesar(item));
-          } else if (typeof data === 'object') {
-            procesar(data);
-          }
-
-          if (nuevasAgregadas > 0 || nombreSeleccionado) {
-            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(licenciasLocales));
-            renderizarSelectLicencias();
-            
-            if (nombreSeleccionado) {
-              document.getElementById('selectLicenciaModal').value = nombreSeleccionado;
-            }
-            
-            mostrarAviso('¡Licencia cargada con éxito desde el archivo JSON!');
-          } else {
-            mostrarAviso('El archivo JSON no contiene licencias nuevas o ya existía en la lista.');
-          }
-        } catch (err) {
-          mostrarAviso('Error al leer el archivo JSON de licencia.');
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
+      const seleccionAnterior = localStorage.getItem('sbo_licenciaElegida');
+      if (seleccionAnterior) {
+        selectModal.value = seleccionAnterior;
+      }
     }
 
     function alternarVisibilidadClave() {
@@ -378,6 +351,18 @@
     }
 
     function abrirModalRegistro() { 
+      const n = localStorage.getItem('sbo_nombre') || '';
+      const d = localStorage.getItem('sbo_direccion') || '';
+      const w = localStorage.getItem('sbo_whatsapp') || '';
+      const lic = localStorage.getItem('sbo_licenciaElegida') || '';
+
+      if (n) document.getElementById('txtNombre').value = n;
+      if (d) document.getElementById('txtDireccion').value = d;
+      if (w) document.getElementById('txtWhatsapp').value = w;
+      
+      renderizarSelectLicencias();
+      if (lic) document.getElementById('selectLicenciaModal').value = lic;
+
       document.getElementById('modalRegistro').style.display = 'flex'; 
     }
 
@@ -450,21 +435,33 @@
       const n = document.getElementById('txtNombre').value.trim();
       const d = document.getElementById('txtDireccion').value.trim();
       const w = document.getElementById('txtWhatsapp').value.trim();
-      if (!n || !d || !w) return mostrarAviso('Completá todos los campos.');
+      if (!n || !d || !w) return mostrarAviso('Completá todos los campos para continuar.');
 
       localStorage.setItem('sbo_nombre', n);
       localStorage.setItem('sbo_direccion', d);
       localStorage.setItem('sbo_whatsapp', w);
       localStorage.setItem('sbo_licenciaElegida', licenciaSeleccionadaNombre);
 
-      if (!localStorage.getItem('sbo_huellaHardware')) {
-        localStorage.setItem('sbo_huellaHardware', generarHuellaDispositivo());
+      let huellaHW = localStorage.getItem('sbo_huellaHardware');
+      if (!huellaHW) {
+        huellaHW = generarHuellaDispositivo();
+        localStorage.setItem('sbo_huellaHardware', huellaHW);
       }
 
-      const msg = encodeURIComponent(`¡Hola! Solicito clave para SBO Control:\n\n👤 Cliente: ${n}\n📍 Dirección: ${d}\n📱 WhatsApp: ${w}\n\n📋 Licencia elegida: ${licenciaSeleccionadaNombre}\n\n------------------\n🔒 [SYS_DATA]\nHW: ${localStorage.getItem('sbo_huellaHardware')}`);
+      document.getElementById('lblNombreCliente').textContent = n;
+
+      const msg = encodeURIComponent(
+        `¡Hola! Solicito alta / clave para SBO Control:\n\n` +
+        `👤 Cliente: ${n}\n` +
+        `📍 Dirección: ${d}\n` +
+        `📱 WhatsApp: ${w}\n\n` +
+        `📋 Licencia Elegida: ${licenciaSeleccionadaNombre}\n` +
+        `------------------\n` +
+        `🔒 [SYS_DATA]\nHW: ${huellaHW}`
+      );
       
+      cerrarModalRegistro();
       window.location.href = `https://wa.me/${NUMERO_WHATSAPP_SBO}?text=${msg}`;
-      document.getElementById('modalRegistro').style.display = 'none';
     }
 
     function entrarAlSistema() {
@@ -478,7 +475,6 @@
         const claveSecretaLocal = localStorage.getItem('sbo_claveSecreta');
         const clavePersonalizadaLocal = localStorage.getItem('sbo_clavePersonalizada');
 
-        // Control de Intentos Fallidos
         if (!claveValida && claveInput !== claveSecretaLocal && claveInput !== clavePersonalizadaLocal) {
             intentosFallidos++;
             if (intentosFallidos >= 3) {
@@ -493,15 +489,12 @@
             }
         }
 
-        // Si ingresa bien, reseteamos el contador
         intentosFallidos = 0;
 
-        // 1. Tomar la Fecha Actual del Sistema en formato YYYY-MM-DD
         const hoySistemaStr = new Date().toISOString().split('T')[0];
         localStorage.setItem('sbo_fechaSesion', hoySistemaStr);
         localStorage.setItem('bma_fechaSesion', hoySistemaStr);
 
-        // 2. Validar Hardware del Dispositivo
         const hwActual = generarHuellaDispositivo();
         const hwLicencia = localStorage.getItem('sbo_huellaHardware') || (claveValida ? claveValida.hardware : null);
 
@@ -509,7 +502,6 @@
             return mostrarAviso(`❌ Dispositivo no autorizado.\n\nEsta licencia está registrada para otro equipo (${hwLicencia}).\nEste dispositivo es: ${hwActual}`);
         }
 
-        // 3. Validar Vencimiento de Licencia contra la Fecha Actual del Sistema
         const fechaFinStr = localStorage.getItem('sbo_fechaFin') || (claveValida ? claveValida.fechaFin : null);
         if (fechaFinStr) {
             const hoy = new Date();

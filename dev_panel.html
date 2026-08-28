@@ -42,6 +42,9 @@
         select, input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.9rem; margin-bottom: 6px; background: #fafafa; outline: none; }
         select:focus, input:focus { border-color: var(--primary-color); background: #fff; }
 
+        .form-row { display: flex; gap: 8px; }
+        .form-row > div { flex: 1; }
+
         /* Toast Notificación */
         #toastContainer { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; pointer-events: none; width: 90%; max-width: 400px; }
         .toast { background: #1e293b; color: white; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(10px); }
@@ -61,7 +64,7 @@
         </div>
 
         <div class="warning-box">
-            <strong>⚠️ Uso Exclusivo de Pruebas:</strong> Este panel te permite cargar datos ficticios para capturas de marketing, forzar vencimientos de licencia o limpiar la memoria del celular.
+            <strong>⚠️ Uso Exclusivo de Pruebas:</strong> Este panel te permite administrar las licencias del registro, cargar datos ficticios para marketing o resetear la memoria.
         </div>
 
         <!-- GENERADOR DE DATOS DE PRUEBA -->
@@ -71,18 +74,29 @@
             <button class="btn btn-seed" onclick="cargarDatosDemo()">✨ Cargar Datos Ficticios (Publicidad)</button>
         </div>
 
-        <!-- SIMULADOR DE LICENCIAS -->
-        <div class="section-title">🛡️ Simulador de Licencias</div>
+        <!-- GESTIÓN Y MODIFICACIÓN DE LICENCIAS -->
+        <div class="section-title">🛡️ Modificación Licencias Registro</div>
         <div class="card-dev">
-            <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">TIPO DE PLAN A SIMULAR:</label>
-            <select id="selLicenciaPrueba">
-                <option value="Licencia Ad-Probation (24 hs)">Licencia Prueba (24 hs)</option>
-                <option value="Licencia Comercial Mensual">Licencia Mensual (30 días)</option>
-                <option value="Licencia Comercial Semestral">Licencia Semestral (180 días)</option>
-                <option value="Licencia Comercial Anual">Licencia Anual (365 días)</option>
-                <option value="Licencia Honorífica Aeternum">Licencia Aeternum (Vitalicia)</option>
+            <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">LICENCIA A EDITAR / ELIMINAR:</label>
+            <select id="selLicenciaPrueba" onchange="cargarDatosLicenciaSeleccionada()">
+                <!-- Se llena dinámicamente -->
             </select>
-            <button class="btn btn-license" onclick="aplicarLicenciaPrueba()">🔄 Forzar Licencia Seleccionada</button>
+            
+            <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin: 10px 0;">
+
+            <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">DATOS DE LA LICENCIA:</label>
+            <input type="text" id="txtNombreLicenciaDev" placeholder="Nombre de la Licencia (ej: Licencia Trimestral)">
+            <input type="text" id="txtDuracionLicenciaDev" placeholder="Duración (ej: 90 dias)">
+            
+            <div class="form-row">
+                <div>
+                    <button class="btn btn-seed" style="font-size: 0.8rem; padding: 9px;" onclick="guardarLicenciaDev()">💾 Guardar / Actualizar</button>
+                </div>
+                <div>
+                    <button class="btn btn-clear" style="font-size: 0.8rem; padding: 9px;" onclick="eliminarLicenciaDev()">🗑️ Eliminar</button>
+                </div>
+            </div>
+            <button class="btn btn-license" style="font-size: 0.82rem; padding: 10px; margin-top: 8px;" onclick="restablecerLicenciasDefault()">↺ Restablecer Licencias Originales</button>
         </div>
 
         <!-- LIMPIEZA DE DATOS -->
@@ -96,14 +110,119 @@
     </div>
 
     <script>
+        // Licencias por defecto (mismas del index)
+        const LICENCIAS_BASE_DEFAULT = [
+            { id: 2, nombreLicencia: "Licencia FreePass", duracion: "15 dias", precio: 0, modalidad: "Sin costo" },
+            { id: 3, nombreLicencia: "Licencia Mensual", duracion: "30 dias", precio: 5000, modalidad: "/mes" },
+            { id: 4, nombreLicencia: "Licencia Semestral", duracion: "180 dias", precio: 30000, modalidad: "1 pago" },
+            { id: 1, nombreLicencia: "Licencia Anual", duracion: "365 dias", precio: 60000, modalidad: "" },
+            { id: 5, nombreLicencia: "Licencia Vitalicia", duracion: "De por vida", precio: "Consultar", modalidad: "🔒 Próximamente / Solo consulta", disabled: true }
+        ];
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Aplicar tema y tamaño guardado desde Configuración
             const colorGuardado = localStorage.getItem('sbo_config_color') || localStorage.getItem('sbo_sbo_config_color') || '#059669';
             const savedSize = localStorage.getItem('sbo_config_tamanio') || localStorage.getItem('sbo_sbo_config_tamanio') || '15px';
             
             document.documentElement.style.setProperty('--primary-color', colorGuardado);
             document.documentElement.style.setProperty('--font-scale', savedSize);
+
+            renderizarSelectLicenciasDev();
         });
+
+        // --- GESTIÓN DE LICENCIAS ---
+        function obtenerLicencias() {
+            let lic = JSON.parse(localStorage.getItem('sbo_db_licencias_personalizadas'));
+            if (!lic || !Array.isArray(lic) || lic.length === 0) {
+                lic = LICENCIAS_BASE_DEFAULT;
+            }
+            return lic;
+        }
+
+        function renderizarSelectLicenciasDev() {
+            const select = document.getElementById('selLicenciaPrueba');
+            const licencias = obtenerLicencias();
+            
+            let html = '<option value="">-- Crear Nueva Licencia --</option>';
+            licencias.forEach((item, index) => {
+                const nombre = item.nombreLicencia || item.nombre || item.licencia;
+                const duracion = item.duracion ? ` (${item.duracion})` : '';
+                html += `<option value="${index}">${nombre}${duracion}</option>`;
+            });
+
+            select.innerHTML = html;
+            cargarDatosLicenciaSeleccionada();
+        }
+
+        function cargarDatosLicenciaSeleccionada() {
+            const select = document.getElementById('selLicenciaPrueba');
+            const idx = select.value;
+
+            if (idx === "" || idx === null) {
+                document.getElementById('txtNombreLicenciaDev').value = '';
+                document.getElementById('txtDuracionLicenciaDev').value = '';
+                return;
+            }
+
+            const licencias = obtenerLicencias();
+            const lic = licencias[idx];
+
+            if (lic) {
+                document.getElementById('txtNombreLicenciaDev').value = lic.nombreLicencia || lic.nombre || lic.licencia || '';
+                document.getElementById('txtDuracionLicenciaDev').value = lic.duracion || '';
+            }
+        }
+
+        function guardarLicenciaDev() {
+            const nombre = document.getElementById('txtNombreLicenciaDev').value.trim();
+            const duracion = document.getElementById('txtDuracionLicenciaDev').value.trim();
+
+            if (!nombre) {
+                return mostrarToast('⚠️ Ingresá un nombre para la licencia', 'error');
+            }
+
+            let licencias = obtenerLicencias();
+            const select = document.getElementById('selLicenciaPrueba');
+            const idx = select.value;
+
+            if (idx !== "" && licencias[idx]) {
+                licencias[idx].nombreLicencia = nombre;
+                licencias[idx].duracion = duracion;
+                mostrarToast('✅ Licencia actualizada con éxito');
+            } else {
+                licencias.push({
+                    id: Date.now(),
+                    nombreLicencia: nombre,
+                    duracion: duracion,
+                    precio: 0,
+                    modalidad: ''
+                });
+                mostrarToast('✅ Nueva licencia creada con éxito');
+            }
+
+            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(licencias));
+            renderizarSelectLicenciasDev();
+        }
+
+        function eliminarLicenciaDev() {
+            const select = document.getElementById('selLicenciaPrueba');
+            const idx = select.value;
+            let licencias = obtenerLicencias();
+
+            if (idx === "" || !licencias[idx]) {
+                return mostrarToast('⚠️ Seleccioná una licencia para eliminar', 'error');
+            }
+
+            licencias.splice(idx, 1);
+            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(licencias));
+            mostrarToast('🗑️ Licencia eliminada', 'error');
+            renderizarSelectLicenciasDev();
+        }
+
+        function restablecerLicenciasDefault() {
+            localStorage.setItem('sbo_db_licencias_personalizadas', JSON.stringify(LICENCIAS_BASE_DEFAULT));
+            mostrarToast('↺ Licencias restablecidas a la lista original');
+            renderizarSelectLicenciasDev();
+        }
 
         // --- SISTEMA DE TOASTS ---
         function mostrarToast(mensaje, tipo = 'success') {
@@ -124,7 +243,6 @@
         function cargarDatosDemo() {
             const fechaHoy = new Date().toISOString().split('T')[0];
 
-            // 1. Stock Ficticio de Negocio
             const stockDemo = [
                 { id: 1, nombre: "Café de Especialidad 250g", cantidad: 18, costo: 4500, precio: 8500 },
                 { id: 2, nombre: "Croissant de Almendras", cantidad: 24, costo: 1200, precio: 2800 },
@@ -133,7 +251,6 @@
                 { id: 5, nombre: "Sándwich Gouda y Jamón", cantidad: 10, costo: 2200, precio: 4900 }
             ];
 
-            // 2. Ventas Ficticias de la Jornada
             const ventasDemo = [
                 { 
                     id: 101, 
@@ -203,10 +320,8 @@
                 }
             ];
 
-            // 3. Caja e Identidad Ficticia
             const cajaDemo = { saldoInicial: 15000, ventasEfectivo: 27000, ventasDigital: 14700, gastos: 3500 };
 
-            // Guardar en ambas nomenclaturas para cero incompatibilidades
             localStorage.setItem('sbo_stock', JSON.stringify(stockDemo));
             localStorage.setItem('sbo_sbo_stock', JSON.stringify(stockDemo));
 
@@ -224,20 +339,6 @@
             localStorage.setItem('sbo_fechaSesion', fechaHoy);
 
             mostrarToast('🎉 ¡Datos ficticios cargados con éxito!');
-        }
-
-        // --- SIMULADOR DE LICENCIA ---
-        function aplicarLicenciaPrueba() {
-            const licenciaSeleccionada = document.getElementById('selLicenciaPrueba').value;
-            const fechaAhora = new Date().toISOString();
-            const timestamp = Date.now().toString();
-
-            localStorage.setItem('sbo_licenciaElegida', licenciaSeleccionada);
-            localStorage.setItem('sbo_licencia_plan', licenciaSeleccionada);
-            localStorage.setItem('sbo_fechaActivacion', fechaAhora);
-            localStorage.setItem('sbo_timestampActivacion', timestamp);
-
-            mostrarToast(`🛡️ Licencia forzada a: "${licenciaSeleccionada}"`);
         }
 
         // --- RESPALDO Y RESETEO TOTAL ---
@@ -273,7 +374,6 @@
                 return;
             }
 
-            // Descargar copia automática previa por seguridad
             const backupData = obtenerObjetoBackup();
             const fecha = new Date().toISOString().split('T')[0];
             descargarJSON(backupData, `sbo_hard_reset_backup_${fecha}.json`);
