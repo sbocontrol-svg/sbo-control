@@ -36,6 +36,7 @@
         .btn:active { transform: scale(0.97); }
         .btn-seed { background-color: #0284c7; color: white; }
         .btn-license { background-color: #059669; color: white; }
+        .btn-warning { background-color: #d97706; color: white; }
         .btn-clear { background-color: #dc2626; color: white; }
         .btn-back { background-color: #475569; color: white; margin-top: 10px; }
 
@@ -70,8 +71,9 @@
         <!-- GENERADOR DE DATOS DE PRUEBA -->
         <div class="section-title">📦 Generador de Contenido Demo</div>
         <div class="card-dev">
-            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 8px;">Inyecta un catálogo completo con productos, caja y ventas ficticias para sacar fotos o mostrar la app a clientes.</p>
-            <button class="btn btn-seed" onclick="cargarDatosDemo()">✨ Cargar Datos Ficticios (Publicidad)</button>
+            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 8px;">Inyecta un catálogo de Feria/Puesto (Sahumerios, Velas, Difusores) con ventas, caja chica y clientes ficticios para capturas de publicidad.</p>
+            <button class="btn btn-seed" onclick="cargarDatosDemo()">✨ Cargar Datos Ficticios (Feria)</button>
+            <button class="btn btn-warning" style="font-size: 0.85rem; padding: 10px; margin-top: 8px;" onclick="softReset()">⚡ Soft Reset (Sin Backup Rápido)</button>
         </div>
 
         <!-- GESTIÓN Y MODIFICACIÓN DE LICENCIAS -->
@@ -102,8 +104,8 @@
         <!-- LIMPIEZA DE DATOS -->
         <div class="section-title" style="color: var(--danger-color);">🚨 Zona de Mantenimiento</div>
         <div class="card-dev" style="border-color: #fecaca; background: #fff5f5;">
-            <p style="font-size: 0.82rem; color: #991b1b; margin-bottom: 8px;">Descarga un respaldo automático de resguardo y borra absolutamente todo LocalStorage.</p>
-            <button class="btn btn-clear" onclick="limpiarTodo()">🗑️ Resetear Sistema (Hard Reset)</button>
+            <p style="font-size: 0.82rem; color: #991b1b; margin-bottom: 8px;">Opciones para vaciar por completo la memoria del celular durante pruebas de desarrollo.</p>
+            <button class="btn btn-clear" style="font-size: 0.85rem; padding: 10px;" onclick="limpiarTodo()">🗑️ Resetear Sistema (Hard Reset con Backup)</button>
         </div>
 
         <a href="configuracion.html" class="btn btn-back">⬅️ Volver al panel Configuración</a>
@@ -239,109 +241,163 @@
             }, 2500);
         }
 
-        // --- DATO DEMO COMPLETOS ---
+        // --- DATOS DEMO AMBIENTADOS EN FERIA / ARTESANÍAS ---
         function cargarDatosDemo() {
             const fechaHoy = new Date().toISOString().split('T')[0];
 
+            // Stock de Puesto de Feria
             const stockDemo = [
-                { id: 1, nombre: "Café de Especialidad 250g", cantidad: 18, costo: 4500, precio: 8500 },
-                { id: 2, nombre: "Croissant de Almendras", cantidad: 24, costo: 1200, precio: 2800 },
-                { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 6, costo: 3500, precio: 7200 },
-                { id: 4, nombre: "Jugo Natural Naranja 500ml", cantidad: 12, costo: 800, precio: 2000 },
-                { id: 5, nombre: "Sándwich Gouda y Jamón", cantidad: 10, costo: 2200, precio: 4900 }
+                { id: 1, nombre: "Sahumerios Nag Champa x10", producto: "Sahumerios Nag Champa x10", cantidad: 30, cant: 30, costo: 1200, precio: 2500 },
+                { id: 2, nombre: "Vela Aromática de Soja", producto: "Vela Aromática de Soja", cantidad: 12, cant: 12, costo: 3200, precio: 7200 },
+                { id: 3, nombre: "Difusor de Ambiente 250ml", producto: "Difusor de Ambiente 250ml", cantidad: 8, cant: 8, costo: 4000, precio: 8500 },
+                { id: 4, nombre: "Esencia Pura Concentrada", producto: "Esencia Pura Concentrada", cantidad: 20, cant: 20, costo: 800, precio: 2000 },
+                { id: 5, nombre: "Portasahumerio Artesanal", producto: "Portasahumerio Artesanal", cantidad: 15, cant: 15, costo: 600, precio: 1500 }
             ];
 
+            // Ventas Ficticias con compatibilidad de claves
             const ventasDemo = [
                 { 
-                    id: 101, 
-                    ticket: "TK-101",
+                    id: 1001, 
+                    ticket: "TK-1001",
+                    ticketNo: "TK-1001",
+                    numeroTicket: "1001",
                     fecha: fechaHoy, 
                     cliente: "Consumidor Final", 
-                    total: 11300, 
+                    total: 6500, 
                     pago: "Efectivo",
                     metodoPago: "Efectivo",
+                    formaPago: "Efectivo",
                     items: [
-                        { id: 1, nombre: "Café de Especialidad 250g", cantidad: 1, precio: 8500, subtotal: 8500 },
-                        { id: 2, nombre: "Croissant de Almendras", cantidad: 1, precio: 2800, subtotal: 2800 }
+                        { id: 1, nombre: "Sahumerios Nag Champa x10", producto: "Sahumerios Nag Champa x10", cantidad: 2, cant: 2, precio: 2500, subtotal: 5000 },
+                        { id: 5, nombre: "Portasahumerio Artesanal", producto: "Portasahumerio Artesanal", cantidad: 1, cant: 1, precio: 1500, subtotal: 1500 }
                     ],
                     productos: [
-                        { id: 1, nombre: "Café de Especialidad 250g", cantidad: 1, precio: 8500, subtotal: 8500 },
-                        { id: 2, nombre: "Croissant de Almendras", cantidad: 1, precio: 2800, subtotal: 2800 }
+                        { id: 1, nombre: "Sahumerios Nag Champa x10", producto: "Sahumerios Nag Champa x10", cantidad: 2, cant: 2, precio: 2500, subtotal: 5000 },
+                        { id: 5, nombre: "Portasahumerio Artesanal", producto: "Portasahumerio Artesanal", cantidad: 1, cant: 1, precio: 1500, subtotal: 1500 }
                     ]
                 },
                 { 
-                    id: 102, 
-                    ticket: "TK-102",
+                    id: 1002, 
+                    ticket: "TK-1002",
+                    ticketNo: "TK-1002",
+                    numeroTicket: "1002",
                     fecha: fechaHoy, 
                     cliente: "María González", 
-                    total: 9800, 
+                    total: 15700, 
                     pago: "Transferencia",
                     metodoPago: "Transferencia",
+                    formaPago: "Transferencia",
                     items: [
-                        { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 1, precio: 7200, subtotal: 7200 },
-                        { id: 2, nombre: "Croissant de Almendras", cantidad: 1, precio: 2600, subtotal: 2600 }
+                        { id: 2, nombre: "Vela Aromática de Soja", producto: "Vela Aromática de Soja", cantidad: 1, cant: 1, precio: 7200, subtotal: 7200 },
+                        { id: 3, nombre: "Difusor de Ambiente 250ml", producto: "Difusor de Ambiente 250ml", cantidad: 1, cant: 1, precio: 8500, subtotal: 8500 }
                     ],
                     productos: [
-                        { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 1, precio: 7200, subtotal: 7200 },
-                        { id: 2, nombre: "Croissant de Almendras", cantidad: 1, precio: 2600, subtotal: 2600 }
+                        { id: 2, nombre: "Vela Aromática de Soja", producto: "Vela Aromática de Soja", cantidad: 1, cant: 1, precio: 7200, subtotal: 7200 },
+                        { id: 3, nombre: "Difusor de Ambiente 250ml", producto: "Difusor de Ambiente 250ml", cantidad: 1, cant: 1, precio: 8500, subtotal: 8500 }
                     ]
                 },
                 { 
-                    id: 103, 
-                    ticket: "TK-103",
+                    id: 1003, 
+                    ticket: "TK-1003",
+                    ticketNo: "TK-1003",
+                    numeroTicket: "1003",
                     fecha: fechaHoy, 
                     cliente: "Juan Pérez", 
-                    total: 4900, 
+                    total: 4500, 
                     pago: "Tarjeta Débito",
                     metodoPago: "Tarjeta Débito",
+                    formaPago: "Tarjeta Débito",
                     items: [
-                        { id: 5, nombre: "Sándwich Gouda y Jamón", cantidad: 1, precio: 4900, subtotal: 4900 }
+                        { id: 4, nombre: "Esencia Pura Concentrada", producto: "Esencia Pura Concentrada", cantidad: 1, cant: 1, precio: 2000, subtotal: 2000 },
+                        { id: 1, nombre: "Sahumerios Nag Champa x10", producto: "Sahumerios Nag Champa x10", cantidad: 1, cant: 1, precio: 2500, subtotal: 2500 }
                     ],
                     productos: [
-                        { id: 5, nombre: "Sándwich Gouda y Jamón", cantidad: 1, precio: 4900, subtotal: 4900 }
+                        { id: 4, nombre: "Esencia Pura Concentrada", producto: "Esencia Pura Concentrada", cantidad: 1, cant: 1, precio: 2000, subtotal: 2000 },
+                        { id: 1, nombre: "Sahumerios Nag Champa x10", producto: "Sahumerios Nag Champa x10", cantidad: 1, cant: 1, precio: 2500, subtotal: 2500 }
                     ]
                 },
                 { 
-                    id: 104, 
-                    ticket: "TK-104",
+                    id: 1004, 
+                    ticket: "TK-1004",
+                    ticketNo: "TK-1004",
+                    numeroTicket: "1004",
                     fecha: fechaHoy, 
                     cliente: "Lucas Rodríguez", 
-                    total: 15700, 
+                    total: 15000, 
                     pago: "Efectivo",
                     metodoPago: "Efectivo",
+                    formaPago: "Efectivo",
                     items: [
-                        { id: 1, nombre: "Café de Especialidad 250g", cantidad: 1, precio: 8500, subtotal: 8500 },
-                        { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 1, precio: 7200, subtotal: 7200 }
+                        { id: 2, nombre: "Vela Aromática de Soja", producto: "Vela Aromática de Soja", cantidad: 1, cant: 1, precio: 7200, subtotal: 7200 },
+                        { id: 3, nombre: "Difusor de Ambiente 250ml", producto: "Difusor de Ambiente 250ml", cantidad: 1, cant: 1, precio: 7800, subtotal: 7800 }
                     ],
                     productos: [
-                        { id: 1, nombre: "Café de Especialidad 250g", cantidad: 1, precio: 8500, subtotal: 8500 },
-                        { id: 3, nombre: "Tarta de Frutos Rojos", cantidad: 1, precio: 7200, subtotal: 7200 }
+                        { id: 2, nombre: "Vela Aromática de Soja", producto: "Vela Aromática de Soja", cantidad: 1, cant: 1, precio: 7200, subtotal: 7200 },
+                        { id: 3, nombre: "Difusor de Ambiente 250ml", producto: "Difusor de Ambiente 250ml", cantidad: 1, cant: 1, precio: 7800, subtotal: 7800 }
                     ]
                 }
             ];
 
-            const cajaDemo = { saldoInicial: 15000, ventasEfectivo: 27000, ventasDigital: 14700, gastos: 3500 };
+            // Caja Chica Ficticia
+            const cajaChicaDemo = [
+                { id: 1, fecha: fechaHoy, tipo: "ingreso", descripcion: "Fondo Cambio Inicial", monto: 15000 },
+                { id: 2, fecha: fechaHoy, tipo: "egreso", descripcion: "Compra Bolsas de Papel", monto: 2500 },
+                { id: 3, fecha: fechaHoy, tipo: "egreso", descripcion: "Almuerzo Puesto Feria", monto: 3000 }
+            ];
 
+            const cajaDemo = { 
+                saldoInicial: 15000, 
+                ventasEfectivo: 21500, 
+                ventasDigital: 20200, 
+                ingresos: 15000,
+                gastos: 5500,
+                saldoCajaChica: 9500
+            };
+
+            // Clientes Ficticios de Feria (Redundant Keys para máxima compatibilidad)
+            const clientesDemo = [
+                { id: 1, nombre: "María González", cliente: "María González", telefono: "2364123456", cel: "2364123456", email: "maria.g@gmail.com", notas: "Cliente frecuente - Compra difusores" },
+                { id: 2, nombre: "Lucas Rodríguez", cliente: "Lucas Rodríguez", telefono: "2364987654", cel: "2364987654", email: "lucas.rod@hotmail.com", notas: "Prefiere pago en efectivo" },
+                { id: 3, nombre: "Juan Pérez", cliente: "Juan Pérez", telefono: "2364556677", cel: "2364556677", email: "juanperez@gmail.com", notas: "Suele pedir sahumerios al por mayor" }
+            ];
+
+            // Guardar en ambos prefijos de LocalStorage
             localStorage.setItem('sbo_stock', JSON.stringify(stockDemo));
             localStorage.setItem('sbo_sbo_stock', JSON.stringify(stockDemo));
 
             localStorage.setItem('sbo_ventas', JSON.stringify(ventasDemo));
             localStorage.setItem('sbo_sbo_ventas', JSON.stringify(ventasDemo));
 
+            localStorage.setItem('sbo_caja_chica', JSON.stringify(cajaChicaDemo));
+            localStorage.setItem('sbo_sbo_caja_chica', JSON.stringify(cajaChicaDemo));
+
             localStorage.setItem('sbo_caja', JSON.stringify(cajaDemo));
             localStorage.setItem('sbo_sbo_caja', JSON.stringify(cajaDemo));
 
-            localStorage.setItem('sbo_config_nombre', 'Café & Delicias Demo');
-            localStorage.setItem('sbo_sbo_config_nombre', 'Café & Delicias Demo');
-            localStorage.setItem('sbo_config_eslogan', 'Especialidades Artesanales');
-            localStorage.setItem('sbo_sbo_config_eslogan', 'Especialidades Artesanales');
+            localStorage.setItem('sbo_clientes', JSON.stringify(clientesDemo));
+            localStorage.setItem('sbo_sbo_clientes', JSON.stringify(clientesDemo));
+
+            localStorage.setItem('sbo_config_nombre', 'Puesto Feria & Decó Demo');
+            localStorage.setItem('sbo_sbo_config_nombre', 'Puesto Feria & Decó Demo');
+            localStorage.setItem('sbo_config_eslogan', 'Aromatizantes & Artesanías');
+            localStorage.setItem('sbo_sbo_config_eslogan', 'Aromatizantes & Artesanías');
 
             localStorage.setItem('sbo_fechaSesion', fechaHoy);
 
-            mostrarToast('🎉 ¡Datos ficticios cargados con éxito!');
+            mostrarToast('🎉 ¡Datos de Feria cargados con éxito!');
         }
 
-        // --- RESPALDO Y RESETEO TOTAL ---
+        // --- SOFT RESET (REINICIO RÁPIDO SIN BACKUP) ---
+        function softReset() {
+            if (!confirm('⚡ ¿Limpiar toda la memoria de pruebas de forma RÁPIDA (sin guardar backup)?')) {
+                return;
+            }
+            localStorage.clear();
+            mostrarToast('⚡ Memoria limpiada al instante', 'success');
+            setTimeout(() => location.reload(), 800);
+        }
+
+        // --- RESPALDO Y HARD RESET ---
         function obtenerObjetoBackup() {
             let backupData = {};
             for (let i = 0; i < localStorage.length; i++) {

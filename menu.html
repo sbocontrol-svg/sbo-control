@@ -88,6 +88,76 @@
         .btn-modal-ok { background-color: #059669; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
         .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
 
+        /* WIDGET ASISTENTE VIRTUAL "DEVO" */
+        .debo-btn-flotante {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary-color, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+            cursor: grab;
+            z-index: 9999;
+            touch-action: none;
+            border: 2px solid #ffffff;
+            overflow: hidden;
+            user-select: none;
+        }
+        .debo-btn-flotante:active { cursor: grabbing; transform: scale(0.95); }
+        .debo-btn-flotante img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .debo-modal {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 320px;
+            max-width: 90vw;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10000;
+            border: 1px solid #e2e8f0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .debo-modal.show { display: flex; }
+
+        .debo-header {
+            background: #0d1b2a;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .debo-header-title { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem; }
+        .debo-status { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; }
+        .debo-close { background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; }
+
+        .debo-body { padding: 12px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc; }
+        .msg-debo { background: white; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 12px 12px 12px 2px; font-size: 0.85rem; color: #1e293b; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .msg-user { background: var(--primary-color, #059669); color: white; padding: 8px 12px; border-radius: 12px 12px 2px 12px; font-size: 0.82rem; align-self: flex-end; }
+
+        .debo-options { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+        .btn-debo-opt { background: white; border: 1px solid var(--primary-color, #059669); color: var(--primary-color, #059669); padding: 8px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; text-align: left; cursor: pointer; transition: background 0.15s; }
+        .btn-debo-opt:active { background: #f0fdf4; }
+
+        .debo-rating { display: flex; justify-content: space-around; background: #fff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 6px; }
+        .debo-rating button { background: none; border: none; font-size: 1.3rem; cursor: pointer; transition: transform 0.1s; }
+        .debo-rating button:active { transform: scale(1.3); }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -253,6 +323,25 @@
       </div>
     </div>
 
+    <!-- Botón Flotante con Logo de la Marca -->
+    <div class="debo-btn-flotante" id="deboBtn">
+        <img src="logosbo.jpg" alt="Devo SBO">
+    </div>
+
+    <!-- Ventana de Chat -->
+    <div class="debo-modal" id="deboModal">
+        <div class="debo-header">
+            <div class="debo-header-title">
+                <span>🤖 Devo</span>
+                <span class="debo-status" title="En línea 24/7"></span>
+                <small style="font-size: 0.7rem; color: #94a3b8; font-weight: normal;">Soporte Dev</small>
+            </div>
+            <button class="debo-close" onclick="toggleDevoChat()">✕</button>
+        </div>
+
+        <div class="debo-body" id="deboBody"></div>
+    </div>
+
     <script>
         let accionOkCallback = null;
         let accionCancelCallback = null;
@@ -302,7 +391,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Aplicar configuración de colores guardada con prefijo sbo_
             const customColor = localStorage.getItem('sbo_config_color');
             const customLight = localStorage.getItem('sbo_config_color_light');
             if (customColor) {
@@ -312,7 +400,6 @@
                 document.documentElement.style.setProperty('--primary-light', customLight);
             }
 
-            // Configuración de la fecha de sesión
             const hoy = new Date();
             const yyyy = hoy.getFullYear();
             const mm = String(hoy.getMonth() + 1).padStart(2, '0');
@@ -330,7 +417,6 @@
                 }
             }
 
-            // --- 1. VALIDACIÓN DE HARDWARE DE DISPOSITIVO ---
             const hwActual = generarHuellaDispositivo();
             const hwGuardado = localStorage.getItem('sbo_huellaHardware');
             if (hwGuardado && hwGuardado !== 'HWGEN' && hwGuardado !== hwActual) {
@@ -340,7 +426,6 @@
                 return;
             }
 
-            // --- 2. VALIDACIÓN Y LECTURA DE LICENCIA Y EXPIRACIÓN ---
             const elemLicencia = document.querySelector('.licencia');
             const fechaFinStr = localStorage.getItem('sbo_fechaFin');
             const nombreLicencia = localStorage.getItem('sbo_licenciaElegida') || localStorage.getItem('sbo_licencia') || 'Licencia Comercial';
@@ -376,7 +461,6 @@
                     elemLicencia.style.borderColor = '#c8e6c9';
                 }
             } else {
-                // Modo FreePass / Fallback cuando no hay fechaFin configurada
                 let tsFreePass = localStorage.getItem('sbo_timestampFreePass') || localStorage.getItem('sbo_timestampActivacion');
                 if (!tsFreePass) {
                     tsFreePass = Date.now().toString();
@@ -407,7 +491,6 @@
                 }
             }
 
-            // Lectura estricta de Ventas con clave sbo_ventas
             const ventas = JSON.parse(localStorage.getItem('sbo_ventas')) || [];
             const ventasJornada = ventas.filter(v => v.fecha === fechaSesion);
 
@@ -433,7 +516,6 @@
                 contenedorVentasModal.innerHTML = htmlVentas;
             }
 
-            // Lectura estricta de Stock con clave sbo_stock
             const stock = JSON.parse(localStorage.getItem('sbo_stock')) || [];
             let totalUnidadesStock = 0;
             let contenedorStockModal = document.getElementById('modalListaStockDetalle');
@@ -452,7 +534,6 @@
 
             document.getElementById('valTotalStock').innerText = `${totalUnidadesStock} un.`;
 
-            // Controladores de apertura y cierre para los Modales
             const cardVentas = document.getElementById('card-ventas');
             const cardStock = document.getElementById('card-stock');
             const modalVentas = document.getElementById('modal-ventas');
@@ -461,27 +542,217 @@
             const btnCerrarStock = document.getElementById('btn-cerrar-stock');
 
             if (cardVentas && modalVentas) {
-                cardVentas.addEventListener('click', function() {
-                    modalVentas.classList.add('active');
-                });
+                cardVentas.addEventListener('click', function() { modalVentas.classList.add('active'); });
             }
             if (btnCerrarVentas && modalVentas) {
-                btnCerrarVentas.addEventListener('click', function() {
-                    modalVentas.classList.remove('active');
-                });
+                btnCerrarVentas.addEventListener('click', function() { modalVentas.classList.remove('active'); });
             }
 
             if (cardStock && modalStock) {
-                cardStock.addEventListener('click', function() {
-                    modalStock.classList.add('active');
-                });
+                cardStock.addEventListener('click', function() { modalStock.classList.add('active'); });
             }
             if (btnCerrarStock && modalStock) {
-                btnCerrarStock.addEventListener('click', function() {
-                    modalStock.classList.remove('active');
-                });
+                btnCerrarStock.addEventListener('click', function() { modalStock.classList.remove('active'); });
             }
         });
+
+        // --- LÓGICA CORREGIDA DEL ASISTENTE DEVO ---
+        const deboBtn = document.getElementById('deboBtn');
+        let isDragging = false;
+        let hasMoved = false;
+        let startX, startY, initialLeft, initialTop;
+
+        function startDrag(e) {
+            isDragging = true;
+            hasMoved = false;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            startX = clientX;
+            startY = clientY;
+
+            const rect = deboBtn.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+        }
+
+        function moveDrag(e) {
+            if (!isDragging) return;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const deltaX = clientX - startX;
+            const deltaY = clientY - startY;
+
+            if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+                hasMoved = true;
+            }
+
+            if (hasMoved) {
+                deboBtn.style.left = (initialLeft + deltaX) + 'px';
+                deboBtn.style.top = (initialTop + deltaY) + 'px';
+                deboBtn.style.bottom = 'auto';
+                deboBtn.style.right = 'auto';
+            }
+        }
+
+        function endDrag() {
+            isDragging = false;
+        }
+
+        deboBtn.addEventListener('touchstart', startDrag, {passive: true});
+        window.addEventListener('touchmove', moveDrag, {passive: true});
+        window.addEventListener('touchend', endDrag);
+
+        deboBtn.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', moveDrag);
+        window.addEventListener('mouseup', endDrag);
+
+        deboBtn.addEventListener('click', (e) => {
+            if (!hasMoved) {
+                toggleDevoChat();
+            }
+        });
+
+        const CONOCIMIENTO_DEVO = {
+            inicio: {
+                texto: "¡Hola! Soy **Devo** 🤖, tu asistente de soporte 24/7. ¿En qué te puedo ayudar hoy?",
+                opciones: [
+                    { label: "💳 ¿Cómo registrar una Venta?", key: "reg_venta" },
+                    { label: "📊 ¿Cómo hacer un Cierre Z?", key: "cierre_z" },
+                    { label: "📦 ¿Cómo agregar Productos?", key: "add_stock" },
+                    { label: "👥 ¿Cómo guardar un Cliente?", key: "add_cliente" },
+                    { label: "⚙️ Problemas de Licencia / Config", key: "licencia" }
+                ]
+            },
+            reg_venta: {
+                texto: "Para registrar una venta:\n1. Tocá el botón verde **'Registrar Venta'**.\n2. Elegí los productos del catálogo.\n3. Seleccioná el método de pago (Efectivo, Transferencia, Débito).\n4. ¡Listo! Podés imprimir o compartir el comprobante.",
+                siguiente: "encuesta"
+            },
+            cierre_z: {
+                texto: "El **Cierre Z** consolida el total vendido en la jornada:\n1. Entrá al módulo **'Cierre Z'** desde el menú.\n2. Revisá el desglose de efectivo y pagos digitales.\n3. Tocá **'Confirmar Cierre Z'** si querés blanquear el día para la jornada siguiente.",
+                siguiente: "encuesta"
+            },
+            add_stock: {
+                texto: "Para cargar inventario:\n1. Ingresá a **'Stock'**.\n2. Cargá el Nombre, Precio y Cantidad.\n3. Guardá los cambios y tu stock se actualizará automáticamente al vender.",
+                siguiente: "encuesta"
+            },
+            add_cliente: {
+                texto: "Para gestionar tu agenda de clientes:\n1. Entrá a **'Clientes'**.\n2. Completá el teléfono, nombre o notas.\n3. Podés consultar tu directorio cuando quieras o exportarlo en PDF.",
+                siguiente: "encuesta"
+            },
+            licencia: {
+                texto: "Si tu licencia venció o necesitas renovarla:\n1. Andá a **Configuración**.\n2. Podés verificar el estado o ingresar una nueva clave activa.\n3. Para soporte directo con el desarrollador, usá la opción de WhatsApp.",
+                siguiente: "encuesta"
+            }
+        };
+
+        function toggleDevoChat() {
+            const modal = document.getElementById('deboModal');
+            modal.classList.toggle('show');
+
+            if (modal.classList.contains('show') && document.getElementById('deboBody').children.length === 0) {
+                cargarMenuInicialDevo();
+            }
+        }
+
+        function cargarMenuInicialDevo() {
+            const body = document.getElementById('deboBody');
+            body.innerHTML = '';
+            agregarMensajeDevo(CONOCIMIENTO_DEVO.inicio.texto);
+            renderizarOpciones(CONOCIMIENTO_DEVO.inicio.opciones);
+        }
+
+        function agregarMensajeDevo(texto) {
+            const body = document.getElementById('deboBody');
+            const div = document.createElement('div');
+            div.className = 'msg-debo';
+            div.innerHTML = texto.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            body.appendChild(div);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function agregarMensajeUsuario(texto) {
+            const body = document.getElementById('deboBody');
+            const div = document.createElement('div');
+            div.className = 'msg-user';
+            div.innerText = texto;
+            body.appendChild(div);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function renderizarOpciones(opciones) {
+            const body = document.getElementById('deboBody');
+            const container = document.createElement('div');
+            container.className = 'debo-options';
+
+            opciones.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-debo-opt';
+                btn.innerText = opt.label;
+                btn.onclick = () => seleccionarOpcionDevo(opt.label, opt.key);
+                container.appendChild(btn);
+            });
+
+            body.appendChild(container);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function seleccionarOpcionDevo(label, key) {
+            const opcionesViejas = document.querySelectorAll('.debo-options');
+            opcionesViejas.forEach(el => el.remove());
+
+            agregarMensajeUsuario(label);
+
+            const respuesta = CONOCIMIENTO_DEVO[key];
+            if (respuesta) {
+                setTimeout(() => {
+                    agregarMensajeDevo(respuesta.texto);
+                    if (respuesta.siguiente === "encuesta") {
+                        setTimeout(mostrarEncuestaSatisfaccion, 400);
+                    }
+                }, 300);
+            }
+        }
+
+        function mostrarEncuestaSatisfaccion() {
+            const body = document.getElementById('deboBody');
+            
+            const divPregunta = document.createElement('div');
+            divPregunta.className = 'msg-debo';
+            divPregunta.style.background = '#f0fdf4';
+            divPregunta.style.borderColor = '#bbf7d0';
+            divPregunta.innerHTML = "<b>¿Te sirvió la respuesta de Devo?</b><br><small>Calificá la ayuda para seguir mejorando:</small>";
+
+            const divRating = document.createElement('div');
+            divRating.className = 'debo-rating';
+            divRating.innerHTML = `
+                <button onclick="registrarCalificacion('Excelente', '😍')">😍</button>
+                <button onclick="registrarCalificacion('Buena', '👍')">👍</button>
+                <button onclick="registrarCalificacion('Regular', '😐')">😐</button>
+                <button onclick="registrarCalificacion('Mala', '👎')">👎</button>
+            `;
+
+            divPregunta.appendChild(divRating);
+            body.appendChild(divPregunta);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function registrarCalificacion(calificacion, emoji) {
+            let metricas = JSON.parse(localStorage.getItem('sbo_debo_ratings') || '[]');
+            metricas.push({ fecha: new Date().toISOString(), voto: calificacion });
+            localStorage.setItem('sbo_debo_ratings', JSON.stringify(metricas));
+
+            const encuestas = document.querySelectorAll('.debo-rating');
+            encuestas.forEach(el => el.parentElement.remove());
+
+            agregarMensajeDevo(`${emoji} ¡Gracias por tu calificación! Me ayuda un montón a mejorar.`);
+            
+            setTimeout(() => {
+                agregarMensajeDevo("¿Necesitás ayuda con algo más?");
+                renderizarOpciones(CONOCIMIENTO_DEVO.inicio.opciones);
+            }, 800);
+        }
     </script>
 </body>
 </html>
