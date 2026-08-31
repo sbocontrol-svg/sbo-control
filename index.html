@@ -57,7 +57,6 @@
     .brand-slogan { font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
     .divider { border: 0; border-top: 1px dashed var(--border-color); margin: 8px 0; }
     
-    /* Frame de fecha rediseñado */
     .date-frame { display: flex; align-items: center; justify-content: space-between; background: var(--subtle-bg); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin: 4px 0; }
     .date-label { font-size: 0.85rem; font-weight: 800; color: #475569; display: flex; align-items: center; gap: 6px; }
     .date-value { font-size: 0.9rem; font-weight: 700; color: var(--text-main); }
@@ -223,7 +222,24 @@
       if (metaTheme) metaTheme.setAttribute('content', colorGuardado);
     }
 
-    // --- LÓGICA DE RECONOCIMIENTO BIOMÉTRICO (WebAuthn) ---
+    // --- Auxiliares para transformar ArrayBuffer a Base64 y viceversa ---
+    function bufferToBase64(buffer) {
+      return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+    }
+
+    function base64ToBuffer(base64) {
+      let padded = base64.replace(/-/g, "+").replace(/_/g, "/");
+      while (padded.length % 4) padded += "=";
+      const binary = atob(padded);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    // --- LÓGICA DE RECONOCIMIENTO BIOMÉTRICO (WebAuthn Local) ---
     async function verificarSoporteBiometrico() {
       if (window.PublicKeyCredential && localStorage.getItem('sbo_biometria_habilitada') === 'true') {
         document.getElementById('btnBiometria').style.display = 'block';
@@ -253,19 +269,30 @@
                   name: localStorage.getItem('sbo_nombre') || "Usuario",
                   displayName: localStorage.getItem('sbo_nombre') || "Usuario SBO"
                 },
-                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                authenticatorSelection: { userVerification: "preferred" },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
+                authenticatorSelection: {
+                  authenticatorAttachment: "platform", // Fuerza el uso del lector del celular
+                  userVerification: "required",
+                  requireResidentKey: false
+                },
                 timeout: 60000
               }
             };
 
-            await navigator.credentials.create(createCredentialOptions);
-            localStorage.setItem('sbo_biometria_habilitada', 'true');
-            mostrarAviso('¡Biometría configurada con éxito! Ya podés usar tu huella para entrar.', 'S. B. O. Control', () => {
-              window.location.href = 'menu.html';
-            });
+            const credential = await navigator.credentials.create(createCredentialOptions);
+            if (credential) {
+              // Guardamos la credencial para reutilizarla directo al ingresar
+              const credIdBase64 = bufferToBase64(credential.rawId);
+              localStorage.setItem('sbo_credential_id', credIdBase64);
+              localStorage.setItem('sbo_biometria_habilitada', 'true');
+
+              mostrarAviso('¡Biometría configurada con éxito! Ya podés usar tu huella para entrar.', 'S. B. O. Control', () => {
+                window.location.href = 'menu.html';
+              });
+            }
           } catch (e) {
-            // Si el usuario rechaza la huella en el cel, entra por clave de todas formas
+            console.error("Error al registrar biometría:", e);
+            // Si rechaza o falla la huella, igual pasa al menú
             window.location.href = 'menu.html';
           }
         },
@@ -288,6 +315,16 @@
           }
         };
 
+        // Si tenemos la credencial guardada, la pasamos para ir directo al sensor
+        const credIdBase64 = localStorage.getItem('sbo_credential_id');
+        if (credIdBase64) {
+          getCredentialOptions.publicKey.allowCredentials = [{
+            id: base64ToBuffer(credIdBase64),
+            type: 'public-key',
+            transports: ['internal']
+          }];
+        }
+
         const credential = await navigator.credentials.get(getCredentialOptions);
         if (credential) {
           const hoySistemaStr = new Date().toISOString().split('T')[0];
@@ -299,7 +336,8 @@
           });
         }
       } catch (err) {
-        mostrarAviso('❌ Error o cancelación de lectura biométrica. Probá de nuevo o usá tu clave.');
+        console.error("Error en lectura biométrica:", err);
+        mostrarAviso('❌ No se pudo verificar la huella o se canceló la operación. Intentá de nuevo o usá tu clave.');
       }
     }
     // --------------------------------------------------------

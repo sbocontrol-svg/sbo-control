@@ -139,7 +139,7 @@
         .btn-debo-opt { background: white; border: 1px solid var(--primary-color, #059669); color: var(--primary-color, #059669); padding: 8px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; text-align: left; cursor: pointer; transition: background 0.15s; }
         .btn-debo-opt:active { background: #f1f5f9; }
 
-        .debo-rating { display: flex; justify-content: space-around; background: #fff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 6px; }
+        .debo-rating { display: flex; justify-style: space-around; background: #fff; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 6px; }
         .debo-rating button { background: none; border: none; font-size: 1.3rem; cursor: pointer; transition: transform 0.1s; }
         .debo-rating button:active { transform: scale(1.3); }
     </style>
@@ -442,6 +442,11 @@
         }
 
         // --- GESTIÓN DE ACCESO BIOMÉTRICO (HUELLA DIGITAL) ---
+        function bufferToBase64(buffer) {
+            return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+                .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+        }
+
         async function verificarSoporteBiometrico() {
             const boxEstado = document.getElementById('boxEstadoBiometria');
             const btnBio = document.getElementById('btnToggleBiometria');
@@ -459,7 +464,7 @@
                 return;
             }
 
-            const biometriaActiva = localStorage.getItem('sbo_biometria_activa') === 'true';
+            const biometriaActiva = localStorage.getItem('sbo_biometria_habilitada') === 'true';
 
             if (biometriaActiva) {
                 boxEstado.innerHTML = `<span style="color:#059669;">✅ Huella activada en este dispositivo</span>`;
@@ -475,11 +480,12 @@
         }
 
         async function gestionarBiometria() {
-            const biometriaActiva = localStorage.getItem('sbo_biometria_activa') === 'true';
+            const biometriaActiva = localStorage.getItem('sbo_biometria_habilitada') === 'true';
 
             if (biometriaActiva) {
                 if (confirm("¿Querés desactivar el ingreso por huella en este dispositivo?")) {
-                    localStorage.removeItem('sbo_biometria_activa');
+                    localStorage.removeItem('sbo_biometria_habilitada');
+                    localStorage.removeItem('sbo_credential_id');
                     alert("🔒 Ingreso por huella desactivado. Ahora deberás ingresar con tu clave.");
                     verificarSoporteBiometrico();
                 }
@@ -487,11 +493,12 @@
                 try {
                     const exito = await solicitarPruebaBiometrica();
                     if (exito) {
-                        localStorage.setItem('sbo_biometria_activa', 'true');
+                        localStorage.setItem('sbo_biometria_habilitada', 'true');
                         alert("🎉 ¡Huella configurada con éxito! La próxima vez podrás ingresar tocando el sensor.");
                         verificarSoporteBiometrico();
                     }
                 } catch (err) {
+                    console.error("Error biométrico:", err);
                     alert("⚠️ No se pudo registrar la huella. Asegurate de contar con un bloqueo de pantalla activo en tu celular.");
                 }
             }
@@ -504,19 +511,25 @@
             const userID = new Uint8Array(16);
             window.crypto.getRandomValues(userID);
 
+            const nombreCliente = localStorage.getItem('sbo_config_nombre') || localStorage.getItem('sbo_nombre') || "Usuario SBO";
+
             const publicKeyCredentialCreationOptions = {
                 challenge: challenge,
                 rp: { name: "S.B.O. Control" },
                 user: {
                     id: userID,
                     name: "usuario_sbo",
-                    displayName: "Usuario SBO Control"
+                    displayName: nombreCliente
                 },
-                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                pubKeyCredParams: [
+                    { alg: -7, type: "public-key" },
+                    { alg: -257, type: "public-key" }
+                ],
                 timeout: 60000,
                 authenticatorSelection: {
                     authenticatorAttachment: "platform",
-                    userVerification: "required"
+                    userVerification: "required",
+                    requireResidentKey: false
                 }
             };
 
@@ -524,7 +537,13 @@
                 publicKey: publicKeyCredentialCreationOptions
             });
 
-            return !!credential;
+            if (credential) {
+                const credIdBase64 = bufferToBase64(credential.rawId);
+                localStorage.setItem('sbo_credential_id', credIdBase64);
+                return true;
+            }
+
+            return false;
         }
 
         // --- DETECCIÓN CLAVE DEV ---
