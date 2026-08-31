@@ -63,10 +63,25 @@
     .modal-body-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
     .modal-body-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
-    .manual-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; }
-    .manual-item strong { color: var(--primary-color); display: block; margin-bottom: 5px; font-size: 0.95rem; }
+    /* ESTILO BASE DE ITEMS Y PALETA PASTEL/MATE */
+    .manual-item { padding: 12px; border-radius: 10px; border-left: 4px solid #cbd5e1; background: #f8fafc; }
+    .manual-item strong.item-title { display: block; margin-bottom: 5px; font-size: 0.95rem; }
     .manual-item ul { margin-left: 18px; margin-top: 6px; }
     .manual-item li { margin-bottom: 3px; }
+
+    /* ESTILOS TEMÁTICOS SUAVES (ACENTOS DE COLOR) */
+    .sec-1  { background: #eff6ff; border-left-color: #2563eb; } .sec-1  .item-title { color: #1d4ed8; }
+    .sec-2  { background: #fdf4ff; border-left-color: #c084fc; } .sec-2  .item-title { color: #7e22ce; }
+    .sec-3  { background: #f0fdf4; border-left-color: #059669; } .sec-3  .item-title { color: #047857; }
+    .sec-4  { background: #f0f9ff; border-left-color: #0284c7; } .sec-4  .item-title { color: #0369a1; }
+    .sec-5  { background: #fff7ed; border-left-color: #ea580c; } .sec-5  .item-title { color: #c2410c; }
+    .sec-6  { background: #ecfdf5; border-left-color: #10b981; } .sec-6  .item-title { color: #047857; }
+    .sec-7  { background: #fefce8; border-left-color: #eab308; } .sec-7  .item-title { color: #a16207; }
+    .sec-8  { background: #f1f5f9; border-left-color: #64748b; } .sec-8  .item-title { color: #334155; }
+    .sec-9  { background: #fff1f2; border-left-color: #f43f5e; } .sec-9  .item-title { color: #be123c; }
+    .sec-10 { background: #faf5ff; border-left-color: #a855f7; } .sec-10 .item-title { color: #6b21a8; }
+    .sec-11 { background: #f8fafc; border-left-color: #475569; } .sec-11 .item-title { color: #1e293b; }
+    .sec-12 { background: #f0fdfa; border-left-color: #0d9488; } .sec-12 .item-title { color: #0f766e; }
 
     .contacto-box { text-align: center; font-size: 0.95rem; color: #334155; padding: 10px 0; }
     .contacto-box p { margin: 8px 0; }
@@ -113,8 +128,8 @@
       </div>
 
       <div class="modal-body-scroll">
-        <div class="manual-item">
-          <strong>1. Ingreso, Registro y Activación de Licencias</strong>
+        <div class="manual-item sec-1">
+          <strong class="item-title">🔑 1. Ingreso, Registro y Activación de Licencias</strong>
           <ul>
             <li><strong>Pantalla Principal (Index):</strong> Para ingresar al sistema es obligatorio contar con una clave de acceso activa.</li>
             <li><strong>Nuevo Registro:</strong> Si sos un usuario nuevo, tocá el botón <em>"Registro"</em>, completá tus datos personales (Nombre, Emprendimiento, Teléfono) y seleccioná el tipo de plan comercial deseado.</li>
@@ -123,8 +138,8 @@
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>2. Personalización y Datos del Negocio</strong>
+        <div class="manual-item sec-2">
+          <strong class="item-title">🎨 2. Personalización y Datos del Negocio</strong>
           <ul>
             <li><strong>Ajustes del Negocio:</strong> En el menú <em>Configuración</em> podés definir el Nombre Comercial, Eslogan, WhatsApp de atención, Billetera Digital de Cobro y tu Alias/CBU/CVU. Estos datos figurarán de forma automática en los comprobantes y tickets.</li>
             <li><strong>Apariencia y Colores:</strong> Elegí la paleta cromática de tu preferencia (Verde, Azul, Violeta o Naranja).</li>
@@ -133,16 +148,25 @@
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>3. Gestión de Clientes</strong>
+        <div class="manual-item sec-3">
+          <strong class="item-title">👆 3. Configuración e Ingreso por Huella Digital (Biometría)</strong>
+          <ul>
+            <li><strong>¿Cómo se activa?</strong> Ingresá a <em>Configuración ⚙️ &gt; Ajustes del Sistema</em>, ubica el apartado de <strong>Acceso Biométrico</strong> y presioná <em>Activar Huella Digital</em>.</li>
+            <li><strong>Seguridad:</strong> El sistema nunca guarda ni transmite tus datos biométricos. La validación la realiza de forma nativa el propio celular o dispositivo.</li>
+            <li><strong>Alternativa de Respaldo:</strong> Si el dispositivo no tiene lector o la lectura falla, siempre podrás ingresar tipeando tu clave de acceso tradicional.</li>
+          </ul>
+        </div>
+
+        <div class="manual-item sec-4">
+          <strong class="item-title">👥 4. Gestión de Clientes</strong>
           <ul>
             <li>Permite guardar la base de compradores de tu emprendimiento con su Nombre, WhatsApp, Localidad y Correo Electrónico.</li>
             <li>Al asociar un cliente registrado a una venta, el sistema te permite enviarle el comprobante digital directo a su chat de WhatsApp con un solo toque.</li>
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>4. Inventario de Productos y Control de Stock</strong>
+        <div class="manual-item sec-5">
+          <strong class="item-title">📦 5. Inventario de Productos y Control de Stock</strong>
           <ul>
             <li><strong>Alta de Artículos:</strong> Registrá tus productos especificando Descripción/Nombre, Precio de Venta Unitario y Stock Disponible inicial.</li>
             <li><strong>Descuento Automático:</strong> Cada vez que confirmás una venta, el sistema descuenta automáticamente las unidades del inventario.</li>
@@ -150,8 +174,8 @@
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>5. Punto de Venta (POS), Carrito y Comprobantes</strong>
+        <div class="manual-item sec-6">
+          <strong class="item-title">🛒 6. Punto de Venta (POS), Carrito y Comprobantes</strong>
           <ul>
             <li><strong>Armado de Pedido:</strong> Seleccioná los artículos del catálogo o buscador y sumalos al carrito de compras. Podés ajustar las cantidades de cada ítem dinámicamente.</li>
             <li><strong>Medios de Pago:</strong> Elegí cómo abona el cliente: Efectivo, Transferencia, Mercado Pago, Tarjetas de Débito/Crédito u otras Billeteras.</li>
@@ -159,8 +183,8 @@
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>6. Caja Chica y Control de Flujo de Efectivo</strong>
+        <div class="manual-item sec-7">
+          <strong class="item-title">💵 7. Caja Chica y Control de Flujo de Efectivo</strong>
           <ul>
             <li><strong>Fondo Inicial (Cambio):</strong> Registrá el dinero en efectivo con el que iniciás la jornada de trabajo.</li>
             <li><strong>Movimientos Extras:</strong> Registrá cualquier <em>Ingreso Extra</em> o <em>Egreso / Gasto</em> (pago a proveedores, insumos, gastos diarios).</li>
@@ -168,16 +192,16 @@
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>7. Libro Diario y Consulta de Ventas</strong>
+        <div class="manual-item sec-8">
+          <strong class="item-title">📖 8. Libro Diario y Consulta de Ventas</strong>
           <ul>
             <li>Historial centralizado donde podés consultar cada transacción realizada durante el día o en fechas anteriores.</li>
             <li>Permite filtrar y comparar las ventas abonadas en <em>Efectivo</em> respecto a los <em>Medios Digitales / Transferencias</em> para facilitar el arqueo bancario.</li>
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>8. Cierre Z y Blanqueo de Jornada</strong>
+        <div class="manual-item sec-9">
+          <strong class="item-title">📊 9. Cierre Z y Blanqueo de Jornada</strong>
           <ul>
             <li><strong>Cierre de Jornada:</strong> Al terminar el día de trabajo, accedé al módulo <strong>Cierre Z</strong>.</li>
             <li><strong>Balance Integral:</strong> El sistema calcula el total vendido en el día, arqueo de efectivo en caja, acumulación de ventas mensuales y la valorización total de tu stock en depósito.</li>
@@ -185,8 +209,8 @@
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>9. Respaldo de Datos (Backup), Restauración y Reset</strong>
+        <div class="manual-item sec-10">
+          <strong class="item-title">💾 10. Respaldo de Datos (Backup), Restauración y Reset</strong>
           <ul>
             <li><strong>Exportar Backup:</strong> En <em>Configuración &gt; Ajustes del Sistema</em>, usá el botón <em>"Exportar Datos"</em> para descargar una copia de seguridad en archivo `.json` a tu dispositivo.</li>
             <li><strong>Restaurar Backup:</strong> Podés cargar un archivo `.json` grabado anteriormente para recuperar toda tu información de productos, clientes y ventas de forma instantánea.</li>
@@ -194,16 +218,16 @@
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>10. Área Técnica y Panel de Desarrollador</strong>
+        <div class="manual-item sec-11">
+          <strong class="item-title">🛠️ 11. Área Técnica y Panel de Desarrollador</strong>
           <ul>
             <li>Área restringida exclusiva para licencias de Desarrollador autorizadas (como <code>LP-GEN-JMD</code> o <code>LD-GEN-JMD</code>).</li>
-            <li>Permite validar y auditar el estado del sistema, administrar licencias avanzadas y acceder a herramientas de mantenimiento técnico de baja nivel.</li>
+            <li>Permite validar y auditar el estado del sistema, administrar licencias avanzadas y acceder a herramientas de mantenimiento técnico de bajo nivel.</li>
           </ul>
         </div>
 
-        <div class="manual-item">
-          <strong>11. Renovación y Tipos de Licencia</strong>
+        <div class="manual-item sec-12">
+          <strong class="item-title">⏳ 12. Renovación y Tipos de Licencia</strong>
           <ul>
             <li>S.B.O. Control comercializa planes adaptados a cada emprendimiento: Mensual, Semestral, Anual y Licencia Vitalicia.</li>
             <li>Cuando venza tu plan, podés ingresar una nueva clave desde la pantalla de inicio o desde el menú de Configuración sin perder tus productos ni historial guardado.</li>

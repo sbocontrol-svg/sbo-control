@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#059669">
+  <meta name="theme-color" content="#059669" id="metaThemeColor">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="sbologo.png">
   <link rel="apple-touch-icon" href="sbologo.png">
@@ -11,45 +11,77 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>S. B. O. Control</title>
   <style>
-    :root { --primary-color: #059669; --font-scale: 15px; }
+    :root { 
+      --primary-color: #059669; 
+      --font-scale: 15px; 
+      --bg-body: #0f172a;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --subtle-bg: #f8fafc;
+      --border-color: #cbd5e1;
+    }
     html { font-size: var(--font-scale); }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px; }
-    .container { background-color: #ffffff; color: #1e293b; width: 100%; max-width: 480px; padding: 16px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); border: 1px solid #e2e8f0; position: relative; }
+    
+    body { 
+      background-color: var(--bg-body); 
+      color: #f8fafc; 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      padding: 10px; 
+    }
+    
+    .container { 
+      background-color: var(--card-bg); 
+      color: var(--text-main); 
+      width: 100%; 
+      max-width: 480px; 
+      padding: 16px; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); 
+      border: 1px solid #e2e8f0; 
+      position: relative; 
+    }
+    
     .global-help { position: absolute; top: 14px; right: 14px; z-index: 10; }
     .help-icon { background: var(--primary-color); color: white; border-radius: 50%; width: 24px; height: 24px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; list-style: none; }
     .help-icon::-webkit-details-marker { display: none; }
     .help-content { position: absolute; right: 0; top: 30px; background: #1e293b; color: #f8fafc; padding: 10px 12px; border-radius: 10px; font-size: 0.78rem; width: 270px; z-index: 20; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); text-align: left; line-height: 1.4; }
+    
     .top-content { text-align: center; }
     .brand-logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; margin-bottom: 4px; border: 2px solid var(--primary-color); }
     h1 { font-size: 1.25rem; font-weight: 800; color: var(--primary-color); }
-    .brand-slogan { font-size: 0.8rem; color: #4b5563; font-weight: 600; text-transform: uppercase; }
-    .divider { border: 0; border-top: 1px dashed #cbd5e1; margin: 8px 0; }
+    .brand-slogan { font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    .divider { border: 0; border-top: 1px dashed var(--border-color); margin: 8px 0; }
     
-    /* Frame de fecha rediseñado sin desplegable */
-    .date-frame { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; margin: 4px 0; }
+    /* Frame de fecha rediseñado */
+    .date-frame { display: flex; align-items: center; justify-content: space-between; background: var(--subtle-bg); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin: 4px 0; }
     .date-label { font-size: 0.85rem; font-weight: 800; color: #475569; display: flex; align-items: center; gap: 6px; }
-    .date-value { font-size: 0.9rem; font-weight: 700; color: #0f172a; }
+    .date-value { font-size: 0.9rem; font-weight: 700; color: var(--text-main); }
 
-    .client-display-section { text-align: center; margin: 4px 0 6px 0; background: #f8fafc; padding: 14px 10px; border-radius: 12px; border: 1px dashed #cbd5e1; }
+    .client-display-section { text-align: center; margin: 4px 0 6px 0; background: var(--subtle-bg); padding: 14px 10px; border-radius: 12px; border: 1px dashed var(--border-color); }
     .client-box-label { font-size: 0.9rem; color: var(--primary-color); text-transform: uppercase; font-weight: 800; }
-    .client-box-name { font-family: Georgia, serif; font-size: 1.35rem; color: #0f172a; font-weight: 700; font-style: italic; margin: 4px 0; }
+    .client-box-name { font-family: Georgia, serif; font-size: 1.35rem; color: var(--text-main); font-weight: 700; font-style: italic; margin: 4px 0; }
     .btn-subtle-modify { background: none; border: none; color: #0284c7; font-size: 0.77rem; font-weight: 700; cursor: pointer; }
     
-    .marquee-container { overflow: hidden; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 0; margin: 6px 0; width: 100%; }
-    .marquee-text { white-space: nowrap; display: inline-block; animation: marqueeScroll 15s linear infinite; color: #059669; font-size: 0.75rem; font-weight: 800; padding-left: 100%; }
+    .marquee-container { overflow: hidden; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 0; margin: 6px 0; width: 100%; }
+    .marquee-text { white-space: nowrap; display: inline-block; animation: marqueeScroll 15s linear infinite; color: var(--primary-color); font-size: 0.75rem; font-weight: 800; padding-left: 100%; }
     @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
     
     .modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.75); display: none; justify-content: center; align-items: center; z-index: 100; padding: 12px; }
-    .modal-container { background-color: #ffffff; color: #1e293b; width: 100%; max-width: 400px; padding: 16px; border-radius: 16px; font-weight: 600; }
+    .modal-container { background-color: var(--card-bg); color: var(--text-main); width: 100%; max-width: 400px; padding: 16px; border-radius: 16px; font-weight: 600; }
     .form-group { margin-bottom: 6px; }
-    .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; color: #1e293b; background-color: #f8fafc; }
+    .form-control { width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.88rem; color: var(--text-main); background-color: var(--subtle-bg); }
     
     .password-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
     .password-wrapper input { padding-right: 42px; width: 100%; }
     .toggle-password { position: absolute; right: 10px; background: none; border: none; cursor: pointer; font-size: 1.1rem; color: #64748b; padding: 4px; display: flex; align-items: center; justify-content: center; }
 
     .btn { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-bio { background-color: #4f46e5; color: white; border: none; width: 100%; padding: 11px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 8px; display: none; }
     .btn-save { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: bold; cursor: pointer; }
     .btn-import { background-color: #0284c7; color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; margin-top: 8px; font-weight: bold; cursor: pointer; }
     .extra-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.8rem; }
@@ -57,11 +89,11 @@
     .clear-btn { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
 
     .custom-modal-overlay { position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.85); display: none; justify-content: center; align-items: center; z-index: 200; padding: 12px; }
-    .custom-modal-card { background: #ffffff; color: #1e293b; width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
-    .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: #059669; margin-bottom: 8px; }
-    .custom-modal-msg { font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
+    .custom-modal-card { background: var(--card-bg); color: var(--text-main); width: 100%; max-width: 380px; padding: 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+    .custom-modal-title { font-size: 1.1rem; font-weight: 800; color: var(--primary-color); margin-bottom: 8px; }
+    .custom-modal-msg { font-size: 0.9rem; color: var(--text-main); margin-bottom: 16px; line-height: 1.4; white-space: pre-line; }
     .custom-modal-actions { display: flex; gap: 8px; justify-content: center; }
-    .btn-modal-ok { background-color: #059669; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+    .btn-modal-ok { background-color: var(--primary-color); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
     .btn-modal-cancel { background-color: #64748b; color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
   </style>
 </head>
@@ -73,7 +105,8 @@
       <div class="help-content">
         <strong>💡 Ayuda SBO Control:</strong><br>
         • <strong>Registro:</strong> Tocá "Registro" si sos nuevo para pedir tu licencia por WhatsApp.<br>
-        • <strong>Importar:</strong> Si tenés tu archivo .sbo o .json, usalo para configurar el acceso al instante.<br>
+        • <strong>Biometría:</strong> Podés ingresar usando la huella o rostro de tu celular.<br>
+        • <strong>Importar:</strong> Cargar archivo .sbo o .json para acceso instantáneo.<br>
         • <strong>Ingresar:</strong> Tocá "Ingresar" y poné tu clave para entrar al sistema.
       </div>
     </details>
@@ -86,7 +119,7 @@
     
     <hr class="divider">
     
-    <!-- Frame de Fecha Estilizado (sin input desplegable) -->
+    <!-- Frame de Fecha Estilizado -->
     <div class="date-frame">
       <span class="date-label">📅 FECHA DE HOY</span>
       <span id="lblFechaFrame" class="date-value">--/--/----</span>
@@ -105,7 +138,10 @@
     
     <hr class="divider">
     
-    <button class="btn" style="margin-top: 5px;" onclick="abrirModalIngreso()">🔑 Ingresar al Sistema</button>
+    <button class="btn" style="margin-top: 5px;" onclick="abrirModalIngreso()">🔑 Ingresar con Clave</button>
+
+    <!-- Botón de Acceso Biométrico -->
+    <button id="btnBiometria" class="btn-bio" onclick="ingresarConBiometria()">👆 Ingresar con Huella / Rostro</button>
 
     <input type="file" id="fileSboInput" accept=".sbo,.json" style="display: none;" onchange="importarArchivoSbo(event)">
     <button type="button" class="btn-import" onclick="document.getElementById('fileSboInput').click()">📥 Importar Archivo (.sbo / .json)</button>
@@ -164,7 +200,6 @@
   <script>
     const NUMERO_WHATSAPP_SBO = "5492364502082"; 
 
-    // Licencias ordenadas de menor a mayor duración
     const LICENCIAS_BASE_DEFAULT = [
       { id: 2, nombreLicencia: "Licencia FreePass", duracion: "15 dias", precio: 0, modalidad: "Sin costo" },
       { id: 3, nombreLicencia: "Licencia Mensual", duracion: "30 dias", precio: 5000, modalidad: "/mes" },
@@ -176,6 +211,98 @@
     let accionOkCallback = null;
     let accionCancelCallback = null;
     let intentosFallidos = 0;
+
+    function cargarConfiguracionApariencia() {
+      const colorGuardado = localStorage.getItem('sbo_color_tema') || '#059669';
+      const tamanoFuente = localStorage.getItem('sbo_tamano_fuente') || '15px';
+      
+      document.documentElement.style.setProperty('--primary-color', colorGuardado);
+      document.documentElement.style.setProperty('--font-scale', tamanoFuente);
+      
+      const metaTheme = document.getElementById('metaThemeColor');
+      if (metaTheme) metaTheme.setAttribute('content', colorGuardado);
+    }
+
+    // --- LÓGICA DE RECONOCIMIENTO BIOMÉTRICO (WebAuthn) ---
+    async function verificarSoporteBiometrico() {
+      if (window.PublicKeyCredential && localStorage.getItem('sbo_biometria_habilitada') === 'true') {
+        document.getElementById('btnBiometria').style.display = 'block';
+      }
+    }
+
+    async function registrarBiometria() {
+      if (!window.PublicKeyCredential) return;
+
+      mostrarConfirm(
+        "🖐️ ¿Querés habilitar la Huella / Rostro para entrar más rápido en tus próximos ingresos?",
+        "Habilitar Biometría",
+        async () => {
+          try {
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+
+            const userId = new Uint8Array(16);
+            window.crypto.getRandomValues(userId);
+
+            const createCredentialOptions = {
+              publicKey: {
+                challenge: challenge,
+                rp: { name: "S.B.O. Control" },
+                user: {
+                  id: userId,
+                  name: localStorage.getItem('sbo_nombre') || "Usuario",
+                  displayName: localStorage.getItem('sbo_nombre') || "Usuario SBO"
+                },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                authenticatorSelection: { userVerification: "preferred" },
+                timeout: 60000
+              }
+            };
+
+            await navigator.credentials.create(createCredentialOptions);
+            localStorage.setItem('sbo_biometria_habilitada', 'true');
+            mostrarAviso('¡Biometría configurada con éxito! Ya podés usar tu huella para entrar.', 'S. B. O. Control', () => {
+              window.location.href = 'menu.html';
+            });
+          } catch (e) {
+            // Si el usuario rechaza la huella en el cel, entra por clave de todas formas
+            window.location.href = 'menu.html';
+          }
+        },
+        () => {
+          window.location.href = 'menu.html';
+        }
+      );
+    }
+
+    async function ingresarConBiometria() {
+      try {
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        const getCredentialOptions = {
+          publicKey: {
+            challenge: challenge,
+            userVerification: "required",
+            timeout: 60000
+          }
+        };
+
+        const credential = await navigator.credentials.get(getCredentialOptions);
+        if (credential) {
+          const hoySistemaStr = new Date().toISOString().split('T')[0];
+          localStorage.setItem('sbo_fechaSesion', hoySistemaStr);
+          localStorage.setItem('bma_fechaSesion', hoySistemaStr);
+
+          mostrarAviso('¡Acceso Biométrico Concedido!', 'S. B. O. Control', () => {
+            window.location.href = 'menu.html';
+          });
+        }
+      } catch (err) {
+        mostrarAviso('❌ Error o cancelación de lectura biométrica. Probá de nuevo o usá tu clave.');
+      }
+    }
+    // --------------------------------------------------------
 
     function mostrarAviso(mensaje, titulo = "S. B. O. Control", callback = null) {
       document.getElementById('customModalTitle').textContent = titulo;
@@ -216,7 +343,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Formatear e insertar la fecha en el frame estilizado
+      cargarConfiguracionApariencia();
+      verificarSoporteBiometrico();
+
       const hoy = new Date();
       const dd = String(hoy.getDate()).padStart(2, '0');
       const mm = String(hoy.getMonth() + 1).padStart(2, '0');
@@ -268,7 +397,7 @@
         lblEstado.style.color = "#d97706";
       } else {
         lblEstado.textContent = `🟢 Licencia Activa (Hasta ${partesFin[2]}/${partesFin[1]}/${partesFin[0]})`;
-        lblEstado.style.color = "#059669";
+        lblEstado.style.color = "var(--primary-color)";
       }
     }
 
@@ -547,9 +676,15 @@
             localStorage.setItem('sbo_huellaHardware', hwActual);
         }
 
-        mostrarAviso('¡Acceso concedido! Bienvenido al sistema.', 'S. B. O. Control', () => {
-            window.location.href = 'menu.html';
-        });
+        // Si todavía no configuró la biometría, le preguntamos ahora que la clave es correcta
+        if (localStorage.getItem('sbo_biometria_habilitada') !== 'true' && window.PublicKeyCredential) {
+          cerrarModalIngreso();
+          registrarBiometria();
+        } else {
+          mostrarAviso('¡Acceso concedido! Bienvenido al sistema.', 'S. B. O. Control', () => {
+              window.location.href = 'menu.html';
+          });
+        }
     }
   </script>
 </body>

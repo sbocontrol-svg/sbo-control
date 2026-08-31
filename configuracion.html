@@ -162,7 +162,7 @@
         <!-- AJUSTES DEL SISTEMA -->
         <div class="section-card" style="background-color: #fff5f5; border-color: #fecaca;">
             <div class="card-title">🛠️ Ajustes del Sistema</div>
-            <div class="card-desc">Configurá colores, modo oscuro, respaldos y reinicio.</div>
+            <div class="card-desc">Configurá colores, modo oscuro, biometría, respaldos y reinicio.</div>
             <button class="btn-action btn-danger" onclick="abrirModal('modalSistema')">⚙️ Abrir Ajustes del Sistema</button>
         </div>
 
@@ -272,6 +272,25 @@
                 </div>
             </div>
 
+            <!-- ACCESO BIOMÉTRICO (HUELLA / FACE ID) -->
+            <div class="sub-card" style="background: #f0fdf4; border-color: #bbf7d0;">
+                <div class="sub-title" style="color: #166534;">
+                    👆 Acceso Biométrico (Huella Digital)
+                </div>
+                
+                <div style="font-size: 0.78rem; color: #475569; margin-bottom: 8px; line-height: 1.3;">
+                    Ingresá a S.B.O. Control al instante usando el lector de tu dispositivo.
+                </div>
+
+                <div id="boxEstadoBiometria" style="font-size:0.75rem; font-weight:800; margin-bottom:10px; color:#64748b;">
+                    Estado: Comprobando dispositivo...
+                </div>
+
+                <button id="btnToggleBiometria" class="btn-action btn-primary" onclick="gestionarBiometria()">
+                    👆 Configurar Huella Digital
+                </button>
+            </div>
+
             <!-- COPIAS DE SEGURIDAD -->
             <div class="sub-card">
                 <div class="sub-title">💾 Copias de Seguridad (Backup)</div>
@@ -359,6 +378,7 @@
             
             cargarAjustesCargados();
             renderizarSeccionDev();
+            verificarSoporteBiometrico();
         });
 
         function abrirModal(id) {
@@ -421,9 +441,94 @@
             }
         }
 
+        // --- GESTIÓN DE ACCESO BIOMÉTRICO (HUELLA DIGITAL) ---
+        async function verificarSoporteBiometrico() {
+            const boxEstado = document.getElementById('boxEstadoBiometria');
+            const btnBio = document.getElementById('btnToggleBiometria');
+
+            if (!boxEstado || !btnBio) return;
+
+            const soportaWebAuthn = window.PublicKeyCredential && 
+                await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+
+            if (!soportaWebAuthn) {
+                boxEstado.innerHTML = `<span style="color:#dc2626;">❌ Dispositivo sin soporte de huella/biometría</span>`;
+                btnBio.className = "btn-action btn-disabled";
+                btnBio.innerText = "🚫 No disponible en este equipo";
+                btnBio.disabled = true;
+                return;
+            }
+
+            const biometriaActiva = localStorage.getItem('sbo_biometria_activa') === 'true';
+
+            if (biometriaActiva) {
+                boxEstado.innerHTML = `<span style="color:#059669;">✅ Huella activada en este dispositivo</span>`;
+                btnBio.className = "btn-action btn-danger";
+                btnBio.innerText = "🗑️ Desactivar Huella Digital";
+                btnBio.disabled = false;
+            } else {
+                boxEstado.innerHTML = `<span style="color:#64748b;">⚪ Huella no configurada</span>`;
+                btnBio.className = "btn-action btn-primary";
+                btnBio.innerText = "👆 Activar Huella Digital";
+                btnBio.disabled = false;
+            }
+        }
+
+        async function gestionarBiometria() {
+            const biometriaActiva = localStorage.getItem('sbo_biometria_activa') === 'true';
+
+            if (biometriaActiva) {
+                if (confirm("¿Querés desactivar el ingreso por huella en este dispositivo?")) {
+                    localStorage.removeItem('sbo_biometria_activa');
+                    alert("🔒 Ingreso por huella desactivado. Ahora deberás ingresar con tu clave.");
+                    verificarSoporteBiometrico();
+                }
+            } else {
+                try {
+                    const exito = await solicitarPruebaBiometrica();
+                    if (exito) {
+                        localStorage.setItem('sbo_biometria_activa', 'true');
+                        alert("🎉 ¡Huella configurada con éxito! La próxima vez podrás ingresar tocando el sensor.");
+                        verificarSoporteBiometrico();
+                    }
+                } catch (err) {
+                    alert("⚠️ No se pudo registrar la huella. Asegurate de contar con un bloqueo de pantalla activo en tu celular.");
+                }
+            }
+        }
+
+        async function solicitarPruebaBiometrica() {
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
+
+            const userID = new Uint8Array(16);
+            window.crypto.getRandomValues(userID);
+
+            const publicKeyCredentialCreationOptions = {
+                challenge: challenge,
+                rp: { name: "S.B.O. Control" },
+                user: {
+                    id: userID,
+                    name: "usuario_sbo",
+                    displayName: "Usuario SBO Control"
+                },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                timeout: 60000,
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform",
+                    userVerification: "required"
+                }
+            };
+
+            const credential = await navigator.credentials.create({
+                publicKey: publicKeyCredentialCreationOptions
+            });
+
+            return !!credential;
+        }
+
         // --- DETECCIÓN CLAVE DEV ---
         function obtenerClaveGuardada() {
-            // Lee directamente la clave guardada en el flujo de index.html
             const clave = localStorage.getItem('sbo_claveSecreta') || localStorage.getItem('sbo_claveAcceso') || '';
             return clave.trim().toUpperCase();
         }
@@ -530,6 +635,7 @@
                     { label: "📊 ¿Cómo hacer un Cierre Z?", key: "cierre_z" },
                     { label: "📦 ¿Cómo agregar Productos?", key: "add_stock" },
                     { label: "👥 ¿Cómo guardar un Cliente?", key: "add_cliente" },
+                    { label: "👆 ¿Cómo activar la Huella Digital?", key: "biometria" },
                     { label: "⚙️ Problemas de Licencia / Config", key: "licencia" }
                 ]
             },
@@ -547,6 +653,10 @@
             },
             add_cliente: {
                 texto: "Para gestionar tu agenda de clientes:\n1. Entrá a **'Clientes'**.\n2. Completá el teléfono, nombre o notas.\n3. Podés consultar tu directorio cuando quieras o exportarlo en PDF.",
+                siguiente: "encuesta"
+            },
+            biometria: {
+                texto: "Para ingresar con **Huella Digital / Face ID**:\n1. Entrá a **Configuración** ⚙️ > **Ajustes del Sistema**.\n2. Buscá el bloque **'Acceso Biométrico'**.\n3. Tocá en **'Activar Huella Digital'** y confirmá con tu sensor habitual.\n\n*Nota: Tu equipo debe contar con un bloqueo de pantalla (PIN o Huella) previamente configurado.*",
                 siguiente: "encuesta"
             },
             licencia: {

@@ -15,6 +15,7 @@
     :root {
       --primary-color: #0f172a;
       --primary-light: #059669;
+      --accent-blue: #2563eb;
       --font-scale: 15px;
     }
     html { font-size: var(--font-scale); }
@@ -22,24 +23,88 @@
     body { background: #0d1b2a; margin: 0; padding: 12px; color: #1f2937; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     
     .container { width: 100%; max-width: 440px; }
-    .card { background: white; padding: 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+    .card { background: white; padding: 18px; border-radius: 16px; box-shadow: 0 10px 28px rgba(0,0,0,0.35); }
 
     .ventas-container-box *, .ventas-modal-overlay * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    .ventas-container-box label { font-size: 11px; font-weight: 700; color: #475569; display: block; margin-top: 10px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
-    .ventas-container-box input, .ventas-container-box select { width: 100%; padding: 10px; margin-top: 4px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #f8fafc; color: #1e293b; outline: none; }
-    .ventas-container-box input:focus, .ventas-container-box select:focus { border-color: #3b82f6; background: #fff; }
+    .ventas-container-box label { font-size: 11px; font-weight: 800; color: #334155; display: block; margin-top: 10px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    .ventas-container-box input, .ventas-container-box select { 
+      width: 100%; 
+      padding: 10px 12px; 
+      margin-top: 4px; 
+      border: 1.5px solid #cbd5e1; 
+      border-radius: 10px; 
+      font-size: 14px; 
+      background: #ffffff; 
+      color: #0f172a; 
+      outline: none; 
+      transition: all 0.2s ease;
+    }
+    .ventas-container-box input:focus, .ventas-container-box select:focus { 
+      border-color: var(--primary-light); 
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15); 
+    }
     
-    .ventas-btn-main { background: #0f172a; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: 700; font-size: 0.95rem; margin-top: 15px; cursor: pointer; box-shadow: 0 4px 12px rgba(15,23,42,0.3); }
-    .ventas-btn-add { background: #475569; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; }
-    .ventas-btn-historial { background: #475569; color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 0.9rem; width: 100%; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .ventas-btn-secundario { background: #334155; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 0.95rem; margin-top: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+    .ventas-btn-main { background: var(--primary-color); color: white; border: none; padding: 13px; width: 100%; border-radius: 10px; font-weight: 800; font-size: 0.95rem; margin-top: 15px; cursor: pointer; box-shadow: 0 4px 14px rgba(15,23,42,0.35); transition: transform 0.1s; }
+    .ventas-btn-main:active { transform: scale(0.98); }
+
+    .ventas-btn-add { 
+      background: linear-gradient(135deg, #059669 0%, #047857 100%); 
+      color: white; 
+      border: none; 
+      padding: 12px; 
+      border-radius: 10px; 
+      font-weight: 800; 
+      font-size: 0.95rem;
+      cursor: pointer; 
+      width: 100%; 
+      margin-top: 14px; 
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+      transition: transform 0.1s;
+    }
+    .ventas-btn-add:active { transform: scale(0.98); }
+
+    .ventas-btn-historial { 
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); 
+      color: white; 
+      border: none; 
+      padding: 11px; 
+      border-radius: 10px; 
+      font-weight: 700; 
+      font-size: 0.9rem; 
+      width: 100%; 
+      margin-bottom: 14px; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 8px; 
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .ventas-btn-secundario { 
+      background: #334155; 
+      color: white; 
+      border: 1px solid #475569; 
+      padding: 12px; 
+      width: 100%; 
+      border-radius: 10px; 
+      font-weight: 700; 
+      font-size: 0.95rem; 
+      margin-top: 10px; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 6px; 
+      text-decoration: none; 
+    }
     
-    .ventas-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.7); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
+    .ventas-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.75); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 12px; }
     .ventas-modal-overlay.active { display: flex; }
-    .ventas-modal-container { background: white; width: 100%; max-width: 380px; border-radius: 16px; padding: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-height: 85vh; display: flex; flex-direction: column; overflow-y: auto; }
+    .ventas-modal-container { background: white; width: 100%; max-width: 380px; border-radius: 16px; padding: 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); max-height: 85vh; display: flex; flex-direction: column; overflow-y: auto; }
     
-    .ventas-cart-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-top: 10px; }
-    .ventas-cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #cbd5e1; padding: 6px 0; font-size: 0.85rem; }
+    .ventas-cart-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-top: 10px; }
+    .ventas-cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #cbd5e1; padding: 8px 0; font-size: 0.85rem; }
     .ventas-cart-item:last-child { border-bottom: none; }
     .ventas-btn-del-cart { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
     .ventas-total-box { font-size: 1.15rem; font-weight: 800; color: #0f172a; text-align: right; margin-top: 8px; border-top: 1.5px solid #cbd5e1; padding-top: 6px; }
@@ -51,21 +116,21 @@
     .ventas-btn-action { flex: 1; padding: 6px; border-radius: 6px; border: none; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-align: center; }
 
     .aviso-marquee-container {
-      background-color: #fef3c7;
-      border: 1.5px solid #fcd34d;
+      background-color: #fffbeb;
+      border: 1.5px solid #fef08a;
       border-radius: 10px;
       overflow: hidden;
       white-space: nowrap;
       width: 100%;
       padding: 8px 0;
-      margin-top: 12px;
+      margin-top: 14px;
     }
     .marquee-text {
       display: inline-block;
       padding-left: 100%;
       animation: marquee 16s linear infinite;
       font-size: 0.75rem;
-      color: #92400e;
+      color: #b45309;
       font-weight: 700;
     }
     @keyframes marquee {
@@ -158,14 +223,14 @@
   <div class="container">
     <div class="card">
       <div class="ventas-container-box">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 4px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
           <div style="display: flex; flex-direction: column; justify-content: space-between; height: 48px;">
-            <h3 style="font-size: 1.05rem; color: #0f172a; font-weight: 800; margin: 0; line-height: 1;">💳 Registrar Venta</h3>
+            <h3 style="font-size: 1.1rem; color: #0f172a; font-weight: 800; margin: 0; line-height: 1.2;">💳 Registrar Venta</h3>
             <div id="lblFechaTrabajoVentas" style="font-size: 0.80rem; color: #64748b; font-weight: 700; line-height: 1;">Fecha de Trabajo: -</div>
           </div>
           
           <button onclick="cerrarVentanaModalVentasGen()" title="Volver al Menú" style="background: none; border: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;">
-            <img src="logosbo.jpg" alt="Logo SBO" style="width: 56px; height: 56px; object-fit: contain;">
+            <img src="logosbo.jpg" alt="Logo SBO" style="width: 54px; height: 54px; object-fit: contain; border-radius: 10px;">
           </button>
         </div>
 
@@ -174,12 +239,12 @@
         </button>
 
         <label>Tipo de Cliente:</label>
-        <div style="display: flex; gap: 12px; margin-top: 4px; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: #334155;">
-          <label style="margin: 0; display: flex; align-items: center; gap: 4px; cursor: pointer; text-transform: none; font-weight: 600;">
-            <input type="radio" name="tipoCliente" value="registrado" checked onchange="cambiarModoCliente()" style="width: auto; margin: 0;"> Registrado
+        <div style="display: flex; gap: 16px; margin-top: 6px; margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; color: #334155;">
+          <label style="margin: 0; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none;">
+            <input type="radio" name="tipoCliente" value="registrado" checked onchange="cambiarModoCliente()" style="width: auto; margin: 0; accent-color: #059669;"> Registrado
           </label>
-          <label style="margin: 0; display: flex; align-items: center; gap: 4px; cursor: pointer; text-transform: none; font-weight: 600;">
-            <input type="radio" name="tipoCliente" value="ocasional" onchange="cambiarModoCliente()" style="width: auto; margin: 0;"> Ocasional
+          <label style="margin: 0; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none;">
+            <input type="radio" name="tipoCliente" value="ocasional" onchange="cambiarModoCliente()" style="width: auto; margin: 0; accent-color: #059669;"> Ocasional
           </label>
         </div>
 
@@ -197,11 +262,11 @@
           <input type="tel" id="vTelefonoOcasional" placeholder="Ej: 2364123456">
         </div>
 
-        <div style="background:#f8fafc; padding:10px; border-radius:10px; margin-top:8px; border: 1.5px solid #e2e8f0;">
-          <label style="margin-top:0;">Seleccionar Producto:</label>
+        <div style="background: #f1f5f9; padding: 12px; border-radius: 12px; margin-top: 10px; border: 1.5px solid #e2e8f0;">
+          <label style="margin-top: 0; color: #0f172a;">Seleccionar Producto:</label>
           <select id="vProducto" onchange="cargarPrecioMaxVentas()"></select>
 
-          <div style="display: flex; gap: 8px;">
+          <div style="display: flex; gap: 10px;">
             <div style="flex: 1;">
               <label>Cantidad:</label>
               <input type="number" id="vCant" value="1" min="1">
@@ -212,9 +277,9 @@
             </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
             <label style="margin: 0;">Método de Pago:</label>
-            <button type="button" id="btnQrRapido" onclick="abrirQrCobroRapido()" style="background: #e0f2fe; color: #0369a1; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            <button type="button" id="btnQrRapido" onclick="abrirQrCobroRapido()" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; border: none; padding: 5px 10px; border-radius: 7px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);">
               📱 Ver QR Cobro
             </button>
           </div>
@@ -260,7 +325,7 @@
         <div class="ventas-total-box" id="lblTotalVenta">Total: $ 0,00</div>
       </div>
 
-      <button class="ventas-btn-main" style="background:#16a34a; margin-top:12px;" onclick="confirmarVentaActual()">🚀 Confirmar Venta</button>
+      <button class="ventas-btn-main" style="background:#059669; margin-top:12px;" onclick="confirmarVentaActual()">🚀 Confirmar Venta</button>
       <button class="ventas-btn-secundario" style="background:#64748b;" onclick="cerrarModalCarritoFlotante()">Volver a Ventas</button>
     </div>
   </div>
@@ -300,8 +365,8 @@
       <div style="font-size: 1.05rem; font-weight: bold; border-top: 2px dashed #000; border-bottom: 2px dashed #000; padding: 4px 0; margin-top: 6px; text-align: right;" id="tTotal">TOTAL: $ 0,00</div>
 
       <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
-        <button class="ventas-btn-main" style="background:#16a34a; margin-top:0; padding: 10px;" id="btnWaTicket">💬 Compartir por WhatsApp</button>
-        <button class="ventas-btn-main" style="background:#3b82f6; margin-top:0; padding: 10px;" onclick="window.print()">🖨️ Imprimir / Guardar</button>
+        <button class="ventas-btn-main" style="background:#059669; margin-top:0; padding: 10px;" id="btnWaTicket">💬 Compartir por WhatsApp</button>
+        <button class="ventas-btn-main" style="background:#2563eb; margin-top:0; padding: 10px;" onclick="window.print()">🖨️ Imprimir / Guardar</button>
         <button class="ventas-btn-secundario" style="background:#64748b; margin-top:0;" onclick="cerrarTicketVentas()">Cerrar</button>
       </div>
     </div>
